@@ -196,15 +196,9 @@ public class Database extends Application{
     private void addColumn(String name, String type, int max_length, boolean is_main_key, boolean can_null) {
         this.list.add(new Column(column_count++, name, type, max_length, is_main_key, can_null));
     }
+    @Override
     public void start(Stage primaryStage) throws Exception{
 
     }
-//    public String[] select(@NotNull String[] line) {
-//        for(String x : line) {
-//            String[] data = x.split(" ");
-//
-//        }
-//        return
-//    }
 }
 
