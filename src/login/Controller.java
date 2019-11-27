@@ -1,9 +1,12 @@
+package login;
+
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
-
+import java.util.*;
 public class Controller {
+    Scanner scan=new Scanner(System.in);
     @FXML
     public TextField account;
     @FXML
@@ -24,6 +27,9 @@ public class Controller {
     @FXML
     public void onButtonClick(ActionEvent event){
 
+    }
+    public void Input(){
+        String accountStr=scan.nextLine();
     }
 
 }
