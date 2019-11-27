@@ -4,10 +4,14 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
-
+import javafx.application.Application;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
+import javafx.stage.Stage;
 import java.util.*;
 
-public class Mysql {
+public class Mysql extends Application {
     private static Mysql sql = null;
     private int index_count = 0;
     private int column_count = 0;
@@ -192,6 +196,9 @@ public class Mysql {
     }
     private void addColumn(String name, String type, int max_length, boolean is_main_key, boolean can_null) {
         this.list.add(new Column(column_count++, name, type, max_length, is_main_key, can_null));
+    }
+    public void start(Stage primaryStage) throws Exception{
+
     }
 //    public String[] select(@NotNull String[] line) {
 //        for(String x : line) {
