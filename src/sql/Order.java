@@ -7,19 +7,19 @@ public class Order {
     Column column;
     Data value;
     @Contract(pure = true)
-    public Order(@NotNull Mysql sql, String column, Data value) throws Exception {
+    public Order(@NotNull Database sql, String column, Data value) throws Exception {
         this.column = sql.getColumn(column);
         this.value = value;
     }
 
-    public Order(@NotNull Mysql sql, String column, int value) throws Exception {
+    public Order(@NotNull Database sql, String column, int value) throws Exception {
         this.column = sql.getColumn(column);
         this.value = new Data();
         this.value.type = "Integer";
         this.value.setNumber(this.column, value);
     }
 
-    public Order(@NotNull Mysql sql, String column, String value) throws Exception {
+    public Order(@NotNull Database sql, String column, String value) throws Exception {
         this.column = sql.getColumn(column);
         this.value = new Data();
         this.value.type = "String";

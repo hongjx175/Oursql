@@ -7,20 +7,19 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
 
-public class Mysql {
-    private static Mysql sql = null;
+public class Database {
+    private static Database sql = null;
     private int index_count = 0;
     private int column_count = 0;
     private ArrayList<Column> list = new ArrayList<>();
     private ArrayList<Table> table;
     @Contract(pure = true)
-    private Mysql() {
+    private Database() {
         this.table = new ArrayList<>();
     }
-
-    Mysql create(String[] arr) throws Exception {
+    Database create(String[] arr) throws Exception {
         if(sql != null) throw new Exception("Instance exists.");
-        sql = new Mysql();
+        sql = new Database();
         for(String x : arr) {
             addColumn(x);
         }
