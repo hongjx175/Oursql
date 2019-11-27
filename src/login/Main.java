@@ -1,3 +1,5 @@
+package login;
+
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.JavaFXBuilderFactory;
@@ -12,7 +14,7 @@ public class Main extends Application {
 
         @Override
         public void start(Stage primaryStage) throws Exception {
-            URL location = getClass().getResource("oursql.fxml");
+            URL location = getClass().getResource("login/oursql.fxml");
             FXMLLoader fxmlLoader = new FXMLLoader();
             fxmlLoader.setLocation(location);
             fxmlLoader.setBuilderFactory(new JavaFXBuilderFactory());
