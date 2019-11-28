@@ -14,16 +14,9 @@ public class Main extends Application {
 
         @Override
         public void start(Stage primaryStage) throws Exception {
-            URL location = getClass().getResource("login/oursql.fxml");
-            FXMLLoader fxmlLoader = new FXMLLoader();
-            fxmlLoader.setLocation(location);
-            fxmlLoader.setBuilderFactory(new JavaFXBuilderFactory());
-            Parent root = fxmlLoader.load();
-
+            Parent root = FXMLLoader.load(getClass().getResource("oursql.fxml"));
             primaryStage.setTitle("Hello World");
             primaryStage.setScene(new Scene(root, 300, 275));
-            Controller controller=fxmlLoader.getController();
-            controller.Init();
             primaryStage.show();
         }
 

@@ -7,7 +7,7 @@
 <?import javafx.scene.effect.SepiaTone?>
 <?import javafx.scene.layout.AnchorPane?>
 
-<fx:root prefHeight="1000.0" prefWidth="1000.0" type="AnchorPane" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Controller">
+<AnchorPane onMouseClicked="#onButtonClick" prefHeight="1000.0" prefWidth="1000.0" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="login.Controller">
    <children>
       <SplitPane>
          <effect>
@@ -18,16 +18,16 @@
         <content>
           <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
                <children>
-                  <TextField layoutX="158.0" layoutY="96.0" />
-                  <TextField layoutX="158.0" layoutY="141.0" />
+                  <TextField fx:id="account" layoutX="158.0" layoutY="96.0" onKeyTyped="#Input" />
+                  <TextField fx:id="password" layoutX="158.0" layoutY="141.0" />
                   <Button layoutX="78.0" layoutY="96.0" mnemonicParsing="false" text="账号" />
                   <Button layoutX="78.0" layoutY="141.0" mnemonicParsing="false" text="密码" />
                   <Button layoutX="78.0" layoutY="195.0" mnemonicParsing="false" prefHeight="30.0" prefWidth="103.0" text="忘记密码" />
-                  <Button layoutX="284.0" layoutY="195.0" mnemonicParsing="false" prefHeight="30.0" prefWidth="60.0" text="登录" />
+                  <Button layoutX="284.0" layoutY="195.0" mnemonicParsing="false" onMouseClicked="#onButtonClick" prefHeight="30.0" prefWidth="60.0" text="登录" />
                   <Button layoutX="227.0" layoutY="195.0" mnemonicParsing="false" prefHeight="30.0" prefWidth="56.0" text="注册" />
                </children>
             </AnchorPane>
         </content>
       </TitledPane>
    </children>
-</fx:root>
+</AnchorPane>
