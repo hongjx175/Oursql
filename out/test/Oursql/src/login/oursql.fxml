@@ -14,8 +14,8 @@
             <SepiaTone level="0.51" />
          </effect>
       </SplitPane>
-      <TitledPane animated="false" layoutX="272.0" layoutY="231.0" prefHeight="312.0" prefWidth="456.0" text="请先登录">
-        <content>
+      <TitledPane animated="false" layoutX="93.0" layoutY="87.0" prefHeight="312.0" prefWidth="456.0" text="请先登录">
+         <content>
           <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
                <children>
                   <TextField fx:id="account" layoutX="158.0" layoutY="96.0" onKeyTyped="#Input" />
@@ -27,7 +27,7 @@
                   <Button layoutX="227.0" layoutY="195.0" mnemonicParsing="false" prefHeight="30.0" prefWidth="56.0" text="注册" />
                </children>
             </AnchorPane>
-        </content>
+         </content>
       </TitledPane>
    </children>
 </AnchorPane>

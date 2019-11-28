@@ -29,7 +29,7 @@ public class Controller {
 
     }
     public void Input(){
-        String accountStr=scan.nextLine();
+
     }
 
 }
