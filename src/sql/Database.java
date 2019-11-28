@@ -4,19 +4,14 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
-import javafx.application.Application;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Parent;
-import javafx.scene.Scene;
-import javafx.stage.Stage;
 import java.util.*;
 
-public class Database extends Application{
+public class Database{
     private static Database sql = null;
     private int index_count = 0;
     private int column_count = 0;
     private ArrayList<Column> list = new ArrayList<>();
-    private ArrayList<Table> table;
+    private ArrayList<Line> table;
     @Contract(pure = true)
     private Database() {
         this.table = new ArrayList<>();
@@ -53,13 +48,13 @@ public class Database extends Application{
         if(str.length != this.list.size()) {
             throw new Exception("Length is not correct. Expect " + this.list.size() + " , found " + str.length + ".");
         }
-        Table new_data = new Table();
+        Line new_data = new Line();
         new_data.index = index_count++;
         new_data.data.addAll(Arrays.asList(str));
         this.table.add(new_data);
     }
     private void insert(@NotNull Order[] orders) {
-        Table new_data = new Table();
+        Line new_data = new Line();
         new_data.index = index_count++;
         for(Order x: orders) {
             new_data.data.add(x.column.id, x.value);
@@ -67,14 +62,14 @@ public class Database extends Application{
         table.add(new_data);
     }
     @Contract(pure = true)
-    public ArrayList<Table> selectAll() {
+    public ArrayList<Line> selectAll() {
         return this.table;
     }
-    public ArrayList<String> exportWithCSV(@NotNull ArrayList<Table> table,
+    public ArrayList<String> exportWithCSV(@NotNull ArrayList<Line> line,
                                            @NotNull ArrayList<Column> checklist) throws Exception {
         ArrayList<String> result = new ArrayList<>();
         result.add(exitWithCSV(checklist));
-        for(Table x: table) {
+        for(Line x: line) {
             result.add(exitWithCSV(x.data));
         }
         return result;
@@ -108,7 +103,7 @@ public class Database extends Application{
         ArrayList<Integer> result = new ArrayList<>();
         int length = table.size();
         for (int i = 0; i < length; i++) {
-            Table x = table.get(i);
+            Line x = table.get(i);
             boolean is_equal = true;
             for (Order y : where) {
                 int index = y.column.id;
@@ -124,12 +119,12 @@ public class Database extends Application{
         return result;
     }
 
-    public ArrayList<Table> selectInOrder(Column[] columns, Order[] where, Order[] order_by,
-                                           boolean is_distinct) throws Exception {
+    public ArrayList<Line> selectInOrder(Column[] columns, Order[] where, Order[] order_by,
+                                         boolean is_distinct) throws Exception {
         ArrayList<Integer> result = selectWhereToIndex(where);
-        ArrayList<Table> array = new ArrayList<>();
+        ArrayList<Line> array = new ArrayList<>();
         for(int i: result) {
-            Table tmp = table.get(i), add = new Table();
+            Line tmp = table.get(i), add = new Line();
             for(Column j : columns) {
                 add.data.add(tmp.data.get(j.id));
             }
@@ -195,10 +190,6 @@ public class Database extends Application{
     }
     private void addColumn(String name, String type, int max_length, boolean is_main_key, boolean can_null) {
         this.list.add(new Column(column_count++, name, type, max_length, is_main_key, can_null));
-    }
-    @Override
-    public void start(Stage primaryStage) throws Exception{
-
     }
 }
 
