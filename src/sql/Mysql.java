@@ -1,29 +1,37 @@
 package sql;
 
-import java.io.File;
-import java.io.FileNotFoundException;
+import java.io.*;
+import java.util.ArrayList;
 import java.util.HashMap;
 
-public class Mysql implements SQLAble {
-    private static final String username = "root";
-    private static final String password = "123456";
-    private static final String IOFile = "data.db";
+public class Mysql implements SQLAble, Serializable {
+    transient private static final String username = "root";
+    transient private static final String password = "123456";
+    transient private static final String IOFile = "data.db";
     private static HashMap<String, String> passwordList = new HashMap<>();
-    private static Mysql instance = null;
-    private Mysql(){}
-    public static Mysql getInstance() throws IsExistedException {
-        if(instance != null) {
-            throw new IsExistedException("Mysql", "instance");
-        } else return new Mysql();
+    transient private static Mysql instance = null;
+    ArrayList<Database> databases = new ArrayList<>();
+    private Mysql(){
+        passwordList.put(username, password);
     }
-    @Override
-    public boolean load(File file) throws FileNotFoundException {
-        return true;
+
+    public static Mysql getInstance() {
+        if(instance == null) instance = new Mysql();
+        return instance;
     }
 
     @Override
-    public boolean save(File file) throws FileNotFoundException {
-        return true;
+    public void load(File file) throws IOException, ClassNotFoundException {
+        FileInputStream fileInputStream = new FileInputStream(IOFile);
+        ObjectInputStream inputStream = new ObjectInputStream(fileInputStream);
+        instance = (Mysql)inputStream.readObject();
+    }
+
+    @Override
+    public void save(File file) throws IOException {
+        FileOutputStream fileOutputStream = new FileOutputStream(IOFile);
+        ObjectOutputStream objectOutputStream = new ObjectOutputStream(fileOutputStream);
+        objectOutputStream.writeObject(instance);
     }
 
     @Override
