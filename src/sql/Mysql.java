@@ -6,7 +6,7 @@ import java.util.HashMap;
 
 public class Mysql implements SQLAble, Serializable {
     transient private static final String defaultUsername = "root";
-    transient private static final String defaultPassword = "123456";
+    transient private static String defaultPassword = "123456";
     transient private static final String IOFile = "data.db";
     private static HashMap<String, String> passwordList = new HashMap<>();
     transient private static Mysql instance = null;
@@ -24,8 +24,9 @@ public class Mysql implements SQLAble, Serializable {
     @Override
     public void load(File file) throws IOException, ClassNotFoundException {
         FileInputStream fileInputStream = new FileInputStream(IOFile);
-        ObjectInputStream inputStream = new ObjectInputStream(fileInputStream);
-        instance = (Mysql)inputStream.readObject();
+        ObjectInputStream objectInputStream = new ObjectInputStream(fileInputStream);
+        instance = (Mysql)objectInputStream.readObject();
+        objectInputStream.close();
     }
 
     @Override
@@ -33,6 +34,7 @@ public class Mysql implements SQLAble, Serializable {
         FileOutputStream fileOutputStream = new FileOutputStream(IOFile);
         ObjectOutputStream objectOutputStream = new ObjectOutputStream(fileOutputStream);
         objectOutputStream.writeObject(instance);
+        objectOutputStream.close();
     }
 
     @Override
@@ -43,6 +45,7 @@ public class Mysql implements SQLAble, Serializable {
             userUsing = name;
             return true;
         } else return false;
+
     }
 
     @Override
