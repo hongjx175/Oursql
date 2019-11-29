@@ -27,8 +27,7 @@ public class Mysql implements SQLAble {
     }
 
     @Override
-    public boolean passwordCheck(String password) {
-
+    public boolean login(String name, String password) {
         return false;
     }
 
