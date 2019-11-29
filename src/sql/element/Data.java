@@ -1,4 +1,4 @@
-package sql;
+package sql.element;
 
 import org.jetbrains.annotations.NotNull;
 

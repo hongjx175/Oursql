@@ -1,4 +1,4 @@
-package sql;
+package sql.element;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
