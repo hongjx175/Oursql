@@ -1,4 +1,4 @@
-package sql;
+package sql.exceptions;
 
 public class CannotDeleteException extends Exception {
     CannotDeleteException(String type, String reason) {

@@ -1,7 +1,10 @@
-package sql;
+package sql.ables;
+
+import sql.exceptions.CannotDeleteException;
+import sql.exceptions.IsExistedException;
+import sql.exceptions.NotFoundException;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 
 public interface SQLAble {

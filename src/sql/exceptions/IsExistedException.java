@@ -1,4 +1,4 @@
-package sql;
+package sql.exceptions;
 
 public class IsExistedException extends Exception {
     IsExistedException(String type, String name) {

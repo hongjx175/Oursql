@@ -1,4 +1,4 @@
-package sql;
+package sql.exceptions;
 
 public class NotFoundException extends Exception{
     NotFoundException(String type, String name) {
