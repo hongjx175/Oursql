@@ -9,7 +9,7 @@ import sql.exceptions.NotFoundException;
 import java.util.ArrayList;
 
 public interface TableAble {
-    ArrayList<Line> select(Order[] orders, Order[] orderBy);
+    ArrayList<Line> selectPrivate(Order[] where, Order[] orderBy);
     boolean addColumn(Column column) throws IsExistedException;
     boolean deleteColumn(String name) throws NotFoundException;
     boolean insert(Order[] orders);

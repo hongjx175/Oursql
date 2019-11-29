@@ -4,9 +4,14 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
+import sql.ables.TableAble;
+import sql.exceptions.IsExistedException;
+import sql.exceptions.NotFoundException;
+
 import java.util.*;
 
-public class Table {
+public class Table implements TableAble {
+    public String name;
     private int index_count = 0;
     private int column_count = 0;
     private ArrayList<Column> list = new ArrayList<>();
@@ -44,13 +49,30 @@ public class Table {
         new_data.data.addAll(Arrays.asList(str));
         this.table.add(new_data);
     }
-    private void insert(@NotNull Order[] orders) {
+
+    @Override
+    public ArrayList<Line> selectPrivate(Order[] where, Order[] orderBy) {
+        return null;
+    }
+
+    @Override
+    public boolean addColumn(Column column) throws IsExistedException {
+        return false;
+    }
+
+    @Override
+    public boolean deleteColumn(String name) throws NotFoundException {
+        return false;
+    }
+
+    public boolean insert(@NotNull Order[] orders) {
         Line new_data = new Line();
         new_data.index = index_count++;
         for(Order x: orders) {
             new_data.data.add(x.column.id, x.value);
         }
         table.add(new_data);
+        return true;
     }
     @Contract(pure = true)
     public ArrayList<Line> selectAll() {
@@ -143,14 +165,26 @@ public class Table {
         }
         return array;
     }
-    private void update(@NotNull Order[] set, @NotNull Order[] where) throws Exception {
+    public boolean update(@NotNull Order[] set, @NotNull Order[] where) {
         ArrayList<Integer> result= selectWhereToIndex(where);
         for (int x: result) {
             for (Order y : set) {
                 this.table.get(x).data.get(y.column.id).setString(y.value.getStringValue());
             }
         }
+        return true;
     }
+
+    @Override
+    public boolean deleteLine(Order[] search) throws NotFoundException {
+        return false;
+    }
+
+    @Override
+    public boolean setIndex(int type, String[] columnInOrder) throws NotFoundException, IsExistedException {
+        return false;
+    }
+
     public void delete(@NotNull Order[] where) throws Exception {
         ArrayList<Integer> result = selectWhereToIndex(where);
         if(result.isEmpty()) throw new Exception("Data not found.");
