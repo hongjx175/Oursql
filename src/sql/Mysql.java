@@ -5,14 +5,15 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 public class Mysql implements SQLAble, Serializable {
-    transient private static final String username = "root";
-    transient private static final String password = "123456";
+    transient private static final String defaultUsername = "root";
+    transient private static final String defaultPassword = "123456";
     transient private static final String IOFile = "data.db";
     private static HashMap<String, String> passwordList = new HashMap<>();
     transient private static Mysql instance = null;
+    transient public static String userUsing = null;
     ArrayList<Database> databases = new ArrayList<>();
     private Mysql(){
-        passwordList.put(username, password);
+        passwordList.put(defaultUsername, defaultPassword);
     }
 
     public static Mysql getInstance() {
@@ -35,8 +36,13 @@ public class Mysql implements SQLAble, Serializable {
     }
 
     @Override
-    public boolean login(String name, String password) {
-        return false;
+    public boolean login(String name, String password) throws NotFoundException{
+        String passwords = passwordList.get(name);
+        if(passwords == null) throw new NotFoundException("username", name);
+        else if(password.equals(passwords)) {
+            userUsing = name;
+            return true;
+        } else return false;
     }
 
     @Override

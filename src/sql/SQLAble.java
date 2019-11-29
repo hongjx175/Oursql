@@ -13,7 +13,7 @@ public interface SQLAble {
     }
     void load(File file) throws IOException, ClassNotFoundException;
     void save(File file) throws IOException;
-    boolean login(String name, String password);
+    boolean login(String name, String password) throws NotFoundException;
     boolean changePassword(String oldOne, String newOne);
     boolean addUser(String name, String password) throws IsExistedException;
     boolean deleteUser(String name) throws NotFoundException, CannotDeleteException;
