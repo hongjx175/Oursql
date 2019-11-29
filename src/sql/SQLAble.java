@@ -14,4 +14,6 @@ public interface SQLAble {
     boolean save(File file) throws FileNotFoundException;
     boolean passwordCheck(String password);
     boolean changePassword(String oldOne, String newOne);
+    boolean addUser(String name, String password) throws IsExistedException;
+    boolean deleteUser(String name) throws NotFoundException, CannotDeleteException;
 }
