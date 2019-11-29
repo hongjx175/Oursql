@@ -6,23 +6,14 @@ import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import java.util.*;
 
-public class Database{
-    private static Database sql = null;
+public class Table {
     private int index_count = 0;
     private int column_count = 0;
     private ArrayList<Column> list = new ArrayList<>();
     private ArrayList<Line> table;
     @Contract(pure = true)
-    private Database() {
+    public Table() {
         this.table = new ArrayList<>();
-    }
-    Database create(String[] arr) throws Exception {
-        if(sql != null) throw new Exception("Instance exists.");
-        sql = new Database();
-        for(String x : arr) {
-            addColumn(x);
-        }
-        return sql;
     }
 
     /**

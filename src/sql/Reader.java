@@ -3,7 +3,7 @@ package sql;
 public class Reader {
     public static void main(String[] args) throws Exception {
 //        BufferedReader in = new BufferedReader(new FileReader("C:\\Users\\icy\\IdeaProjects\\main\\in\\data.csv"));
-//        Database sql = Database.getInstance();
+//        Table sql = Table.getInstance();
 //        String str = in.readLine();
 ////        System.out.println(str);
 //        String[] data = str.split(",");
