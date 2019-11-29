@@ -3,6 +3,7 @@ package sql;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.HashMap;
+import javafx.application.Application;
 
 public class Mysql implements SQLAble, Serializable {
     transient private static final String defaultUsername = "root";

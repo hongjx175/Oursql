@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Tab?>
+<?import javafx.scene.control.TabPane?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.text.Font?>
+
+<AnchorPane prefHeight="990.0" prefWidth="1414.0" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="sqlUsing.sqlUsingController">
+   <children>
+      <TabPane layoutX="97.0" layoutY="27.0" prefHeight="797.0" prefWidth="1244.0" tabClosingPolicy="UNAVAILABLE">
+        <tabs>
+          <Tab text="Create">
+            <content>
+              <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="750.0" prefWidth="1240.0">
+                     <children>
+                        <Label layoutX="47.0" layoutY="67.0" prefHeight="25.0" prefWidth="59.0" text="表    名">
+                           <font>
+                              <Font name="Microsoft Himalaya" size="19.0" />
+                           </font>
+                        </Label>
+                        <Label layoutX="48.0" layoutY="127.0" text="列信息">
+                           <font>
+                              <Font size="19.0" />
+                           </font>
+                        </Label>
+                     </children></AnchorPane>
+            </content>
+          </Tab>
+          <Tab text="View">
+            <content>
+              <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0" />
+            </content>
+          </Tab>
+            <Tab text="Search">
+                <content>
+                    <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="748.0" prefWidth="1244.0" />
+                </content>
+            </Tab>
+        </tabs>
+      </TabPane>
+   </children>
+</AnchorPane>
