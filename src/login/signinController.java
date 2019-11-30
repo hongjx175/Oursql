@@ -4,7 +4,7 @@ import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
 import javafx.scene.input.MouseEvent;
-import sql.Mysql;
+import sql.element.Mysql;
 
 public class signinController {
     private Mainapp mainapp;
@@ -21,7 +21,7 @@ public class signinController {
     private String accountStr;
     private String passwordStr;
     public void setMainapp(Mainapp mainapp){
-
+        this.mainapp=mainapp;
     }
 
     public void Init() {

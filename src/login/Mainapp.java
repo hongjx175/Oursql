@@ -4,6 +4,7 @@ import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
 
 import java.io.IOException;
@@ -22,10 +23,18 @@ public class Mainapp extends Application {
         }
 
         public void showForgetView() throws Exception {
-            Parent root = FXMLLoader.load(getClass().getResource("forget.fxml"));
             stage.setTitle("Forget");
-            stage.setScene(new Scene(root,1240,750));
-            stage.show();
+            stage.getIcons().clear();
+            //stage.getIcons().add(new Image("file:images/regist.png"));
+            FXMLLoader loader = new FXMLLoader();
+            loader.setLocation(Mainapp.class.getResource("login/forget.fxml"));
+            BorderPane bp = (BorderPane)loader.load();
+            scene = new Scene(bp);
+            stage.setScene(scene);
+            stage.setResizable(false);
+            forgetController forController = (forgetController) loader.getController();
+            System.out.println(forController);
+            forController.setMainapp(this);
         }
         public void showSqlView(){
 

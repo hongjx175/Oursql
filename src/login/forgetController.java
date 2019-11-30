@@ -11,9 +11,15 @@ public class forgetController {
     private ImageView icy_blue;
     @FXML
     private ImageView hjx;
-    @FXML
-    private void initialize() {
+    private Mainapp mainapp;
+
+    public void setMainapp(Mainapp mainapp) {
+        this.mainapp=mainapp;
+    }
+
+   // @FXML
+    /*private void initialize() {
         icy_blue.setImage(new Image("file:C:\\Users\\86185\\Desktop\\icy_blue.jpg"));
         hjx.setImage(new Image("file:C:\\Users\\86185\\Desktop\\hjx.jpg"));
-    }
+    }*/
 }

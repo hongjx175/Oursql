@@ -24,7 +24,7 @@ public class Database implements DatabaseAble, Serializable {
 
     @Override
     public boolean changeTableName(String oldOne, String newOne) throws NotFoundException, IsExistedException {
-
+        return false;
     }
 
     @Override

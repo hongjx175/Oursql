@@ -55,7 +55,6 @@ public class Mysql implements OuterAble, Serializable {
             userUsing = name;
             return true;
         } else return false;
-
     }
 
     @Override
