@@ -1,19 +1,16 @@
 package login;
 
 import javafx.fxml.FXML;
-import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 
-import javax.swing.*;
-
-public class forgetController {
+public class ForgetController {
     @FXML
     private ImageView icy_blue;
     @FXML
     private ImageView hjx;
-    private Mainapp mainapp;
+    private MainApp mainapp;
 
-    public void setMainapp(Mainapp mainapp) {
+    public void setMainapp(MainApp mainapp) {
         this.mainapp=mainapp;
     }
 

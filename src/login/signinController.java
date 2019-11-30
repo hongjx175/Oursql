@@ -6,8 +6,8 @@ import javafx.scene.control.TextField;
 import javafx.scene.input.MouseEvent;
 import sql.element.Mysql;
 
-public class signinController {
-    private Mainapp mainapp;
+public class SigninController {
+    private MainApp mainapp;
     private Mysql mysql;
     @FXML
     private TextField account;
@@ -20,7 +20,7 @@ public class signinController {
 
     private String accountStr;
     private String passwordStr;
-    public void setMainapp(Mainapp mainapp){
+    public void setMainapp(MainApp mainapp){
         this.mainapp=mainapp;
     }
 
