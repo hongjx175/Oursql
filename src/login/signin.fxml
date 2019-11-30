@@ -10,7 +10,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane focusTraversable="true" onMouseClicked="#clickSignin" prefHeight="410.0" prefWidth="590.0" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="login.SigninController">
+<AnchorPane focusTraversable="true" onMouseClicked="#clickSignIn" prefHeight="410.0" prefWidth="590.0" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="login.SignInController">
    <children>
       <BorderPane layoutX="14.0" layoutY="14.0" prefHeight="432.0" prefWidth="533.0">
          <top>
@@ -48,7 +48,7 @@
                   <Pane prefHeight="124.0" prefWidth="533.0">
                      <children>
                         <Button layoutX="57.0" layoutY="41.0" mnemonicParsing="false" onMouseClicked="#clickForget" text="forget " />
-                        <Button layoutX="395.0" layoutY="41.0" mnemonicParsing="false" onMouseClicked="#clickSignin" text="sign in" />
+                        <Button layoutX="395.0" layoutY="41.0" mnemonicParsing="false" onMouseClicked="#clickSignIn" text="sign in" />
                      </children>
                   </Pane>
                </children>

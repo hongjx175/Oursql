@@ -22,9 +22,9 @@ public class MainApp extends Application {
             stage.setTitle("Sign");
             stage.getIcons().clear();
             //创建登录控制器对象
-            SigninController signinController = (SigninController)replaceSceneContent("signin.fxml");
+            SignInController signinController = (SignInController)replaceSceneContent("signin.fxml");
             //将主控制器的引用传给登录控制器对象
-            signinController.setMainapp(this);
+            signinController.setMainApp(this);
         }
 
         public void showForgetView() throws Exception {

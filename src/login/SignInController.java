@@ -6,7 +6,7 @@ import javafx.scene.control.TextField;
 import javafx.scene.input.MouseEvent;
 import sql.element.Mysql;
 
-public class SigninController {
+public class SignInController {
     private MainApp mainapp;
     private Mysql mysql;
     @FXML
@@ -20,14 +20,14 @@ public class SigninController {
 
     private String accountStr;
     private String passwordStr;
-    public void setMainapp(MainApp mainapp){
+    public void setMainApp(MainApp mainapp){
         this.mainapp=mainapp;
     }
 
     public void Init() {
     }
     @FXML
-    public void clickSignin(MouseEvent event) throws Exception {
+    public void clickSignIn(MouseEvent event) throws Exception {
         if(!mysql.login(accountStr,passwordStr)){
             mainapp.showForgetView();
         }
