@@ -17,9 +17,9 @@ public class Database implements DatabaseAble, Serializable {
         return null;
     }
     @Override
-    public ArrayList<Line> select(String table, Order[] where, Order[] orderBy) {
+    public ArrayList<Line> select(String table, Column[] columns, Order[] where, Order[] orderBy) throws Exception {
         Table x = this.getTable(table);
-        return x == null ? null : x.selectPrivate(where, orderBy);
+        return x == null ? null : x.selectPrivate(columns, where, orderBy);
     }
 
     public void changeTableName(String oldOne, String newOne) throws NotFoundException, IsExistedException {
