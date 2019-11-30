@@ -14,18 +14,11 @@ public class Table implements TableAble {
     private int column_count = 0;
     private ArrayList<Column> columnList = new ArrayList<>();
     private ArrayList<Line> data;
+    private ArrayList<Index> indexes = new ArrayList<>();
     @Contract(pure = true)
     Table(String name) {
         this.name = name;
         this.data = new ArrayList<>();
-    }
-
-    /**
-     * get the column list
-     * @return ArrayList<Column>
-     */
-    public ArrayList<Column> getColumnList() {
-        return columnList;
     }
 
     Column getColumn(String name) {
@@ -33,10 +26,6 @@ public class Table implements TableAble {
             if(x.name.equals(name)) return x;
         }
         return null;
-    }
-
-    public void insertList(Column[] str){
-        this.columnList.addAll(Arrays.asList(str));
     }
 
     private void insert(@NotNull Data[] str) throws Exception {
@@ -142,7 +131,7 @@ public class Table implements TableAble {
 
     @Override
     public void setIndex(int type, String[] columnInOrder) throws NotFoundException, IsExistedException {
-        
+
     }
 
     public void delete(@NotNull Order[] where) throws Exception {
