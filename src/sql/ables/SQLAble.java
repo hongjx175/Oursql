@@ -1,6 +1,6 @@
 package sql.ables;
 
-import sql.element.Table;
+import sql.elements.Table;
 import sql.exceptions.CannotDeleteException;
 import sql.exceptions.IsExistedException;
 import sql.exceptions.NotFoundException;

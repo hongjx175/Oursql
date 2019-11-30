@@ -1,4 +1,4 @@
-package sql.element;
+package sql.elements;
 
 import sql.ables.OuterAble;
 import sql.exceptions.CannotDeleteException;
@@ -8,7 +8,6 @@ import sql.exceptions.NotFoundException;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.HashMap;
-import javafx.application.Application;
 
 public class Mysql implements OuterAble, Serializable {
     transient private static final String defaultUsername = "root";

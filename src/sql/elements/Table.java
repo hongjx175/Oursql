@@ -1,10 +1,11 @@
-package sql.element;
+package sql.elements;
 
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import sql.ables.TableAble;
 import sql.exceptions.IsExistedException;
 import sql.exceptions.NotFoundException;
+import sql.functions.Hash;
 
 import java.util.*;
 
@@ -14,7 +15,7 @@ public class Table implements TableAble {
     private int column_count = 0;
     private ArrayList<Column> columnList = new ArrayList<>();
     private ArrayList<Line> data;
-    private ArrayList<Index> indexes = new ArrayList<>();
+    private ArrayList<Index> indexList = new ArrayList<>();
     @Contract(pure = true)
     Table(String name) {
         this.name = name;
@@ -23,6 +24,13 @@ public class Table implements TableAble {
 
     Column getColumn(String name) {
         for(Column x: columnList) {
+            if(x.name.equals(name)) return x;
+        }
+        return null;
+    }
+
+    Index getIndex(String name) {
+        for(Index x: indexList) {
             if(x.name.equals(name)) return x;
         }
         return null;
@@ -130,8 +138,29 @@ public class Table implements TableAble {
     }
 
     @Override
-    public void setIndex(int type, String[] columnInOrder) throws NotFoundException, IsExistedException {
-
+    public void setIndex(int type, String name, String[] columnInOrder) throws NotFoundException, IsExistedException {
+        ArrayList<Integer> num = new ArrayList<>();
+        Index x = getIndex(name);
+        if(x != null) throw new IsExistedException("index", name);
+        x = new Index();
+        for(String str: columnInOrder) {
+            Column column = getColumn(str);
+            if(column == null) throw new NotFoundException("column", name);
+            x.columns.add(column);
+            num.add(column.id);
+        }
+        for(Line line: data) {
+            StringBuilder stringBuilder = new StringBuilder();
+            for(int id: num) {
+                stringBuilder.append(line.data.get(id));
+            }
+            int hash1 = Hash.getHash1(stringBuilder.toString());
+            int hash2 = Hash.getHash2(stringBuilder.toString());
+            x.map1.computeIfAbsent(hash1, k -> new ArrayList<>());
+            x.map2.computeIfAbsent(hash2, k -> new ArrayList<>());
+            x.map1.get(hash1).add(line);
+            x.map2.get(hash2).add(line);
+        }
     }
 
     public void delete(@NotNull Order[] where) throws Exception {

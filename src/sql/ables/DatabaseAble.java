@@ -1,8 +1,8 @@
 package sql.ables;
 
-import sql.element.Column;
-import sql.element.Line;
-import sql.element.Order;
+import sql.elements.Column;
+import sql.elements.Line;
+import sql.elements.Order;
 import sql.exceptions.IsExistedException;
 import sql.exceptions.NotFoundException;
 

@@ -1,4 +1,4 @@
-package sql.element;
+package sql.elements;
 
 import sql.ables.DatabaseAble;
 import sql.exceptions.IsExistedException;
