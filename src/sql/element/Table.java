@@ -1,7 +1,5 @@
 package sql.element;
 
-import com.alibaba.fastjson.JSONArray;
-import com.alibaba.fastjson.JSONObject;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import sql.ables.TableAble;
@@ -14,109 +12,60 @@ public class Table implements TableAble {
     public String name;
     private int index_count = 0;
     private int column_count = 0;
-    private ArrayList<Column> list = new ArrayList<>();
-    private ArrayList<Line> table;
+    private ArrayList<Column> columnList = new ArrayList<>();
+    private ArrayList<Line> data;
+    private ArrayList<Index> indexes = new ArrayList<>();
     @Contract(pure = true)
-    public Table() {
-        this.table = new ArrayList<>();
+    Table(String name) {
+        this.name = name;
+        this.data = new ArrayList<>();
     }
 
-    /**
-     * get the column list
-     * @return ArrayList<Column>
-     */
-    public ArrayList<Column> getColumnList() {
-        return list;
-    }
-
-    Column getColumn(String column) throws Exception {
-        for(Column x: list) {
-            if(x.name.equals(column)) return x;
+    Column getColumn(String name) {
+        for(Column x: columnList) {
+            if(x.name.equals(name)) return x;
         }
-        throw new Exception("Column not found.");
-    }
-
-    public void insertList(Column[] str){
-        this.list.addAll(Arrays.asList(str));
+        return null;
     }
 
     private void insert(@NotNull Data[] str) throws Exception {
-        if(str.length != this.list.size()) {
-            throw new Exception("Length is not correct. Expect " + this.list.size() + " , found " + str.length + ".");
+        if(str.length != this.columnList.size()) {
+            throw new Exception("Length is not correct. Expect " + this.columnList.size() + " , found " + str.length + ".");
         }
         Line new_data = new Line();
         new_data.index = index_count++;
         new_data.data.addAll(Arrays.asList(str));
-        this.table.add(new_data);
+        this.data.add(new_data);
     }
 
     @Override
-    public ArrayList<Line> selectPrivate(Order[] where, Order[] orderBy) {
-        return null;
+    public void addColumn(Column column) throws IsExistedException {
+        Column x = this.getColumn(column.name);
+        if(x != null) throw new IsExistedException("column", column.name);
+        this.columnList.add(column);
     }
 
     @Override
-    public boolean addColumn(Column column) throws IsExistedException {
-        return false;
+    public void deleteColumn(String name) throws NotFoundException {
+        Column x = this.getColumn(name);
+        if(x == null) throw new NotFoundException("column", name);
+        this.columnList.remove(x);
     }
 
-    @Override
-    public boolean deleteColumn(String name) throws NotFoundException {
-        return false;
-    }
-
-    public boolean insert(@NotNull Order[] orders) {
+    public void insert(@NotNull Order[] orders) {
         Line new_data = new Line();
         new_data.index = index_count++;
         for(Order x: orders) {
             new_data.data.add(x.column.id, x.value);
         }
-        table.add(new_data);
-        return true;
-    }
-    @Contract(pure = true)
-    public ArrayList<Line> selectAll() {
-        return this.table;
-    }
-    public ArrayList<String> exportWithCSV(@NotNull ArrayList<Line> line,
-                                           @NotNull ArrayList<Column> checklist) throws Exception {
-        ArrayList<String> result = new ArrayList<>();
-        result.add(exitWithCSV(checklist));
-        for(Line x: line) {
-            result.add(exitWithCSV(x.data));
-        }
-        return result;
-    }
-    @NotNull
-    private String exitWithCSV(@NotNull ArrayList array) throws Exception {
-        StringBuilder out = new StringBuilder();
-        int length = array.size();
-        for(int i = 0; i < length; i++){
-            String str;
-            if(array.get(i) instanceof Column) {
-                Column x = (Column) array.get(i);
-                str = x.name;
-            } else if(array.get(i) instanceof Data){
-                Data x = (Data) array.get(i);
-                if(x.type.equals("Integer")) str = Integer.toString(x.getIntValue());
-                else if(x.type.equals("String")) str = x.getStringValue();
-                else throw new Exception("Type of data is invalid.");
-            } else throw new Exception("Type of array is invalid.");
-            Objects.requireNonNull(out).append(str);
-            if(i != length - 1) out.append(",");
-        }
-        return out.toString();
-    }
-    public String exitWithJSON(@NotNull ArrayList a) {
-        JSONArray jsonArray = JSONArray.parseArray(JSONObject.toJSONString(a));
-        return jsonArray.toString();
+        data.add(new_data);
     }
     @NotNull
     private ArrayList<Integer> selectWhereToIndex(@NotNull Order[] where) {
         ArrayList<Integer> result = new ArrayList<>();
-        int length = table.size();
+        int length = data.size();
         for (int i = 0; i < length; i++) {
-            Line x = table.get(i);
+            Line x = data.get(i);
             boolean is_equal = true;
             for (Order y : where) {
                 int index = y.column.id;
@@ -132,16 +81,15 @@ public class Table implements TableAble {
         return result;
     }
 
-    public ArrayList<Line> selectInOrder(Column[] columns, Order[] where, Order[] order_by,
-                                         boolean is_distinct) throws Exception {
+    ArrayList<Line> selectPrivate(Column[] columns, Order[] where, Order[] order_by) throws Exception {
         ArrayList<Integer> result = selectWhereToIndex(where);
         ArrayList<Line> array = new ArrayList<>();
         for(int i: result) {
-            Line tmp = table.get(i), add = new Line();
+            Line tmp = data.get(i), add = new Line();
             for(Column j : columns) {
                 add.data.add(tmp.data.get(j.id));
             }
-            if(order_by.length != 0 || is_distinct) {
+            if(order_by.length != 0) {
                 for (Order j : order_by) {
                     String s = tmp.data.get(j.column.id).getStringValue();
                     int len = s.length();
@@ -154,10 +102,9 @@ public class Table implements TableAble {
             }
             array.add(add);
         }
-        if(order_by.length != 0 || is_distinct) {
+        if(order_by.length != 0) {
             Collections.sort(array);
             for(int j = 1; j < array.size(); j++) {
-                if(!is_distinct) break;
                 if(array.get(j - 1).equals(array.get(j))) {
                     array.remove(j - 1);
                 }
@@ -165,31 +112,33 @@ public class Table implements TableAble {
         }
         return array;
     }
-    public boolean update(@NotNull Order[] set, @NotNull Order[] where) {
+    public void update(@NotNull Order[] set, @NotNull Order[] where) {
         ArrayList<Integer> result= selectWhereToIndex(where);
         for (int x: result) {
             for (Order y : set) {
-                this.table.get(x).data.get(y.column.id).setString(y.value.getStringValue());
+                this.data.get(x).data.get(y.column.id).setString(y.value.getStringValue());
             }
         }
-        return true;
     }
 
     @Override
-    public boolean deleteLine(Order[] search) throws NotFoundException {
-        return false;
+    public void deleteLine(Order[] search) throws NotFoundException {
+        ArrayList<Integer> result = selectWhereToIndex(search);
+        for(int x: result) {
+            this.data.remove(x);
+        }
     }
 
     @Override
-    public boolean setIndex(int type, String[] columnInOrder) throws NotFoundException, IsExistedException {
-        return false;
+    public void setIndex(int type, String[] columnInOrder) throws NotFoundException, IsExistedException {
+
     }
 
     public void delete(@NotNull Order[] where) throws Exception {
         ArrayList<Integer> result = selectWhereToIndex(where);
         if(result.isEmpty()) throw new Exception("Data not found.");
         for(int x:result) {
-            table.remove(x);
+            data.remove(x);
         }
     }
     public void addColumn(@NotNull String line) throws Exception {
@@ -214,7 +163,7 @@ public class Table implements TableAble {
         addColumn(arr[0], arr[1], max_length, is_main_key, can_null);
     }
     private void addColumn(String name, String type, int max_length, boolean is_main_key, boolean can_null) {
-        this.list.add(new Column(column_count++, name, type, max_length, is_main_key, can_null));
+        this.columnList.add(new Column(column_count++, name, type, max_length, is_main_key, can_null));
     }
 }
 
