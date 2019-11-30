@@ -17,7 +17,8 @@ public class Table implements TableAble {
     private ArrayList<Column> list = new ArrayList<>();
     private ArrayList<Line> table;
     @Contract(pure = true)
-    public Table() {
+    Table(String name) {
+        this.name = name;
         this.table = new ArrayList<>();
     }
 
@@ -50,8 +51,7 @@ public class Table implements TableAble {
         this.table.add(new_data);
     }
 
-    @Override
-    public ArrayList<Line> selectPrivate(Order[] where, Order[] orderBy) {
+    ArrayList<Line> selectPrivate(Order[] where, Order[] orderBy) {
         return null;
     }
 

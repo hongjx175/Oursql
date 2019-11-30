@@ -23,17 +23,31 @@ public class Database implements DatabaseAble, Serializable {
     }
 
     @Override
-    public boolean changeTableName(String oldOne, String newOne) throws NotFoundException, IsExistedException {
-
+    public void changeTableName(String oldOne, String newOne) throws NotFoundException, IsExistedException {
+        Table x = this.getTable(oldOne);
+        if(x == null) throw new NotFoundException("table", oldOne);
+        Table y = this.getTable(newOne);
+        if(y != null) throw new IsExistedException("table", newOne);
+        x.name = newOne;
     }
 
     @Override
-    public boolean newTable(String name, Order[] columns, Order index) throws IsExistedException {
-        return false;
+    public void newTable(String name, Order[] columns, Order index) throws IsExistedException {
+        Table x = this.getTable(name);
+        if(x != null) throw new IsExistedException("table", name);
+        tables.add(new Table(name));
     }
 
     @Override
-    public boolean deleteTable(String name) throws NotFoundException {
-        return false;
+    public void deleteTable(String name) throws NotFoundException {
+        boolean isFound = false;
+        for(int i = 0; i < this.tables.size(); i++) {
+            if(this.tables.get(i).name.equals(name)) {
+                isFound = true;
+                this.tables.remove(i);
+                break;
+            }
+        }
+        if(!isFound) throw new NotFoundException("table", name);
     }
 }

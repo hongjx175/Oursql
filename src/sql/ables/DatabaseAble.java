@@ -9,7 +9,7 @@ import java.util.ArrayList;
 
 public interface DatabaseAble {
     ArrayList<Line> select(String table, Order[] where, Order[] orderBy);
-    boolean changeTableName(String oldOne, String newOne) throws NotFoundException, IsExistedException;
-    boolean newTable(String name, Order[] columns, Order index) throws IsExistedException;
-    boolean deleteTable(String name) throws NotFoundException;
+    void changeTableName(String oldOne, String newOne) throws NotFoundException, IsExistedException;
+    void newTable(String name, Order[] columns, Order index) throws IsExistedException;
+    void deleteTable(String name) throws NotFoundException;
 }
