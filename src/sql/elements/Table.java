@@ -68,8 +68,46 @@ public class Table implements TableAble {
         }
         data.add(new_data);
     }
+    @SuppressWarnings("unchecked")
+    private static <T> ArrayList<T> getSame(ArrayList<T>... list) {
+        ArrayList<T> result = new ArrayList<>();
+        HashMap<T, Integer> hashMap = new HashMap<>();
+        for(ArrayList<T> x: list) {
+            for(T data: x) {
+                hashMap.compute(data, (k, v) -> v != null ? v++ : 1);
+            }
+        }
+        for(Map.Entry<T, Integer> entry: hashMap.entrySet()) {
+            if(entry.getValue() == list.length) {
+                result.add(entry.getKey());
+            }
+        }
+        return result;
+    }
+    @SuppressWarnings("unchecked")
+    private static <T> T[] getSame(T[]... list) {
+        ArrayList<T> result = new ArrayList<>();
+        HashMap<T, Integer> hashMap = new HashMap<>();
+        for(T[] x: list) {
+            for(T data: x) {
+                hashMap.compute(data, (k, v) -> v != null ? v++ : 1);
+            }
+        }
+        for (Map.Entry<T, Integer> entry : hashMap.entrySet()) {
+            if (entry.getValue() == list.length) {
+                result.add(entry.getKey());
+            }
+        }
+        return (T[]) result.toArray();
+    }
     @NotNull
-    private ArrayList<Integer> selectWhereToIndex(@NotNull Order[] where) {
+    private ArrayList<Integer> selectWhereIntoNumbers(@NotNull Order[] where) {
+//        for(Index index: this.indexList) {
+//            boolean isContain = true;
+//            if(getSame(index.columns.toArray(), Order.castNameList(where)).length == index.columns.size()) {
+//
+//            }
+//        }
         ArrayList<Integer> result = new ArrayList<>();
         int length = data.size();
         for (int i = 0; i < length; i++) {
@@ -90,7 +128,7 @@ public class Table implements TableAble {
     }
 
     ArrayList<Line> selectPrivate(Column[] columns, Order[] where, Order[] order_by) throws Exception {
-        ArrayList<Integer> result = selectWhereToIndex(where);
+        ArrayList<Integer> result = selectWhereIntoNumbers(where);
         ArrayList<Line> array = new ArrayList<>();
         for(int i: result) {
             Line tmp = data.get(i), add = new Line();
@@ -121,7 +159,7 @@ public class Table implements TableAble {
         return array;
     }
     public void update(@NotNull Order[] set, @NotNull Order[] where) {
-        ArrayList<Integer> result= selectWhereToIndex(where);
+        ArrayList<Integer> result= selectWhereIntoNumbers(where);
         for (int x: result) {
             for (Order y : set) {
                 this.data.get(x).data.get(y.column.id).setString(y.value.getStringValue());
@@ -131,7 +169,8 @@ public class Table implements TableAble {
 
     @Override
     public void deleteLine(Order[] search) throws NotFoundException {
-        ArrayList<Integer> result = selectWhereToIndex(search);
+        ArrayList<Integer> result = selectWhereIntoNumbers(search);
+        if(result.size() == 0) throw new NotFoundException("line", "your searching form");
         for(int x: result) {
             this.data.remove(x);
         }
@@ -164,7 +203,7 @@ public class Table implements TableAble {
     }
 
     public void delete(@NotNull Order[] where) throws Exception {
-        ArrayList<Integer> result = selectWhereToIndex(where);
+        ArrayList<Integer> result = selectWhereIntoNumbers(where);
         if(result.isEmpty()) throw new Exception("Data not found.");
         for(int x:result) {
             data.remove(x);

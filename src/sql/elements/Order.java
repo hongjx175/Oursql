@@ -3,6 +3,8 @@ package sql.elements;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.ArrayList;
+
 public class Order {
     Column column;
     Data value;
@@ -24,5 +26,14 @@ public class Order {
         this.value = new Data();
         this.value.type = "String";
         this.value.setString(value);
+    }
+
+    @NotNull
+    public static Column[] castNameList(@NotNull Order[] orders) {
+        ArrayList<Column> array = new ArrayList<>();
+        for(Order x: orders) {
+            array.add(x.column);
+        }
+        return (Column[]) array.toArray();
     }
 }

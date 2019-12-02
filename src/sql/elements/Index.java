@@ -9,4 +9,9 @@ public class Index {
     public String type;
     public HashMap<Integer, ArrayList<Line>> map1 = new HashMap<>();
     public HashMap<Integer, ArrayList<Line>> map2 = new HashMap<>();
+
+    @Override
+    public int hashCode() {
+        return this.name.hashCode();
+    }
 }
