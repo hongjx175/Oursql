@@ -260,8 +260,7 @@ public class Table implements TableAble {
         }
     }
 
-    @Override
-    public void setIndex(int type, String name, String[] columnInOrder)
+    public void setIndex(String type, String name, ArrayList<Column> columns)
         throws NotFoundException, IsExistedException {
         ArrayList<Integer> num = new ArrayList<>();
         Index x = getIndex(name);
@@ -269,8 +268,7 @@ public class Table implements TableAble {
             throw new IsExistedException("index", name);
         }
         x = new Index();
-        for (String str : columnInOrder) {
-            Column column = getColumn(str);
+        for (Column column : columns) {
             if (column == null) {
                 throw new NotFoundException("column", name);
             }
@@ -292,6 +290,17 @@ public class Table implements TableAble {
         indexList.add(x);
     }
 
+    @Override
+    public void setIndex(String type, String name, String[] columnInOrder)
+        throws NotFoundException, IsExistedException {
+        ArrayList<Column> columns = new ArrayList<>();
+        for (String str : columnInOrder) {
+            columns.add(getColumn(str));
+        }
+        setIndex(type, name, columns);
+    }
+
+    @Override
     public void delete(@NotNull Order[] where) throws Exception {
         ArrayList<Integer> result = selectWhereIntoNumbers(where);
         if (result.isEmpty()) {
@@ -308,23 +317,19 @@ public class Table implements TableAble {
         if (arr.length < 2) {
             throw new Exception("Massage is too short in adding columns.");
         }
-        int max_length = 256;
         boolean can_null = false;
         for (int i = 2; i < arr.length; i++) {
-            try {
-                max_length = Integer.parseInt(arr[i]);
-            } catch (Exception e) {
-                if (arr[i - 1].equalsIgnoreCase("NOT")
-                    && arr[i].equalsIgnoreCase("NULL")) {
-                    can_null = true;
-                }
+            if (arr[i - 1].equalsIgnoreCase("NOT")
+                && arr[i].equalsIgnoreCase("NULL")) {
+                can_null = true;
+                break;
             }
         }
-        addColumn(arr[0], arr[1], max_length, can_null);
+        addColumn(arr[0], arr[1], can_null);
     }
 
-    private void addColumn(String name, String type, int max_length, boolean can_null) {
-        this.columnList.add(new Column(column_count++, name, type, max_length, can_null));
+    private void addColumn(String name, String type, boolean can_null) {
+        this.columnList.add(new Column(column_count++, name, type, can_null));
     }
 }
 

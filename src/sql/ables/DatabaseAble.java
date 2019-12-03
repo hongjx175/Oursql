@@ -2,6 +2,7 @@ package sql.ables;
 
 import java.util.ArrayList;
 import sql.elements.Column;
+import sql.elements.Index;
 import sql.elements.Line;
 import sql.elements.Order;
 import sql.exceptions.IsExistedException;
@@ -14,7 +15,8 @@ public interface DatabaseAble {
 
     void changeTableName(String oldOne, String newOne) throws NotFoundException, IsExistedException;
 
-    void newTable(String name, Order[] columns, Order index) throws IsExistedException;
+    void newTable(String name, Column[] columns, Index[] index)
+        throws IsExistedException, NotFoundException;
 
     void deleteTable(String name) throws NotFoundException;
 }

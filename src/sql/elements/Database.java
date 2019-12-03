@@ -8,6 +8,16 @@ import sql.exceptions.NotFoundException;
 
 public class Database implements DatabaseAble, Serializable {
 
+    transient private static final String historyTableName = "History";
+
+    public Database() throws IsExistedException, NotFoundException {
+        Column date = new Column(1, "name", "Date", false);
+        Column time = new Column(2, "time", "Time", false);
+        Column user = new Column(3, "user", "String", false);
+        Column type = new Column(4, "event", "String", false);
+        newTable(historyTableName, new Column[]{date, time, user, type}, null);
+    }
+
     ArrayList<Table> tables = new ArrayList<>();
 
     private Table getTable(String name) {
@@ -40,12 +50,22 @@ public class Database implements DatabaseAble, Serializable {
     }
 
     @Override
-    public void newTable(String name, Order[] columns, Order index) throws IsExistedException {
+    public void newTable(String name, Column[] columns, Index[] index)
+        throws IsExistedException, NotFoundException {
         Table x = this.getTable(name);
         if (x != null) {
             throw new IsExistedException("table", name);
         }
-        tables.add(new Table(name));
+        x = new Table(name);
+        tables.add(x);
+        for (Column column : columns) {
+            x.addColumn(column);
+        }
+        if (index != null) {
+            for (Index t : index) {
+                x.setIndex(t.type, t.name, t.columns);
+            }
+        }
     }
 
     @Override
