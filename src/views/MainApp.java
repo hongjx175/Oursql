@@ -66,12 +66,10 @@ public class MainApp extends Application {
             System.out.println(sqlUsingController);
             sqlUsingController.setMainApp(this);
         }
-        public void showCreateView(int num, VBox vb){
-            for(int i=0;i<num;i++){
-                    vb.getChildren().add(new TextField(""+"name:"));
-                    //rootrootvb.getChildren().add(new )
-                    vb.getChildren().add(new TextField(""+"length:"));
-            }
+        public void showCreateView(VBox vb){
+            vb.getChildren().add(new TextField(""+"name:"));
+            //rootrootvb.getChildren().add(new )
+            vb.getChildren().add(new TextField(""+"length:"));
         }
 
         public void showWrong() {

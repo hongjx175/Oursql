@@ -31,10 +31,8 @@ public class SQLUsingController {
     @FXML
     private ScrollPane sc;
     @FXML
-    public void getColNum(MouseEvent event) {
-        int num = Integer.parseInt(columnNum.getText());
-
-        mainapp.showCreateView(num,vbox);
+    public void addColumn(MouseEvent event) {
+        mainapp.showCreateView(vbox);
     }
 
 }
