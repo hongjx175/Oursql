@@ -324,8 +324,7 @@ public class Table implements TableAble {
     }
 
     private void addColumn(String name, String type, int max_length, boolean can_null) {
-        this.columnList
-            .add(new Column(column_count++, name, type, max_length, can_null));
+        this.columnList.add(new Column(column_count++, name, type, max_length, can_null));
     }
 }
 
