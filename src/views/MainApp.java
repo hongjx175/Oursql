@@ -61,12 +61,16 @@ public class MainApp extends Application {
             System.out.println(sqlUsingController);
             sqlUsingController.setMainApp(this);
         }
-        public void showWrong() throws IOException {
+        public void showWrong() {
             Stage wstage=new Stage();
             wstage.setTitle("Wrong");
-            Group root=new Group();
-            Scene wscene=new Scene(root, 400, 250, Color.WHITE);
-
+            wstage.setWidth(800);
+            wstage.setHeight(800);
+            BorderPane bp = new BorderPane();
+            Scene wscene=new Scene(bp);
+            Text inform = new Text("账户或密码错误");
+            bp.setTop(inform);
+            wstage.show();
         }
         private Object replaceSceneContent(String fxmlFile) {
             FXMLLoader loader = new FXMLLoader();
