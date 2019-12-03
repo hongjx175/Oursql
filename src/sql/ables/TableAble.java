@@ -1,5 +1,6 @@
 package sql.ables;
 
+import org.jetbrains.annotations.NotNull;
 import sql.elements.Column;
 import sql.elements.Order;
 import sql.exceptions.IsExistedException;
@@ -17,6 +18,8 @@ public interface TableAble {
 
     void deleteLine(Order[] search) throws NotFoundException;
 
-    void setIndex(int type, String name, String[] columnInOrder)
+    void setIndex(String type, String name, String[] columnInOrder)
         throws NotFoundException, IsExistedException;
+
+    public void delete(@NotNull Order[] where) throws Exception;
 }

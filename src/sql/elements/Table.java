@@ -46,6 +46,7 @@ public class Table implements TableAble {
         return null;
     }
 
+    @Deprecated
     private void insert(@NotNull Data[] str) throws Exception {
         if (str.length != this.columnList.size()) {
             throw new Exception(
@@ -135,11 +136,21 @@ public class Table implements TableAble {
         return result;
     }
 
-    private ArrayList<Integer> selectInIndex(HashMap<Column, Data> map) {
-
-        for (Entry<Column, Data> entry : map.entrySet()) {
-
+    @NotNull
+    @SuppressWarnings("unchecked")
+    private ArrayList<Integer> selectInIndex(HashMap<Column, Data> map, @NotNull Index index) {
+        StringBuilder str = new StringBuilder();
+        for (Column x : index.columns) {
+            str.append(map.get(x));
         }
+        int hash1 = Hash.getHash1(str.toString());
+        int hash2 = Hash.getHash2(str.toString());
+        ArrayList<Integer> ans1 = index.map1.get(hash1);
+        ArrayList<Integer> ans2 = index.map2.get(hash2);
+        if (ans1 == null || ans2 == null) {
+            return new ArrayList<>();
+        }
+        return getSame(ans1, ans2);
     }
 
     private ArrayList<Integer> selectDefault(HashMap<Column, Data> where,
@@ -167,10 +178,10 @@ public class Table implements TableAble {
     }
 
     @NotNull
+    @SuppressWarnings("unchecked")
     private ArrayList<Integer> selectWhereIntoNumbers(@NotNull Order[] where) {
         HashMap<Column, Data> map = new HashMap<>();
         ArrayList<ArrayList<Integer>> checkResult = new ArrayList<>();
-        ArrayList<Integer> result = new ArrayList<>();
         for (Order x : where) {
             map.putIfAbsent(x.column, x.value);
         }
@@ -182,10 +193,10 @@ public class Table implements TableAble {
                     checkList.putIfAbsent(x, map.get(x));
                     map.remove(x);
                 }
-                checkResult.add(selectInIndex(checkList));
+                checkResult.add(selectInIndex(checkList, index));
             }
         }
-        result = getSame(checkResult);
+        ArrayList<Integer> result = getSame(checkResult);
         if (map.size() > 0 && result.size() > 0) {
             return getSame(selectDefault(map, result), result);
         }
@@ -249,8 +260,7 @@ public class Table implements TableAble {
         }
     }
 
-    @Override
-    public void setIndex(int type, String name, String[] columnInOrder)
+    public void setIndex(String type, String name, ArrayList<Column> columns)
         throws NotFoundException, IsExistedException {
         ArrayList<Integer> num = new ArrayList<>();
         Index x = getIndex(name);
@@ -258,29 +268,39 @@ public class Table implements TableAble {
             throw new IsExistedException("index", name);
         }
         x = new Index();
-        for (String str : columnInOrder) {
-            Column column = getColumn(str);
+        for (Column column : columns) {
             if (column == null) {
                 throw new NotFoundException("column", name);
             }
             x.columns.add(column);
             num.add(column.id);
         }
-        for (Line line : data) {
+        for (int i = 0; i < data.size(); i++) {
             StringBuilder stringBuilder = new StringBuilder();
             for (int id : num) {
-                stringBuilder.append(line.data.get(id));
+                stringBuilder.append(this.data.get(i).data.get(id));
             }
             int hash1 = Hash.getHash1(stringBuilder.toString());
             int hash2 = Hash.getHash2(stringBuilder.toString());
-            x.map1.computeIfAbsent(hash1, k -> new ArrayList<>());
-            x.map2.computeIfAbsent(hash2, k -> new ArrayList<>());
-            x.map1.get(hash1).add(line);
-            x.map2.get(hash2).add(line);
+            x.map1.putIfAbsent(hash1, new ArrayList<>());
+            x.map2.putIfAbsent(hash2, new ArrayList<>());
+            x.map1.get(hash1).add(i);
+            x.map2.get(hash2).add(i);
         }
         indexList.add(x);
     }
 
+    @Override
+    public void setIndex(String type, String name, String[] columnInOrder)
+        throws NotFoundException, IsExistedException {
+        ArrayList<Column> columns = new ArrayList<>();
+        for (String str : columnInOrder) {
+            columns.add(getColumn(str));
+        }
+        setIndex(type, name, columns);
+    }
+
+    @Override
     public void delete(@NotNull Order[] where) throws Exception {
         ArrayList<Integer> result = selectWhereIntoNumbers(where);
         if (result.isEmpty()) {
@@ -297,24 +317,19 @@ public class Table implements TableAble {
         if (arr.length < 2) {
             throw new Exception("Massage is too short in adding columns.");
         }
-        int max_length = 256;
-        boolean is_main_key = false, can_null = false;
+        boolean can_null = false;
         for (int i = 2; i < arr.length; i++) {
-            try {
-                max_length = Integer.parseInt(arr[i]);
-            } catch (Exception e) {
-                if (arr[i - 1].equalsIgnoreCase("NOT")
-                    && arr[i].equalsIgnoreCase("NULL")) {
-                    can_null = true;
-                }
+            if (arr[i - 1].equalsIgnoreCase("NOT")
+                && arr[i].equalsIgnoreCase("NULL")) {
+                can_null = true;
+                break;
             }
         }
-        addColumn(arr[0], arr[1], max_length, can_null);
+        addColumn(arr[0], arr[1], can_null);
     }
 
-    private void addColumn(String name, String type, int max_length, boolean can_null) {
-        this.columnList
-            .add(new Column(column_count++, name, type, max_length, can_null));
+    private void addColumn(String name, String type, boolean can_null) {
+        this.columnList.add(new Column(column_count++, name, type, can_null));
     }
 }
 

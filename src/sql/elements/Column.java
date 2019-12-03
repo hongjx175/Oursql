@@ -7,15 +7,13 @@ public class Column {
     int id;
     String name;
     String type;
-    int max_length;
     boolean can_null;
 
     @Contract(pure = true)
-    public Column(int id, String name, String type, int max_length, boolean can_null) {
+    public Column(int id, String name, String type, boolean can_null) {
         this.id = id;
         this.name = name;
         this.type = type;
-        this.max_length = max_length;
         this.can_null = can_null;
     }
 
