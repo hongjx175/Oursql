@@ -17,7 +17,7 @@ import sql.exceptions.NotFoundException;
 public class Mysql implements OuterAble, Serializable {
 
     transient private static final String defaultUsername = "root";
-    transient private static String defaultPassword = "123456";
+    transient private static final String defaultPassword = "123456";
     transient private static final String IOFile = "data.db";
     private static HashMap<String, String> passwordList = new HashMap<>();
     transient private static Mysql instance = null;
@@ -55,6 +55,13 @@ public class Mysql implements OuterAble, Serializable {
         objectOutputStream.close();
     }
 
+    /**
+     * to login. Default user: root 123456
+     *
+     * @param name     username
+     * @param password password
+     * @return boolean is successfully login
+     */
     @Override
     public boolean login(String name, String password) {
         String passwords = passwordList.get(name);

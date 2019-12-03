@@ -5,6 +5,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Map.Entry;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import sql.ables.TableAble;
@@ -118,22 +119,41 @@ public class Table implements TableAble {
         return (T[]) result.toArray();
     }
 
-    @NotNull
-    private ArrayList<Integer> selectWhereIntoNumbers(@NotNull Order[] where) {
-//        for(Index index: this.indexList) {
-//            boolean isContain = true;
-//            if(getSame(index.columns.toArray(), Order.castNameList(where)).length == index.columns.size()) {
-//
-//            }
-//        }
+    private static <T> ArrayList<T> getSame(ArrayList<ArrayList<T>> list) {
+        ArrayList<T> result = new ArrayList<>();
+        HashMap<T, Integer> hashMap = new HashMap<>();
+        for (ArrayList<T> x : list) {
+            for (T data : x) {
+                hashMap.compute(data, (k, v) -> v != null ? v++ : 1);
+            }
+        }
+        for (Map.Entry<T, Integer> entry : hashMap.entrySet()) {
+            if (entry.getValue() == list.size()) {
+                result.add(entry.getKey());
+            }
+        }
+        return result;
+    }
+
+    private ArrayList<Integer> selectInIndex(HashMap<Column, Data> map) {
+
+        for (Entry<Column, Data> entry : map.entrySet()) {
+
+        }
+    }
+
+    private ArrayList<Integer> selectDefault(HashMap<Column, Data> where,
+        ArrayList<Integer> checkList) {
         ArrayList<Integer> result = new ArrayList<>();
-        int length = data.size();
-        for (int i = 0; i < length; i++) {
+        for (int i : checkList) {
             Line x = data.get(i);
+            if (x.isDeleted) {
+                continue;
+            }
             boolean is_equal = true;
-            for (Order y : where) {
-                int index = y.column.id;
-                if (!y.value.getStringValue()
+            for (Entry<Column, Data> y : where.entrySet()) {
+                int index = y.getKey().id;
+                if (!y.getValue().getStringValue()
                     .equalsIgnoreCase(x.data.get(index).getStringValue())) {
                     is_equal = false;
                     break;
@@ -142,6 +162,32 @@ public class Table implements TableAble {
             if (is_equal) {
                 result.add(i);
             }
+        }
+        return result;
+    }
+
+    @NotNull
+    private ArrayList<Integer> selectWhereIntoNumbers(@NotNull Order[] where) {
+        HashMap<Column, Data> map = new HashMap<>();
+        ArrayList<ArrayList<Integer>> checkResult = new ArrayList<>();
+        ArrayList<Integer> result = new ArrayList<>();
+        for (Order x : where) {
+            map.putIfAbsent(x.column, x.value);
+        }
+        for (Index index : this.indexList) {
+            if (getSame(index.columns.toArray(), Order.castNameList(where)).length == index.columns
+                .size()) {
+                HashMap<Column, Data> checkList = new HashMap<>();
+                for (Column x : index.columns) {
+                    checkList.putIfAbsent(x, map.get(x));
+                    map.remove(x);
+                }
+                checkResult.add(selectInIndex(checkList));
+            }
+        }
+        result = getSame(checkResult);
+        if (map.size() > 0 && result.size() > 0) {
+            return getSame(selectDefault(map, result), result);
         }
         return result;
     }
@@ -199,7 +245,7 @@ public class Table implements TableAble {
             throw new NotFoundException("line", "your searching form");
         }
         for (int x : result) {
-            this.data.remove(x);
+            this.data.get(x).isDeleted = true;
         }
     }
 
@@ -232,6 +278,7 @@ public class Table implements TableAble {
             x.map1.get(hash1).add(line);
             x.map2.get(hash2).add(line);
         }
+        indexList.add(x);
     }
 
     public void delete(@NotNull Order[] where) throws Exception {
@@ -244,6 +291,7 @@ public class Table implements TableAble {
         }
     }
 
+    @Deprecated
     public void addColumn(@NotNull String line) throws Exception {
         String[] arr = line.split(" ");
         if (arr.length < 2) {
@@ -259,19 +307,14 @@ public class Table implements TableAble {
                     && arr[i].equalsIgnoreCase("NULL")) {
                     can_null = true;
                 }
-                if (arr[i - 1].equalsIgnoreCase("PRIMARY")
-                    && arr[i].equalsIgnoreCase("KEY")) {
-                    is_main_key = true;
-                }
             }
         }
-        addColumn(arr[0], arr[1], max_length, is_main_key, can_null);
+        addColumn(arr[0], arr[1], max_length, can_null);
     }
 
-    private void addColumn(String name, String type, int max_length, boolean is_main_key,
-        boolean can_null) {
+    private void addColumn(String name, String type, int max_length, boolean can_null) {
         this.columnList
-            .add(new Column(column_count++, name, type, max_length, is_main_key, can_null));
+            .add(new Column(column_count++, name, type, max_length, can_null));
     }
 }
 
