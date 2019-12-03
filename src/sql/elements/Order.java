@@ -37,4 +37,16 @@ public class Order {
         }
         return (Column[]) array.toArray();
     }
+
+    Order(Column column) {
+        this.column = column;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj instanceof Order) {
+            return this.column.equals(((Order) obj).column);
+        }
+        return false;
+    }
 }
