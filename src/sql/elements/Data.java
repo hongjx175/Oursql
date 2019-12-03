@@ -18,7 +18,7 @@ public class Data {
     void setNumber(@NotNull Column column, int number) {
         String numString = Integer.toString(number);
         StringBuilder result = new StringBuilder();
-        int spaceLength = column.max_length - numString.length();
+        int spaceLength = 20 - numString.length();
         while (spaceLength-- > 0) {
             result.append("0");
         }
