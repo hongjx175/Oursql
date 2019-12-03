@@ -61,9 +61,8 @@ public class Mysql implements OuterAble, Serializable {
         if (password.equals(passwords)) {
             userUsing = name;
             return true;
-        } else {
-            return false;
         }
+        return false;
     }
 
     @Override
