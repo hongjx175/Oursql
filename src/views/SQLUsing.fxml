@@ -3,14 +3,15 @@
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.Tab?>
 <?import javafx.scene.control.TabPane?>
+<?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane prefHeight="990.0" prefWidth="1414.0" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="sqlUsing.sqlUsingController">
+<AnchorPane prefHeight="990.0" prefWidth="1414.0" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="views.SQLUsingController">
    <children>
-      <TabPane layoutX="97.0" layoutY="27.0" prefHeight="797.0" prefWidth="1244.0" tabClosingPolicy="UNAVAILABLE">
+      <TabPane fx:id="tabPane" layoutX="97.0" layoutY="27.0" prefHeight="797.0" prefWidth="1244.0" tabClosingPolicy="UNAVAILABLE">
         <tabs>
-          <Tab text="Create">
+          <Tab fx:id="createTab" text="Create">
             <content>
               <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="750.0" prefWidth="1240.0">
                      <children>
@@ -24,15 +25,16 @@
                               <Font size="19.0" />
                            </font>
                         </Label>
+                        <TextField fx:id="tableName" layoutX="148.0" layoutY="65.0" />
                      </children></AnchorPane>
             </content>
           </Tab>
-          <Tab text="View">
+          <Tab fx:id="tab2" text="View">
             <content>
               <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0" />
             </content>
           </Tab>
-            <Tab text="Search">
+            <Tab fx:id="tab3" text="Search">
                 <content>
                     <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="748.0" prefWidth="1244.0" />
                 </content>
