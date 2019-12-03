@@ -10,55 +10,63 @@
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
-
-<AnchorPane prefHeight="990.0" prefWidth="1414.0" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="views.SQLUsingController">
-   <children>
-      <TabPane fx:id="tabPane" layoutX="97.0" layoutY="27.0" prefHeight="797.0" prefWidth="1244.0" tabClosingPolicy="UNAVAILABLE">
-        <tabs>
-          <Tab fx:id="createTab" text="Create">
-            <content>
-              <AnchorPane fx:id="ap" minHeight="0.0" minWidth="0.0" prefHeight="750.0" prefWidth="1240.0">
-                     <children>
-                        <Label layoutX="47.0" layoutY="67.0" prefHeight="25.0" prefWidth="59.0" text="表    名">
-                           <font>
-                              <Font name="Microsoft Himalaya" size="19.0" />
-                           </font>
-                        </Label>
-                        <Label layoutX="48.0" layoutY="209.0" text="列信息">
-                           <font>
-                              <Font size="19.0" />
-                           </font>
-                        </Label>
-                        <TextField fx:id="tableName" layoutX="148.0" layoutY="65.0" prefHeight="30.0" prefWidth="201.0" />
-                        <Label layoutX="47.0" layoutY="149.0" prefHeight="25.0" prefWidth="59.0" text="列    数">
-                           <font>
-                              <Font name="Microsoft Himalaya" size="19.0" />
-                           </font>
-                        </Label>
-                        <TextField fx:id="columnNum" layoutX="148.0" layoutY="147.0" />
-                        <Button fx:id="confirm" layoutX="370.0" layoutY="147.0" mnemonicParsing="false" onMouseClicked="#addColumn" prefHeight="27.0" prefWidth="37.0" text="+" />
-                        <ScrollPane layoutX="124.0" layoutY="223.0" prefHeight="496.0" prefWidth="310.0">
-                           <content>
-                              <VBox fx:id="vbox" prefHeight="500.0" prefWidth="299.0" />
-                           </content>
-                        </ScrollPane>
-                     </children></AnchorPane>
-            </content>
-          </Tab>
-          <Tab fx:id="tab2" text="View">
-            <content>
-              <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
-                     <children>
-                        <ListView layoutX="171.0" layoutY="169.0" prefHeight="200.0" prefWidth="200.0" />
-                     </children></AnchorPane>
-            </content>
-          </Tab>
-            <Tab fx:id="tab3" text="Search">
-                <content>
-                    <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="748.0" prefWidth="1244.0" />
-                </content>
-            </Tab>
-        </tabs>
-      </TabPane>
-   </children>
+<AnchorPane prefHeight="990.0" prefWidth="1414.0" xmlns="http://javafx.com/javafx/8.0.171"
+  xmlns:fx="http://javafx.com/fxml/1" fx:controller="views.SQLUsingController">
+  <children>
+    <TabPane fx:id="tabPane" layoutX="97.0" layoutY="27.0" prefHeight="797.0" prefWidth="1244.0"
+      tabClosingPolicy="UNAVAILABLE">
+      <tabs>
+        <Tab fx:id="createTab" text="Create">
+          <content>
+            <AnchorPane fx:id="ap" minHeight="0.0" minWidth="0.0" prefHeight="750.0"
+              prefWidth="1240.0">
+              <children>
+                <Label layoutX="47.0" layoutY="67.0" prefHeight="25.0" prefWidth="59.0"
+                  text="表    名">
+                  <font>
+                    <Font name="Microsoft Himalaya" size="19.0"/>
+                  </font>
+                </Label>
+                <Label layoutX="48.0" layoutY="209.0" text="列信息">
+                  <font>
+                    <Font size="19.0"/>
+                  </font>
+                </Label>
+                <TextField fx:id="tableName" layoutX="148.0" layoutY="65.0" prefHeight="30.0"
+                  prefWidth="201.0"/>
+                <Label layoutX="47.0" layoutY="149.0" prefHeight="25.0" prefWidth="59.0"
+                  text="列    数">
+                  <font>
+                    <Font name="Microsoft Himalaya" size="19.0"/>
+                  </font>
+                </Label>
+                <TextField fx:id="columnNum" layoutX="148.0" layoutY="147.0"/>
+                <Button fx:id="confirm" layoutX="370.0" layoutY="147.0" mnemonicParsing="false"
+                  onMouseClicked="#addColumn" prefHeight="27.0" prefWidth="37.0" text="+"/>
+                <ScrollPane layoutX="124.0" layoutY="223.0" prefHeight="496.0" prefWidth="310.0">
+                  <content>
+                    <VBox fx:id="vbox" prefHeight="500.0" prefWidth="299.0"/>
+                  </content>
+                </ScrollPane>
+              </children>
+            </AnchorPane>
+          </content>
+        </Tab>
+        <Tab fx:id="tab2" text="View">
+          <content>
+            <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+              <children>
+                <ListView layoutX="171.0" layoutY="169.0" prefHeight="200.0" prefWidth="200.0"/>
+              </children>
+            </AnchorPane>
+          </content>
+        </Tab>
+        <Tab fx:id="tab3" text="Search">
+          <content>
+            <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="748.0" prefWidth="1244.0"/>
+          </content>
+        </Tab>
+      </tabs>
+    </TabPane>
+  </children>
 </AnchorPane>

@@ -65,6 +65,9 @@ public class Mysql implements OuterAble, Serializable {
     @Override
     public boolean login(String name, String password) {
         String passwords = passwordList.get(name);
+        if (name == null || password == null) {
+            return false;
+        }
         if (password.equals(passwords)) {
             userUsing = name;
             return true;

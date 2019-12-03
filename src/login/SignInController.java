@@ -9,7 +9,7 @@ import sql.elements.Mysql;
 public class SignInController {
 
     private MainApp mainapp;
-    private Mysql mysql;
+    private Mysql mysql = Mysql.getInstance();
     @FXML
     private TextField account;
     @FXML
