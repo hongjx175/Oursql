@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 public class Index {
+
     public String name;
     public ArrayList<Column> columns;
     public String type;

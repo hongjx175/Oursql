@@ -3,6 +3,7 @@ package sql.elements;
 import org.jetbrains.annotations.NotNull;
 
 public class Data {
+
     String type;
     private String value;
 
@@ -18,7 +19,9 @@ public class Data {
         String numString = Integer.toString(number);
         StringBuilder result = new StringBuilder();
         int spaceLength = column.max_length - numString.length();
-        while(spaceLength-- > 0) result.append("0");
+        while (spaceLength-- > 0) {
+            result.append("0");
+        }
         value = result + numString;
     }
 

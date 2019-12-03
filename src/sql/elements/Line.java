@@ -1,13 +1,14 @@
 package sql.elements;
 
+import java.util.ArrayList;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.ArrayList;
-
 public class Line implements Comparable<Line> {
+
     public ArrayList<Data> data;
     int index;
+    boolean isDeleted = false;
     String cmp;
 
     @Contract(pure = true)

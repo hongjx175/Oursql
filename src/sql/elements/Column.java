@@ -3,6 +3,7 @@ package sql.elements;
 import org.jetbrains.annotations.Contract;
 
 public class Column {
+
     int id;
     String name;
     String type;
@@ -11,7 +12,8 @@ public class Column {
     boolean can_null;
 
     @Contract(pure = true)
-    public Column(int id, String name, String type, int max_length, boolean is_main_key, boolean can_null) {
+    public Column(int id, String name, String type, int max_length, boolean is_main_key,
+        boolean can_null) {
         this.id = id;
         this.name = name;
         this.type = type;
