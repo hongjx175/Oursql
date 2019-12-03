@@ -56,11 +56,9 @@ public class Mysql implements OuterAble, Serializable {
     }
 
     @Override
-    public boolean login(String name, String password) throws NotFoundException {
+    public boolean login(String name, String password) {
         String passwords = passwordList.get(name);
-        if (passwords == null) {
-            throw new NotFoundException("username", name);
-        } else if (password.equals(passwords)) {
+        if (password.equals(passwords)) {
             userUsing = name;
             return true;
         } else {
