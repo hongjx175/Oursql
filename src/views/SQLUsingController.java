@@ -1,12 +1,10 @@
 package views;
 
 import javafx.fxml.FXML;
-import javafx.scene.control.Button;
-import javafx.scene.control.Tab;
-import javafx.scene.control.TabPane;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.VBox;
 
 public class SQLUsingController {
     private MainApp mainapp;
@@ -27,13 +25,16 @@ public class SQLUsingController {
     @FXML
     private TextField columnNum;
     @FXML
-    private AnchorPane ap;
+    private VBox vbox;
     @FXML
     private Button confirm;
-
-    public int getColNum(MouseEvent event) {
+    @FXML
+    private ScrollPane sc;
+    @FXML
+    public void getColNum(MouseEvent event) {
         int num = Integer.parseInt(columnNum.getText());
-        return num;
+
+        mainapp.showCreateView(num,vbox);
     }
 
 }
