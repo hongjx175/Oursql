@@ -50,15 +50,15 @@ public class MainApp extends Application {
     }
 
 
-        public void showCreateView(VBox vb){
-            vb.getChildren().add(new TextField(""+"name:"));
-            //rootrootvb.getChildren().add(new )
-            vb.getChildren().add(new TextField(""+"length:"));
-        }
+    public void showCreateView(VBox vb) {
+        vb.getChildren().add(new TextField("" + "name:"));
+        //rootrootvb.getChildren().add(new )
+        vb.getChildren().add(new TextField("" + "length:"));
+    }
+
     public void showSqlView() throws Exception {
         stage.setTitle("SQL");
         stage.getIcons().clear();
-
 
         FXMLLoader loader = new FXMLLoader();
         loader.setLocation(MainApp.class.getResource("SQLUsing.fxml"));
