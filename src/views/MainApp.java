@@ -15,8 +15,10 @@ import java.io.IOException;
 
 
 public class MainApp extends Application {
-        private Stage stage;
+        private Stage stage,wstage;
         private Scene scene;
+        private SQLUsingController sqlUsingController;
+        boolean entered=false;
         @Override
         public void start(Stage primaryStage) throws Exception {
             stage=primaryStage;
@@ -57,19 +59,21 @@ public class MainApp extends Application {
             scene = new Scene(ap);
             stage.setScene(scene);
             stage.setResizable(false);
-            SQLUsingController sqlUsingController = (SQLUsingController) loader.getController();
+            sqlUsingController = (SQLUsingController) loader.getController();
             System.out.println(sqlUsingController);
             sqlUsingController.setMainApp(this);
+
         }
         public void showWrong() {
-            Stage wstage=new Stage();
+            wstage=new Stage();
             wstage.setTitle("Wrong");
-            wstage.setWidth(800);
-            wstage.setHeight(800);
+            wstage.setWidth(400);
+            wstage.setHeight(400);
             BorderPane bp = new BorderPane();
             Scene wscene=new Scene(bp);
             Text inform = new Text("账户或密码错误");
-            bp.setTop(inform);
+            bp.setCenter(inform);
+            wstage.setScene(wscene);
             wstage.show();
         }
         private Object replaceSceneContent(String fxmlFile) {
