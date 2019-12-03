@@ -5,8 +5,10 @@ import javafx.fxml.FXMLLoader;
 import javafx.geometry.Insets;
 import javafx.scene.Group;
 import javafx.scene.Scene;
+import javafx.scene.control.TextField;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
@@ -18,7 +20,7 @@ public class MainApp extends Application {
         private Stage stage,wstage;
         private Scene scene;
         private SQLUsingController sqlUsingController;
-        boolean entered=false;
+       // boolean entered=false;
         @Override
         public void start(Stage primaryStage) throws Exception {
             stage=primaryStage;
@@ -57,13 +59,21 @@ public class MainApp extends Application {
             loader.setLocation(MainApp.class.getResource("SQLUsing.fxml"));
             AnchorPane ap = (AnchorPane) loader.load();
             scene = new Scene(ap);
+            //scene.setFill(Color.BLACK);
             stage.setScene(scene);
             stage.setResizable(false);
             sqlUsingController = (SQLUsingController) loader.getController();
             System.out.println(sqlUsingController);
             sqlUsingController.setMainApp(this);
-
         }
+        public void showCreateView(int num, VBox vb){
+            for(int i=0;i<num;i++){
+                    vb.getChildren().add(new TextField(""+"name:"));
+                    //rootrootvb.getChildren().add(new )
+                    vb.getChildren().add(new TextField(""+"length:"));
+            }
+        }
+
         public void showWrong() {
             wstage=new Stage();
             wstage.setTitle("Wrong");
@@ -85,6 +95,7 @@ public class MainApp extends Application {
             }catch(IOException e) { e.printStackTrace();
             }
             scene = new Scene(ap);
+            //scene.setFill(Color.BLUE);
             stage.setScene(scene);
             stage.setResizable(false);
             return loader.getController();
