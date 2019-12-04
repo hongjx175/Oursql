@@ -11,17 +11,8 @@ public class Column {
     String type;
     boolean can_null;
 
-    @Contract(pure = true)
-    public Column(int id, String name, String type, int maxLength, boolean can_null)
-        throws NotFoundException {
-        this.id = id;
-        this.name = name;
-        this.type = type;
-        this.can_null = can_null;
-        if (maxLength != 0) {
-            this.maxLength = maxLength;
-            return;
-        }
+    public Column(int id, String name, String type, boolean can_null) throws NotFoundException {
+        this(id, name, type, 0, can_null);
         switch (type) {
             case "String":
             case "Number":
@@ -37,6 +28,15 @@ public class Column {
             default:
                 throw new NotFoundException("column type", type);
         }
+    }
+
+    @Contract(pure = true)
+    public Column(int id, String name, String type, int maxLength, boolean can_null) {
+        this.id = id;
+        this.name = name;
+        this.type = type;
+        this.can_null = can_null;
+        this.maxLength = maxLength;
     }
 
     Column(String name) {
