@@ -35,10 +35,12 @@ public class SQLUsingController {
     private Button confirm;
     @FXML
     private ScrollPane sc;
+    private int addNum = 0;
 
     @FXML
     public void addColumn(MouseEvent event) {
-        mainapp.showCreateView(vbox);
+        addNum++;
+        mainapp.showCreateView(vbox, addNum);
     }
 
 }
