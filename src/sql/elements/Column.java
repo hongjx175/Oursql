@@ -12,11 +12,16 @@ public class Column {
     boolean can_null;
 
     @Contract(pure = true)
-    public Column(int id, String name, String type, boolean can_null) throws NotFoundException {
+    public Column(int id, String name, String type, int maxLength, boolean can_null)
+        throws NotFoundException {
         this.id = id;
         this.name = name;
         this.type = type;
         this.can_null = can_null;
+        if (maxLength != 0) {
+            this.maxLength = maxLength;
+            return;
+        }
         switch (type) {
             case "String":
             case "Number":
