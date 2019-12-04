@@ -9,13 +9,17 @@ import sql.exceptions.NotFoundException;
 public class Database implements DatabaseAble, Serializable {
 
     transient private static final String historyTableName = "History";
+    String name;
 
-    public Database() throws IsExistedException, NotFoundException {
-        Column date = new Column(1, "name", "Date", false);
-        Column time = new Column(2, "time", "Time", false);
-        Column user = new Column(3, "user", "String", false);
-        Column type = new Column(4, "event", "String", false);
-        newTable(historyTableName, new Column[]{date, time, user, type}, null);
+    public Database() {
+        try {
+            Column date = new Column(1, "name", "Date", false);
+            Column time = new Column(2, "time", "Time", false);
+            Column user = new Column(3, "user", "String", false);
+            Column type = new Column(4, "event", "String", false);
+            newTable(historyTableName, new Column[]{date, time, user, type}, null);
+        } catch (Exception ignored) {
+        }
     }
 
     ArrayList<Table> tables = new ArrayList<>();
@@ -81,5 +85,13 @@ public class Database implements DatabaseAble, Serializable {
         if (!isFound) {
             throw new NotFoundException("table", name);
         }
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj instanceof Database) {
+            return this.name.equals(((Database) obj).name);
+        }
+        return super.equals(obj);
     }
 }

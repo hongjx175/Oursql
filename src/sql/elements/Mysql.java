@@ -109,4 +109,30 @@ public class Mysql implements OuterAble, Serializable {
         passwordList.remove(name);
         return true;
     }
+
+    public Database getDatabase(String name) {
+        for (Database x : this.databases) {
+            if (x.name.equals(name)) {
+                return x;
+            }
+        }
+        return null;
+    }
+
+    public void newDatabase(String name) throws IsExistedException {
+        Database database = getDatabase(name);
+        if (database != null) {
+            throw new IsExistedException("database", name);
+        }
+        database = new Database();
+        this.databases.add(database);
+    }
+
+    public void deleteDatabase(String name) throws NotFoundException {
+        Database database = getDatabase(name);
+        if (database == null) {
+            throw new NotFoundException("database", name);
+        }
+        this.databases.remove(database);
+    }
 }

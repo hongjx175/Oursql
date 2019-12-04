@@ -328,8 +328,16 @@ public class Table implements TableAble {
         addColumn(arr[0], arr[1], can_null);
     }
 
-    private void addColumn(String name, String type, boolean can_null) {
+    private void addColumn(String name, String type, boolean can_null) throws NotFoundException {
         this.columnList.add(new Column(column_count++, name, type, can_null));
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj instanceof Table) {
+            return this.name.equals(((Table) obj).name);
+        }
+        return super.equals(obj);
     }
 }
 
