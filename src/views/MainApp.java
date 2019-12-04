@@ -4,9 +4,13 @@ import java.io.IOException;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
+import javafx.scene.control.Label;
+import javafx.scene.control.RadioButton;
 import javafx.scene.control.TextField;
+import javafx.scene.control.ToggleGroup;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
@@ -50,10 +54,54 @@ public class MainApp extends Application {
     }
 
 
-    public void showCreateView(VBox vb) {
-        vb.getChildren().add(new TextField("" + "name:"));
-        //rootrootvb.getChildren().add(new )
-        vb.getChildren().add(new TextField("" + "length:"));
+    public void showCreateView(VBox vb, int num) {
+        TextField name = new TextField();
+        TextField length = new TextField();
+        HBox hb = new HBox();
+        vb.getChildren().add(new Label("第" + num + "列"));
+
+        hb.getChildren().addAll(new Label("列名: "), name);
+        vb.getChildren().add(hb);//列名
+
+        hb = new HBox();
+        hb.getChildren().addAll(new Label("长度: "), length);
+        vb.getChildren().add(hb);//长度
+
+        //下面是类型选择
+        vb.getChildren().add(new Label("type:"));
+
+        ToggleGroup group = new ToggleGroup();
+
+        RadioButton rb1 = new RadioButton("int");
+        rb1.setToggleGroup(group);
+        rb1.setSelected(true);
+
+        RadioButton rb2 = new RadioButton("String");
+        rb2.setToggleGroup(group);
+        rb2.setSelected(true);
+
+        RadioButton rb3 = new RadioButton("identity number");
+        rb3.setToggleGroup(group);
+        rb3.setSelected(true);
+
+        RadioButton rb4 = new RadioButton("date");
+        rb4.setToggleGroup(group);
+        rb4.setSelected(true);
+
+        RadioButton rb5 = new RadioButton("time");
+        rb5.setToggleGroup(group);
+        rb5.setSelected(true);
+
+        RadioButton rb6 = new RadioButton("numbers");
+        rb6.setToggleGroup(group);
+        rb6.setSelected(true);
+
+        hb = new HBox();
+        hb.getChildren().addAll(rb1, rb2, rb3);
+        vb.getChildren().add(hb);
+        hb.getChildren().addAll(rb4, rb5, rb6);
+        vb.getChildren().add(hb);
+        vb.getChildren().add(new Label());
     }
 
     public void showSqlView() throws Exception {
