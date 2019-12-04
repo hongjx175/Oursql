@@ -22,7 +22,7 @@ public class Line implements Comparable<Line> {
     }
 
     boolean equals(@NotNull Line rt) {
-        return this.cmp.equalsIgnoreCase(rt.cmp);
+        return this.cmp.equals(rt.cmp);
     }
 
 }

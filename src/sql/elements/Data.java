@@ -18,7 +18,7 @@ public class Data {
     void setNumber(@NotNull Column column, int number) {
         String numString = Integer.toString(number);
         StringBuilder result = new StringBuilder();
-        int spaceLength = 20 - numString.length();
+        int spaceLength = column.maxLength - numString.length();
         while (spaceLength-- > 0) {
             result.append("0");
         }
@@ -27,5 +27,9 @@ public class Data {
 
     public void setString(String value) {
         this.value = value;
+    }
+
+    public void setLongNumber(long number) {
+
     }
 }
