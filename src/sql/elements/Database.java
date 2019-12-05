@@ -11,7 +11,7 @@ public class Database implements DatabaseAble, Serializable {
     transient private static final String historyTableName = "History";
     String name;
 
-    public Database() {
+    public Database(String name) {
         try {
             Column date = new Column(1, "name", "Date", false);
             Column time = new Column(2, "time", "Time", false);

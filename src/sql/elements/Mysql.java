@@ -26,6 +26,7 @@ public class Mysql implements OuterAble, Serializable {
 
     private Mysql() {
         passwordList.put(defaultUsername, defaultPassword);
+        databases.add(new Database("default"));
     }
 
     public static Mysql getInstance() {
@@ -124,14 +125,16 @@ public class Mysql implements OuterAble, Serializable {
         if (database != null) {
             throw new IsExistedException("database", name);
         }
-        database = new Database();
+        database = new Database(name);
         this.databases.add(database);
     }
 
-    public void deleteDatabase(String name) throws NotFoundException {
+    public void deleteDatabase(String name) throws NotFoundException, CannotDeleteException {
         Database database = getDatabase(name);
         if (database == null) {
             throw new NotFoundException("database", name);
+        } else if (name.equals("default")) {
+            throw new CannotDeleteException("default database", "the database is default.");
         }
         this.databases.remove(database);
     }
