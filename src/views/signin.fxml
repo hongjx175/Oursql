@@ -50,6 +50,7 @@
                      <children>
                         <Button layoutX="57.0" layoutY="41.0" mnemonicParsing="false" onMouseClicked="#clickForget" text="forget " />
                         <Button layoutX="395.0" layoutY="41.0" mnemonicParsing="false" onMouseClicked="#clickSignin" text="sign in" />
+                        <Button layoutX="159.0" layoutY="41.0" mnemonicParsing="false" onMouseClicked="#clickForget" text="regist" />
                      </children>
                   </Pane>
                </children>
