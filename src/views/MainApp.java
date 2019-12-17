@@ -34,6 +34,7 @@ public class MainApp extends Application {
         stage.getIcons().clear();
         //创建登录控制器对象
         SigninController signinController = (SigninController) replaceSceneContent("signin.fxml");
+        //scene = new Scene();
         //将主控制器的引用传给登录控制器对象
         signinController.setMainApp(this);
     }
@@ -97,9 +98,7 @@ public class MainApp extends Application {
         rb6.setSelected(true);
 
         hb = new HBox();
-        hb.getChildren().addAll(rb1, rb2, rb3);
-        vb.getChildren().add(hb);
-        hb.getChildren().addAll(rb4, rb5, rb6);
+        hb.getChildren().addAll(rb1, rb2, rb3, rb4, rb5, rb6);
         vb.getChildren().add(hb);
         vb.getChildren().add(new Label());
     }
