@@ -2,6 +2,7 @@ package views;
 
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
+import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.input.MouseEvent;
 
@@ -17,6 +18,8 @@ public class Register {
     private TextField password2;
     @FXML
     private Button confirm;
+    @FXML
+    private Label out;
 
     public void getInfo() {
         nameStr = name.getText();
