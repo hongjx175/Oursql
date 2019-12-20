@@ -11,6 +11,7 @@ import org.jetbrains.annotations.NotNull;
 import sql.ables.TableAble;
 import sql.exceptions.IsExistedException;
 import sql.exceptions.NotFoundException;
+import sql.exceptions.UnknownSequenceException;
 import sql.functions.Hash;
 
 public class Table implements TableAble {
@@ -26,6 +27,56 @@ public class Table implements TableAble {
     Table(String name) {
         this.name = name;
         this.data = new ArrayList<>();
+    }
+
+    @SuppressWarnings("unchecked")
+    private static <T> ArrayList<T> getSame(ArrayList<T>... list) {
+        ArrayList<T> result = new ArrayList<>();
+        HashMap<T, Integer> hashMap = new HashMap<>();
+        for (ArrayList<T> x : list) {
+            for (T data : x) {
+                hashMap.compute(data, (k, v) -> v != null ? v++ : 1);
+            }
+        }
+        for (Map.Entry<T, Integer> entry : hashMap.entrySet()) {
+            if (entry.getValue() == list.length) {
+                result.add(entry.getKey());
+            }
+        }
+        return result;
+    }
+
+    @SuppressWarnings("unchecked")
+    private static <T> T[] getSame(T[]... list) {
+        ArrayList<T> result = new ArrayList<>();
+        HashMap<T, Integer> hashMap = new HashMap<>();
+        for (T[] x : list) {
+            for (T data : x) {
+                hashMap.compute(data, (k, v) -> v != null ? v++ : 1);
+            }
+        }
+        for (Map.Entry<T, Integer> entry : hashMap.entrySet()) {
+            if (entry.getValue() == list.length) {
+                result.add(entry.getKey());
+            }
+        }
+        return (T[]) result.toArray();
+    }
+
+    private static <T> ArrayList<T> getSame(ArrayList<ArrayList<T>> list) {
+        ArrayList<T> result = new ArrayList<>();
+        HashMap<T, Integer> hashMap = new HashMap<>();
+        for (ArrayList<T> x : list) {
+            for (T data : x) {
+                hashMap.compute(data, (k, v) -> v != null ? v++ : 1);
+            }
+        }
+        for (Map.Entry<T, Integer> entry : hashMap.entrySet()) {
+            if (entry.getValue() == list.size()) {
+                result.add(entry.getKey());
+            }
+        }
+        return result;
     }
 
     public Column getColumn(String name) {
@@ -77,6 +128,7 @@ public class Table implements TableAble {
         this.columnList.remove(x);
     }
 
+    @Override
     public void insert(@NotNull Order[] orders) {
         Line new_data = new Line();
         new_data.index = index_count++;
@@ -84,56 +136,6 @@ public class Table implements TableAble {
             new_data.data.add(x.column.id, x.value);
         }
         data.add(new_data);
-    }
-
-    @SuppressWarnings("unchecked")
-    private static <T> ArrayList<T> getSame(ArrayList<T>... list) {
-        ArrayList<T> result = new ArrayList<>();
-        HashMap<T, Integer> hashMap = new HashMap<>();
-        for (ArrayList<T> x : list) {
-            for (T data : x) {
-                hashMap.compute(data, (k, v) -> v != null ? v++ : 1);
-            }
-        }
-        for (Map.Entry<T, Integer> entry : hashMap.entrySet()) {
-            if (entry.getValue() == list.length) {
-                result.add(entry.getKey());
-            }
-        }
-        return result;
-    }
-
-    @SuppressWarnings("unchecked")
-    private static <T> T[] getSame(T[]... list) {
-        ArrayList<T> result = new ArrayList<>();
-        HashMap<T, Integer> hashMap = new HashMap<>();
-        for (T[] x : list) {
-            for (T data : x) {
-                hashMap.compute(data, (k, v) -> v != null ? v++ : 1);
-            }
-        }
-        for (Map.Entry<T, Integer> entry : hashMap.entrySet()) {
-            if (entry.getValue() == list.length) {
-                result.add(entry.getKey());
-            }
-        }
-        return (T[]) result.toArray();
-    }
-
-    private static <T> ArrayList<T> getSame(ArrayList<ArrayList<T>> list) {
-        ArrayList<T> result = new ArrayList<>();
-        HashMap<T, Integer> hashMap = new HashMap<>();
-        for (ArrayList<T> x : list) {
-            for (T data : x) {
-                hashMap.compute(data, (k, v) -> v != null ? v++ : 1);
-            }
-        }
-        for (Map.Entry<T, Integer> entry : hashMap.entrySet()) {
-            if (entry.getValue() == list.size()) {
-                result.add(entry.getKey());
-            }
-        }
-        return result;
     }
 
     @NotNull
@@ -204,7 +206,7 @@ public class Table implements TableAble {
     }
 
     ArrayList<Line> selectPrivate(Column[] columns, Order[] where, Order[] order_by)
-        throws Exception {
+        throws UnknownSequenceException {
         ArrayList<Integer> result = selectWhereIntoNumbers(where);
         ArrayList<Line> array = new ArrayList<>();
         for (int i : result) {
@@ -222,7 +224,7 @@ public class Table implements TableAble {
                         } else if (j.value.getStringValue().equals("-1")) {
                             tmp.cmp += (char) (65536 - s.charAt(ch));
                         } else {
-                            throw new Exception("Unknown sequence.");
+                            throw new UnknownSequenceException();
                         }
                     }
                 }
@@ -240,6 +242,7 @@ public class Table implements TableAble {
         return array;
     }
 
+    @Override
     public void update(@NotNull Order[] set, @NotNull Order[] where) {
         ArrayList<Integer> result = selectWhereIntoNumbers(where);
         for (int x : result) {

@@ -1,23 +1,52 @@
 package sql.functions;
 
+import java.util.ArrayList;
 import java.util.Scanner;
+import sql.elements.Column;
+import sql.elements.Database;
+import sql.elements.Mysql;
+import sql.elements.Order;
+import sql.elements.Table;
+import sql.exceptions.NotAlterException;
+import sql.exceptions.UnknownSequenceException;
 import sql.exceptions.WrongCommandException;
 
 public class Charge {
 
+    static Scanner scan = new Scanner(System.in);
     static WrongCommandException problem = new WrongCommandException();
+    static Mysql sql = Mysql.getInstance();
+    static Database database;
 
     static boolean compare(String a, String b) {
         return a.toUpperCase().equals(b);
     }
 
-    public static void select(String[] s) throws WrongCommandException {
+    public static void select(String[] s)
+        throws WrongCommandException, NotAlterException, UnknownSequenceException {
         //SELECT 列名称 FROM 表名称 (WHERE 列 运算符 值)
+        if (database == null) {
+            throw new NotAlterException();
+        }
         if (s[1].equals("*")) {//选取表中所有列
 
         } else {
+            if (s.length < 4) {
+                throw new WrongCommandException();
+            }
             String[] cols = s[1].split(",");
-
+            Table table = database.getTable(s[3]);
+            ArrayList<Column> getColumn = new ArrayList<>();
+            ArrayList<Order> orders = new ArrayList<>();
+            for (String str : cols) {
+                Column x = table.getColumn(str);
+                getColumn.add(x);
+            }
+            for (int i = 5; i < s.length; i++) {
+                String[] len = s[i].split("=");
+                Order order = new Order(table, len[0], len[1]);
+            }
+            database.select(s[3], (Column[]) getColumn.toArray(), (Order[]) orders.toArray(), null);
         }
     }
 
@@ -64,7 +93,6 @@ public class Charge {
     }
 
     public static void main(String[] args) {
-        Scanner scan = new Scanner(System.in);
         String cmd;
         try {
             cmd = scan.nextLine();
