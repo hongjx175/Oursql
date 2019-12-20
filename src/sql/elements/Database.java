@@ -10,6 +10,8 @@ public class Database implements DatabaseAble, Serializable {
 
     transient private static final String historyTableName = "History";
     String name;
+    Table choosingTable;
+    ArrayList<Table> tables = new ArrayList<>();
 
     public Database(String name) {
         try {
@@ -21,8 +23,6 @@ public class Database implements DatabaseAble, Serializable {
         } catch (Exception ignored) {
         }
     }
-
-    ArrayList<Table> tables = new ArrayList<>();
 
     private Table getTable(String name) {
         for (Table x : tables) {
@@ -40,6 +40,7 @@ public class Database implements DatabaseAble, Serializable {
         return x == null ? null : x.selectPrivate(columns, where, orderBy);
     }
 
+    @Override
     public void changeTableName(String oldOne, String newOne)
         throws NotFoundException, IsExistedException {
         Table x = this.getTable(oldOne);
@@ -93,5 +94,10 @@ public class Database implements DatabaseAble, Serializable {
             return this.name.equals(((Database) obj).name);
         }
         return super.equals(obj);
+    }
+
+    @Override
+    public void alterTable(String name) {
+        this.choosingTable = getTable(name);
     }
 }

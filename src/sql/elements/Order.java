@@ -29,6 +29,10 @@ public class Order {
         this.value.setString(value);
     }
 
+    Order(Column column) {
+        this.column = column;
+    }
+
     @NotNull
     public static Column[] castNameList(@NotNull Order[] orders) {
         ArrayList<Column> array = new ArrayList<>();
@@ -36,10 +40,6 @@ public class Order {
             array.add(x.column);
         }
         return (Column[]) array.toArray();
-    }
-
-    Order(Column column) {
-        this.column = column;
     }
 
     @Override

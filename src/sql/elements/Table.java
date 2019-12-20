@@ -28,7 +28,7 @@ public class Table implements TableAble {
         this.data = new ArrayList<>();
     }
 
-    Column getColumn(String name) {
+    public Column getColumn(String name) {
         for (Column x : columnList) {
             if (x.name.equals(name)) {
                 return x;

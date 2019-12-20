@@ -19,4 +19,6 @@ public interface DatabaseAble {
         throws IsExistedException, NotFoundException;
 
     void deleteTable(String name) throws NotFoundException;
+
+    void alterTable(String name);
 }

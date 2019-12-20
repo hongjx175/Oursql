@@ -21,8 +21,8 @@ public class Mysql implements OuterAble, Serializable {
     transient private static final String IOFile = "data.db";
     private static HashMap<String, String> passwordList = new HashMap<>();
     transient private static Mysql instance = null;
-    transient private String userUsing = null;
     ArrayList<Database> databases = new ArrayList<>();
+    transient private String userUsing = null;
 
     private Mysql() {
         passwordList.put(defaultUsername, defaultPassword);
