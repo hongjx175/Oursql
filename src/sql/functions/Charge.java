@@ -1,4 +1,4 @@
-package sql.charge;
+package sql.functions;
 
 import java.util.Scanner;
 import sql.exceptions.WrongCommandException;
