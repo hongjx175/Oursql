@@ -47,6 +47,7 @@ public class Charge {
                 String[] len = s[i].split("=");
                 if (len.length != 1) {
                     Order order = new Order(table, len[0], len[1]);
+                    orders.add(order);
                 }
             }
             database.select(s[3], (Column[]) getColumn.toArray(), (Order[]) orders.toArray(), null);
