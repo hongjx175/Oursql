@@ -8,6 +8,7 @@ import sql.elements.Mysql;
 import sql.elements.Order;
 import sql.elements.Table;
 import sql.exceptions.NotAlterException;
+import sql.exceptions.NotFoundException;
 import sql.exceptions.UnknownSequenceException;
 import sql.exceptions.WrongCommandException;
 
@@ -50,10 +51,21 @@ public class Charge {
         }
     }
 
-    private static void delete(String[] s) {//删除表中的行  DELETE FROM 表名称 WHERE 列名称 = 值
-        if (s.length != 7 || !compare(s[1], "FROM") || !compare(s[3], "WHERE") || !compare(s[5],
-            "=")) {
-
+    private static void delete(String[] s)
+        throws NotAlterException, NotFoundException {//删除表中的行  DELETE FROM 表名称 WHERE 列名称 = 值
+        if (s.length != 7 || !compare(s[1], "FROM") || !compare(s[3], "WHERE") || !s[5]
+            .equals("=")) {
+            if (database == null) {
+                throw new NotAlterException();
+            }
+            Table table = database.getTable(s[2]);
+            ArrayList<Order> orders = new ArrayList<>();
+            for (int i = 4; i < s.length; i++) {
+                if (s[i].equals("=")) {
+                    orders.add(new Order(table, s[i - 1], s[i + 1]));
+                }
+            }
+            table.deleteLine((Order[]) orders.toArray());
         }
     }
 
