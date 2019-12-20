@@ -42,9 +42,12 @@ public class Charge {
                 Column x = table.getColumn(str);
                 getColumn.add(x);
             }
+            //假设只有and
             for (int i = 5; i < s.length; i++) {
                 String[] len = s[i].split("=");
-                Order order = new Order(table, len[0], len[1]);
+                if (len.length != 1) {
+                    Order order = new Order(table, len[0], len[1]);
+                }
             }
             database.select(s[3], (Column[]) getColumn.toArray(), (Order[]) orders.toArray(), null);
         }
