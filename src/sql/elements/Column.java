@@ -9,10 +9,11 @@ public class Column {
     int maxLength;
     String name;
     String type;
-    boolean can_null;
+    boolean canNull;
+    boolean isDeleted;
 
-    public Column(int id, String name, String type, boolean can_null) throws NotFoundException {
-        this(id, name, type, 0, can_null);
+    public Column(int id, String name, String type, boolean canNull) throws NotFoundException {
+        this(id, name, type, 0, canNull);
         switch (type) {
             case "String":
             case "Number":
@@ -31,11 +32,11 @@ public class Column {
     }
 
     @Contract(pure = true)
-    public Column(int id, String name, String type, int maxLength, boolean can_null) {
+    public Column(int id, String name, String type, int maxLength, boolean canNull) {
         this.id = id;
         this.name = name;
         this.type = type;
-        this.can_null = can_null;
+        this.canNull = canNull;
         this.maxLength = maxLength;
     }
 

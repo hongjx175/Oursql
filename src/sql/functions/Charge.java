@@ -35,7 +35,6 @@ public class Charge {
     private static void drop(String[] s) {
         //DROP TABLE 表名称
         //DROP DATABASE 数据库名称
-        //TRUNCATE TABLE 表名称(只删除表内数据)
     }
 
     private static void insert(String[] s) {
@@ -49,7 +48,7 @@ public class Charge {
         //CREATE DATABASE database_name
         //CREATE TABLE 表名称
         //(
-        //列名称1 数据类型,
+        //列名称1 数据类型, NOT NULL
         //列名称2 数据类型,
         //列名称3 数据类型,
         //....
@@ -57,7 +56,7 @@ public class Charge {
         // CREATE TABLE Persons
         //(
         //Id_P int,
-        //LastName varchar(255),
+        //LastName varchar(length) / number(int) / Uid / Date:time
         //FirstName varchar(255),
         //Address varchar(255),
         //City varchar(255)
@@ -72,20 +71,27 @@ public class Charge {
             String[] sp = cmd.split(" ");
             sp[0] = sp[0].toUpperCase();
             //System.out.println(sp[0]);
-            if (sp[0].equals("SELECT")) {
-                select(sp);
-            } else if (sp[0].equals("DELETE")) {
-                delete(sp);
-            } else if (sp[0].equals("DROP")) {
-                drop(sp);
-            } else if (sp[0].equals("UPDATE")) {
-                update(sp);
-            } else if (sp[0].equals("INSERT")) {
-                insert(sp);
-            } else if (sp[0].equals("CREATE")) {
-                create(sp);
-            } else {
-                throw problem;
+            switch (sp[0]) {
+                case "SELECT":
+                    select(sp);
+                    break;
+                case "DELETE":
+                    delete(sp);
+                    break;
+                case "DROP":
+                    drop(sp);
+                    break;
+                case "UPDATE":
+                    update(sp);
+                    break;
+                case "INSERT":
+                    insert(sp);
+                    break;
+                case "CREATE":
+                    create(sp);
+                    break;
+                default:
+                    throw problem;
             }
         } catch (Exception e) {
             System.out.println("请输入合法的命令.");
