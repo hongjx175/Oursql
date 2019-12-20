@@ -19,7 +19,7 @@ public class Table implements TableAble {
     private int index_count = 0;
     private int column_count = 0;
     private ArrayList<Column> columnList = new ArrayList<>();
-    private ArrayList<Line> data;
+    transient private ArrayList<Line> data;
     private ArrayList<Index> indexList = new ArrayList<>();
 
     @Contract(pure = true)
