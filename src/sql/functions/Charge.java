@@ -56,7 +56,7 @@ public class Charge {
         // CREATE TABLE Persons
         //(
         //Id_P int,
-        //LastName varchar(length) / number(int) / Uid / Date:time
+        //LastName varchar(length) / number(int) / Uid / Date/time
         //FirstName varchar(255),
         //Address varchar(255),
         //City varchar(255)
