@@ -29,7 +29,7 @@ public class BTree<V> {
 
 class Node<V> {
 
-    public static final int n = 5;
+    public static final int n = 123;
     public static final long inf = (long) 1e18;
     boolean isLeaf;
     Object[] refers = new Object[n + 1];
@@ -167,10 +167,10 @@ class Controller {
         ArrayList<Integer> array = new ArrayList<>();
         HashMap<Integer, Boolean> map = new HashMap<>();
         Random random = new Random();
-        for (int i = 0; i < 10000; i++) {
-            int x = random.nextInt(100000);
+        for (int i = 0; i < 100000; i++) {
+            int x = random.nextInt(1000000);
             while (map.getOrDefault(x, false)) {
-                x = random.nextInt(100000);
+                x = random.nextInt(1000000);
             }
             map.put(i, true);
             bTree.add(x, x);
