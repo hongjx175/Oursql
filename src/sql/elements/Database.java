@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import sql.ables.DatabaseAble;
 import sql.exceptions.IsExistedException;
 import sql.exceptions.NotFoundException;
+import sql.exceptions.UnknownSequenceException;
 
 public class Database implements DatabaseAble, Serializable {
 
@@ -24,7 +25,7 @@ public class Database implements DatabaseAble, Serializable {
         }
     }
 
-    private Table getTable(String name) {
+    public Table getTable(String name) {
         for (Table x : tables) {
             if (x.name.equals(name)) {
                 return x;
@@ -35,7 +36,7 @@ public class Database implements DatabaseAble, Serializable {
 
     @Override
     public ArrayList<Line> select(String table, Column[] columns, Order[] where, Order[] orderBy)
-        throws Exception {
+        throws UnknownSequenceException {
         Table x = this.getTable(table);
         return x == null ? null : x.selectPrivate(columns, where, orderBy);
     }
