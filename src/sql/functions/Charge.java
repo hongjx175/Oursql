@@ -8,6 +8,7 @@ import sql.elements.Database;
 import sql.elements.Mysql;
 import sql.elements.Order;
 import sql.elements.Table;
+import sql.exceptions.CannotDeleteException;
 import sql.exceptions.IsExistedException;
 import sql.exceptions.NotAlterException;
 import sql.exceptions.NotFoundException;
@@ -84,14 +85,19 @@ public class Charge {
         //UPDATE 表名称 SET 列名称 = 新值 WHERE 列名称 = 某值
     }
 
+    //删除库、表、列
     private static void drop(String[] s)
-        throws WrongCommandException, NotAlterException, NotFoundException {
+        throws WrongCommandException, NotAlterException, NotFoundException, CannotDeleteException {
         //DROP TABLE 表名称
         //DROP DATABASE 数据库名称
         //ALTER TABLE table_name
         //DROP COLUMN column_name
-        if (s.length != 3) {
+        if (s.length != 3 || (!s[1].equalsIgnoreCase("TABLE") && !s[1].equalsIgnoreCase("DATABASE")
+            && !s[1].equalsIgnoreCase("COLUMN"))) {
             throw new WrongCommandException();
+        }
+        if (s[1].equalsIgnoreCase("DATABASE")) {
+            sql.deleteDatabase(s[2]);
         }
         if (s[1].equalsIgnoreCase("TABLE")) {
             if (database == null) {
@@ -103,10 +109,11 @@ public class Charge {
             if (database.choosingTable == null) {
                 throw new NotAlterException();
             }
-            tablea.deleteColumn(s[2]);
+            database.choosingTable.deleteColumn(s[2]);
         }
     }
 
+    //插入行
     private static void insert(String[] s) {
         //INSERT INTO 语句用于向表格中插入新的行。
         //INSERT INTO 表名称 VALUES (值1, 值2,....)
@@ -114,39 +121,52 @@ public class Charge {
 
     }
 
+    //建库、表
     private static void create(String[] s)
-        throws WrongCommandException, NotAlterException, IsExistedException {
+        throws WrongCommandException, NotAlterException, IsExistedException, NotFoundException {
         //CREATE DATABASE database_name
         //CREATE TABLE 表名称
         //(
-        //列名称1 数据类型, NOT NULL
-        //列名称2 数据类型,
-        //列名称3 数据类型,
+        //列名称1 数据类型 NOT NULL
+        //列名称2 数据类型 String/Number/Integer/CardID/Data/Time
+        //列名称3 数据类型
         //....
-        //)例子
-        // CREATE TABLE Persons
-        //(
-        //Id_P int,
-        //LastName varchar(length) / number(int) / Uid / Date/time
-        //FirstName varchar(255),
-        //Address varchar(255),
-        //City varchar(255)
         //)
         if (s.length != 3 || s.length < 3 || (!s[1].equalsIgnoreCase("TABLE") && !s[1]
             .equalsIgnoreCase("DATABASE"))) {
             throw new WrongCommandException();
         }
-        if (s[2].equalsIgnoreCase(("TABLE"))) {
-            if (database == null) {
-                throw new NotAlterException();
-            }
-            database.newTable();
-        }
         if (s[2].equalsIgnoreCase("DATABASE")) {//创建新的数据库
             sql.newDatabase(s[3]);
         }
+        if (s[2].equalsIgnoreCase(("TABLE"))) {//创建新表
+            if (database == null) {
+                throw new NotAlterException();
+            }
+            int colNum = 0;
+            ArrayList<Column> cols = new ArrayList<Column>();
+            scan.nextLine();
+            String str = scan.nextLine();
+            while (!str.equals(")")) {
+                String[] sp = str.split(" ");
+                if (sp.length != 4 && sp.length != 2) {
+                    throw new WrongCommandException();
+                }
+                if (sp.length == 4 && (!sp[2].equalsIgnoreCase("NOT") || !sp[3]
+                    .equalsIgnoreCase("NULL"))) {
+                    throw new WrongCommandException();
+                }
+
+                boolean canNull = (sp.length != 4);
+                cols.add(new Column(colNum++, sp[0], sp[1], canNull));
+                str = scan.nextLine();
+            }
+            // TODO: 2019/12/21 处理index[]
+            database.newTable(s[2], (Column[]) cols.toArray(), null);
+        }
     }
 
+    //改名
     public static void alter(String[] s) throws WrongCommandException, NotAlterException {
         //ALTER TABLE table_name (MODIFY NAME = new_tbname)
         //ALTER DATABASE database_name (MODIFY NAME = new_dbname)
@@ -162,23 +182,32 @@ public class Charge {
             if (database == null) {
                 throw new NotAlterException();
             } else {
-                tablea = database.getTable(s[2]);
+                database.choosingTable = database.getTable(s[2]);
             }
-            if (s.length == 7) {//TODO:改名
-
+            if (s.length == 7) {
+                //TODO:改名
             }
-
         }
         if (s[1].equalsIgnoreCase("DATABASE")) {
             database = sql.getDatabase(s[2]);
-            if (s.length == 7) {//TODO:改名
-
+            if (s.length == 7) {
+                //TODO:改名
             }
         }
     }
 
-    public static void add(String[] s) {//向表中添加列
-
+    //向表中添加列
+    public static void add(String[] s)
+        throws WrongCommandException, NotFoundException, IsExistedException {
+        ////ALTER TABLE table_name
+        //ADD column_name datatype
+        if ((s.length != 3 && s.length != 5) || !(s.length == 5 && s[3].equalsIgnoreCase("NOT")
+            && s[4].equalsIgnoreCase("NULL"))) {
+            throw new WrongCommandException();
+        }
+        Column col;
+        col = new Column(database.choosingTable.getColumn_count() + 1, s[1], s[2], s.length != 5);
+        database.choosingTable.addColumn(col);
     }
 
     public static void main(String[] args) {
