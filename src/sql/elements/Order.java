@@ -3,6 +3,7 @@ package sql.elements;
 import java.util.ArrayList;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
+import sql.exceptions.DataInvalidException;
 
 public class Order {
 
@@ -15,18 +16,11 @@ public class Order {
         this.value = value;
     }
 
-    public Order(@NotNull Table table, String column, int value) {
-        this.column = table.getColumn(column);
-        this.value = new Data();
-        this.value.type = "Integer";
-        this.value.setNumber(this.column, value);
-    }
-
-    public Order(@NotNull Table table, String column, String value) {
+    public Order(@NotNull Table table, String column, String value) throws DataInvalidException {
         this.column = table.getColumn(column);
         this.value = new Data();
         this.value.type = "String";
-        this.value.setString(value);
+        this.value.setValue(this.column, value);
     }
 
     Order(Column column) {

@@ -1,5 +1,6 @@
 package sql.elements;
 
+import java.util.Scanner;
 import java.util.regex.Pattern;
 import org.jetbrains.annotations.NotNull;
 import sql.exceptions.DataInvalidException;
@@ -11,13 +12,22 @@ public class Data {
         + "1-9])|10|20|30|31)\\d{3}$)";
     private static final String numberRegex = "^[0-9]*$";
     private static final String dateRegex =
-        "[0-9]{3}[1-9]|[0-9]{2}[1-9][0-9]{1}|[0-9]{1}[1-9][0-9]{2}|[1-9][0-9]{3}";
-    private static final String timeRegex = "(20|21|22|23|[0-1]?\\\\d):[0-5]?\\\\d:[0-5]?\\\\d$";
+        "((\\d{2}(([02468][048])|([13579][26]))[\\-]((((0?[13578])|(1[02]))[\\-]((0?[1-9])|([1-2][0-9])|(3[01])))|(((0?[469])|(11))[\\-]((0?[1-9])|([1-2][0-9])|(30)))|(0?2[\\-]((0?[1-9])|([1-2][0-9])))))|(\\d{2}(([02468][1235679])|([13579][01345789]))[\\-]((((0?[13578])|(1[02]))[\\-]((0?[1-9])|([1-2][0-9])|(3[01])))|(((0?[469])|(11))[\\-]((0?[1-9])|([1-2][0-9])|(30)))|(0?2[\\-]((0?[1-9])|(1[0-9])|(2[0-8]))))))";
+    private static final String timeRegex = "(((0?[0-9])|([1][0-9])|([2][0-4]))\\\\:([0-5]?[0-9])((\\\\s)|(\\\\:([0-5]?[0-9]))))?$";
     private static final String phoneNumberRegex = "^1[3|4|5|7|8][0-9]\\d{4,8}$";
 
     // TODO: 2019/12/21 change the save type
     String type;
     private String value;
+
+    public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+        String line;
+        Pattern pattern = Pattern.compile(timeRegex);
+        while ((line = scanner.nextLine()).length() != 0) {
+            System.out.println(pattern.matcher(line).matches());
+        }
+    }
 
     public String getValue() {
         return value;

@@ -9,6 +9,7 @@ import sql.elements.Mysql;
 import sql.elements.Order;
 import sql.elements.Table;
 import sql.exceptions.CannotDeleteException;
+import sql.exceptions.DataInvalidException;
 import sql.exceptions.IsExistedException;
 import sql.exceptions.NotAlterException;
 import sql.exceptions.NotFoundException;
@@ -29,7 +30,7 @@ public class Charge {
     }
 
     public static void select(String[] s)
-        throws WrongCommandException, NotAlterException, UnknownSequenceException {
+        throws WrongCommandException, NotAlterException, UnknownSequenceException, DataInvalidException {
         //SELECT 列名称 FROM 表名称 (WHERE 列 运算符 值)
         if (database == null) {
             throw new NotAlterException();
@@ -60,7 +61,7 @@ public class Charge {
 
     //删除表中的行  DELETE FROM 表名称 WHERE 列名称 = 值
     private static void delete(String[] s)
-        throws NotAlterException, NotFoundException, WrongCommandException {
+        throws NotAlterException, NotFoundException, WrongCommandException, DataInvalidException {
         if (s.length != 7 || !compare(s[1], "FROM") || !compare(s[3], "WHERE") || !s[5]
             .equals("=")) {
             throw new WrongCommandException();
@@ -116,7 +117,7 @@ public class Charge {
         //INSERT INTO 语句用于向表格中插入新的行。
         //INSERT INTO 表名称 VALUES (值1, 值2,....)
         //INSERT INTO 表名称 (列1, 列2,...) VALUES (值1, 值2,....)指定列
-        
+
     }
 
     //建库、表
