@@ -18,9 +18,10 @@ public class Charge {
     static WrongCommandException problem = new WrongCommandException();
     static Mysql sql = Mysql.getInstance();
     static Database database;
+    static Table tablea;
 
     static boolean compare(String a, String b) {
-        return a.toUpperCase().equals(b);
+        return a.equalsIgnoreCase(b);
     }
 
     public static void select(String[] s)
@@ -45,6 +46,7 @@ public class Charge {
             }
             //假设只有and
             for (int i = 5; i < s.length; i++) {
+                //TODO:等号应该是单独在一个s[]里的，因为指令等号两边都有空格
                 String[] len = s[i].split("=");
                 if (len.length != 1) {
                     Order order = new Order(table, len[0], len[1]);
@@ -57,9 +59,10 @@ public class Charge {
 
     private static void delete(String[] s)
         throws NotAlterException, NotFoundException, WrongCommandException {//删除表中的行  DELETE FROM 表名称 WHERE 列名称 = 值
-        // TODO: 2019/12/21 是不是ifelse写反了？ 
         if (s.length != 7 || !compare(s[1], "FROM") || !compare(s[3], "WHERE") || !s[5]
             .equals("=")) {
+            throw new WrongCommandException();
+        } else {
             if (database == null) {
                 throw new NotAlterException();
             }
@@ -71,8 +74,6 @@ public class Charge {
                 }
             }
             table.deleteLine((Order[]) orders.toArray());
-        } else {
-            throw new WrongCommandException();
         }
     }
 
@@ -80,9 +81,22 @@ public class Charge {
         //UPDATE 表名称 SET 列名称 = 新值 WHERE 列名称 = 某值
     }
 
-    private static void drop(String[] s) {
+    private static void drop(String[] s) throws WrongCommandException, NotAlterException {
         //DROP TABLE 表名称
         //DROP DATABASE 数据库名称
+        //ALTER TABLE table_name
+        //DROP COLUMN column_name
+        if (s.length != 3) {
+            throw new WrongCommandException();
+        }
+        if (s[1].equalsIgnoreCase("TABLE") && database == null) {
+            throw new NotAlterException();
+        }
+        if (s[1].equalsIgnoreCase("COLUMN") && tablea == null) {
+            throw new NotAlterException();
+        }
+
+
     }
 
     private static void insert(String[] s) {
@@ -109,6 +123,28 @@ public class Charge {
         //Address varchar(255),
         //City varchar(255)
         //)
+        if () {
+
+        }
+    }
+
+    public static void alter(String[] s) throws WrongCommandException, NotAlterException {
+        //ALTER TABLE table_name
+        //ALTER DATABASE database_name
+        if (!s[1].equalsIgnoreCase("TABLE") && s[1].equalsIgnoreCase("DATABASE")) {
+            throw new WrongCommandException();
+        }
+        if (s[1].equalsIgnoreCase("TABLE")) {
+            if (database == null) {
+                throw new NotAlterException();
+            } else {
+                tablea = database.getTable(s[2]);
+            }
+
+        }
+        if (s[1].equalsIgnoreCase("DATABASE")) {
+            database = sql.getDatabase(s[2]);
+        }
     }
 
     public static void main(String[] args) {
@@ -119,6 +155,9 @@ public class Charge {
             sp[0] = sp[0].toUpperCase();
             //System.out.println(sp[0]);
             switch (sp[0]) {
+                case "ALTER":
+                    alter(sp);
+                    break;
                 case "SELECT":
                     select(sp);
                     break;
