@@ -8,6 +8,7 @@ import sql.elements.Database;
 import sql.elements.Mysql;
 import sql.elements.Order;
 import sql.elements.Table;
+import sql.exceptions.IsExistedException;
 import sql.exceptions.NotAlterException;
 import sql.exceptions.NotFoundException;
 import sql.exceptions.UnknownSequenceException;
@@ -19,7 +20,7 @@ public class Charge {
     static WrongCommandException problem = new WrongCommandException();
     static Mysql sql = Mysql.getInstance();
     static Database database;
-    static Table tablea;
+    //static Table tablea;
 
 
     static boolean compare(@NotNull String a, String b) {
@@ -55,8 +56,7 @@ public class Charge {
                     orders.add(order);
                 }
             }
-            database
-                .select(s[3], (Column[]) getColumn.toArray(), (Order[]) orders.toArray(), null);
+            database.select(s[3], (Column[]) getColumn.toArray(), (Order[]) orders.toArray(), null);
         }
     }
 
@@ -100,13 +100,11 @@ public class Charge {
             database.deleteTable(s[2]);
         }
         if (s[1].equalsIgnoreCase("COLUMN")) {
-            if (tablea == null) {
+            if (database.choosingTable == null) {
                 throw new NotAlterException();
             }
             tablea.deleteColumn(s[2]);
         }
-
-
     }
 
     private static void insert(String[] s) {
@@ -116,7 +114,8 @@ public class Charge {
 
     }
 
-    private static void create(String[] s) {
+    private static void create(String[] s)
+        throws WrongCommandException, NotAlterException, IsExistedException {
         //CREATE DATABASE database_name
         //CREATE TABLE 表名称
         //(
@@ -133,15 +132,30 @@ public class Charge {
         //Address varchar(255),
         //City varchar(255)
         //)
-        if () {
-
+        if (s.length != 3 || s.length < 3 || (!s[1].equalsIgnoreCase("TABLE") && !s[1]
+            .equalsIgnoreCase("DATABASE"))) {
+            throw new WrongCommandException();
+        }
+        if (s[2].equalsIgnoreCase(("TABLE"))) {
+            if (database == null) {
+                throw new NotAlterException();
+            }
+            database.newTable();
+        }
+        if (s[2].equalsIgnoreCase("DATABASE")) {//创建新的数据库
+            sql.newDatabase(s[3]);
         }
     }
 
     public static void alter(String[] s) throws WrongCommandException, NotAlterException {
-        //ALTER TABLE table_name
-        //ALTER DATABASE database_name
-        if (!s[1].equalsIgnoreCase("TABLE") && s[1].equalsIgnoreCase("DATABASE")) {
+        //ALTER TABLE table_name (MODIFY NAME = new_tbname)
+        //ALTER DATABASE database_name (MODIFY NAME = new_dbname)
+        if ((!s[1].equalsIgnoreCase("TABLE") && !s[1].equalsIgnoreCase("DATABASE")) || (
+            s.length != 3 && s.length != 7)) {
+            throw new WrongCommandException();
+        }
+        if (s.length == 7 && s[3].equalsIgnoreCase("MODIFY") || !s[5].equals("=") || !s[4]
+            .equalsIgnoreCase("NAME")) {
             throw new WrongCommandException();
         }
         if (s[1].equalsIgnoreCase("TABLE")) {
@@ -150,11 +164,21 @@ public class Charge {
             } else {
                 tablea = database.getTable(s[2]);
             }
+            if (s.length == 7) {//TODO:改名
+
+            }
 
         }
         if (s[1].equalsIgnoreCase("DATABASE")) {
             database = sql.getDatabase(s[2]);
+            if (s.length == 7) {//TODO:改名
+
+            }
         }
+    }
+
+    public static void add(String[] s) {//向表中添加列
+
     }
 
     public static void main(String[] args) {
@@ -185,6 +209,9 @@ public class Charge {
                     break;
                 case "CREATE":
                     create(sp);
+                    break;
+                case "ADD":
+                    add(sp);
                     break;
                 default:
                     throw problem;
