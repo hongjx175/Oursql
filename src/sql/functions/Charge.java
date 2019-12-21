@@ -50,19 +50,17 @@ public class Charge {
             }
             //假设只有and
             for (int i = 5; i < s.length; i++) {
-                //TODO:等号应该是单独在一个s[]里的，因为指令等号两边都有空格
-                String[] len = s[i].split("=");
-                if (len.length != 1) {
-                    Order order = new Order(table, len[0], len[1]);
-                    orders.add(order);
+                if (s[i].equals("=")) {
+                    orders.add(new Order(table, s[i - 1], s[i + 1]));
                 }
             }
             database.select(s[3], (Column[]) getColumn.toArray(), (Order[]) orders.toArray(), null);
         }
     }
 
+    //删除表中的行  DELETE FROM 表名称 WHERE 列名称 = 值
     private static void delete(String[] s)
-        throws NotAlterException, NotFoundException, WrongCommandException {//删除表中的行  DELETE FROM 表名称 WHERE 列名称 = 值
+        throws NotAlterException, NotFoundException, WrongCommandException {
         if (s.length != 7 || !compare(s[1], "FROM") || !compare(s[3], "WHERE") || !s[5]
             .equals("=")) {
             throw new WrongCommandException();
@@ -118,7 +116,7 @@ public class Charge {
         //INSERT INTO 语句用于向表格中插入新的行。
         //INSERT INTO 表名称 VALUES (值1, 值2,....)
         //INSERT INTO 表名称 (列1, 列2,...) VALUES (值1, 值2,....)指定列
-
+        
     }
 
     //建库、表
@@ -132,7 +130,7 @@ public class Charge {
         //列名称3 数据类型
         //....
         //)
-        if (s.length != 3 || s.length < 3 || (!s[1].equalsIgnoreCase("TABLE") && !s[1]
+        if (s.length != 3 || (!s[1].equalsIgnoreCase("TABLE") && !s[1]
             .equalsIgnoreCase("DATABASE"))) {
             throw new WrongCommandException();
         }
@@ -166,16 +164,16 @@ public class Charge {
         }
     }
 
-    //改名
-    public static void alter(String[] s) throws WrongCommandException, NotAlterException {
+    //更改
+    private static void alter(String[] s) throws WrongCommandException, NotAlterException {
         //ALTER TABLE table_name (MODIFY NAME = new_tbname)
         //ALTER DATABASE database_name (MODIFY NAME = new_dbname)
         if ((!s[1].equalsIgnoreCase("TABLE") && !s[1].equalsIgnoreCase("DATABASE")) || (
             s.length != 3 && s.length != 7)) {
             throw new WrongCommandException();
         }
-        if (s.length == 7 && s[3].equalsIgnoreCase("MODIFY") || !s[5].equals("=") || !s[4]
-            .equalsIgnoreCase("NAME")) {
+        if (s.length == 7 && (!s[3].equalsIgnoreCase("MODIFY") || !s[5].equals("=") || !s[4]
+            .equalsIgnoreCase("NAME"))) {
             throw new WrongCommandException();
         }
         if (s[1].equalsIgnoreCase("TABLE")) {
@@ -197,12 +195,12 @@ public class Charge {
     }
 
     //向表中添加列
-    public static void add(String[] s)
+    private static void add(String[] s)
         throws WrongCommandException, NotFoundException, IsExistedException {
         ////ALTER TABLE table_name
         //ADD column_name datatype
-        if ((s.length != 3 && s.length != 5) || !(s.length == 5 && s[3].equalsIgnoreCase("NOT")
-            && s[4].equalsIgnoreCase("NULL"))) {
+        if ((s.length != 3 && s.length != 5) || (s.length == 5 && (!s[3].equalsIgnoreCase("NOT")
+            || !s[4].equalsIgnoreCase("NULL")))) {
             throw new WrongCommandException();
         }
         Column col;
