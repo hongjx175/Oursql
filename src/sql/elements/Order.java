@@ -19,7 +19,6 @@ public class Order {
     public Order(@NotNull Table table, String column, String value) throws DataInvalidException {
         this.column = table.getColumn(column);
         this.value = new Data();
-        this.value.type = "String";
         this.value.setValue(this.column, value);
     }
 
