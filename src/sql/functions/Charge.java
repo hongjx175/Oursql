@@ -2,6 +2,8 @@ package sql.functions;
 
 import java.util.ArrayList;
 import java.util.Scanner;
+import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.NotNull;
 import sql.elements.Column;
 import sql.elements.Database;
 import sql.elements.Mysql;
@@ -19,8 +21,9 @@ public class Charge {
     static Mysql sql = Mysql.getInstance();
     static Database database;
 
-    static boolean compare(String a, String b) {
-        return a.toUpperCase().equals(b);
+    @Contract("_, null -> false")
+    static boolean compare(@NotNull String a, String b) {
+        return a.equalsIgnoreCase(b);
     }
 
     public static void select(String[] s)
