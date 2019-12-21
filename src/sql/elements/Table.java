@@ -206,6 +206,10 @@ public class Table implements TableAble {
         return result;
     }
 
+    ArrayList<Line> selectAll(Order[] where, Order[] orderBy) throws UnknownSequenceException {
+        return this.selectPrivate((Column[]) this.columnList.toArray(), where, orderBy);
+    }
+
     ArrayList<Line> selectPrivate(Column[] columns, Order[] where, Order[] order_by)
         throws UnknownSequenceException {
         ArrayList<Integer> result = selectWhereIntoNumbers(where);

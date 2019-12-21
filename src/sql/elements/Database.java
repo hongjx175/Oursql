@@ -41,6 +41,12 @@ public class Database implements DatabaseAble, Serializable {
         return x == null ? null : x.selectPrivate(columns, where, orderBy);
     }
 
+    public ArrayList<Line> selectAll(String table, Order[] where, Order[] orderby)
+        throws UnknownSequenceException {
+        Table x = this.getTable(table);
+        return x == null ? null : x.selectAll(where, orderby);
+    }
+
     @Override
     public void changeTableName(String oldOne, String newOne)
         throws NotFoundException, IsExistedException {
