@@ -2,6 +2,7 @@ package sql.functions;
 
 import java.util.ArrayList;
 import java.util.Scanner;
+import org.jetbrains.annotations.NotNull;
 import sql.elements.Column;
 import sql.elements.Database;
 import sql.elements.Mysql;
@@ -20,7 +21,8 @@ public class Charge {
     static Database database;
     static Table tablea;
 
-    static boolean compare(String a, String b) {
+
+    static boolean compare(@NotNull String a, String b) {
         return a.equalsIgnoreCase(b);
     }
 
@@ -53,7 +55,8 @@ public class Charge {
                     orders.add(order);
                 }
             }
-            database.select(s[3], (Column[]) getColumn.toArray(), (Order[]) orders.toArray(), null);
+            database
+                .select(s[3], (Column[]) getColumn.toArray(), (Order[]) orders.toArray(), null);
         }
     }
 
@@ -81,7 +84,8 @@ public class Charge {
         //UPDATE 表名称 SET 列名称 = 新值 WHERE 列名称 = 某值
     }
 
-    private static void drop(String[] s) throws WrongCommandException, NotAlterException {
+    private static void drop(String[] s)
+        throws WrongCommandException, NotAlterException, NotFoundException {
         //DROP TABLE 表名称
         //DROP DATABASE 数据库名称
         //ALTER TABLE table_name
@@ -89,11 +93,17 @@ public class Charge {
         if (s.length != 3) {
             throw new WrongCommandException();
         }
-        if (s[1].equalsIgnoreCase("TABLE") && database == null) {
-            throw new NotAlterException();
+        if (s[1].equalsIgnoreCase("TABLE")) {
+            if (database == null) {
+                throw new NotAlterException();
+            }
+            database.deleteTable(s[2]);
         }
-        if (s[1].equalsIgnoreCase("COLUMN") && tablea == null) {
-            throw new NotAlterException();
+        if (s[1].equalsIgnoreCase("COLUMN")) {
+            if (tablea == null) {
+                throw new NotAlterException();
+            }
+            tablea.deleteColumn(s[2]);
         }
 
 
