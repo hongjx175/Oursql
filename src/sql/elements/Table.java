@@ -342,5 +342,9 @@ public class Table implements TableAble {
         }
         return super.equals(obj);
     }
+
+    public int getColumn_count() {
+        return column_count;
+    }
 }
 
