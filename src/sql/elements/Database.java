@@ -15,6 +15,7 @@ public class Database implements DatabaseAble, Serializable {
     ArrayList<Table> tables = new ArrayList<>();
 
     public Database(String name) {
+        this.name = name;
         try {
             Column date = new Column(1, "name", "Date", false);
             Column time = new Column(2, "time", "Time", false);
