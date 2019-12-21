@@ -116,7 +116,7 @@ public class Charge {
         //INSERT INTO 语句用于向表格中插入新的行。
         //INSERT INTO 表名称 VALUES (值1, 值2,....)
         //INSERT INTO 表名称 (列1, 列2,...) VALUES (值1, 值2,....)指定列
-        
+
     }
 
     //建库、表
@@ -134,10 +134,10 @@ public class Charge {
             .equalsIgnoreCase("DATABASE"))) {
             throw new WrongCommandException();
         }
-        if (s[2].equalsIgnoreCase("DATABASE")) {//创建新的数据库
-            sql.newDatabase(s[3]);
+        if (s[1].equalsIgnoreCase("DATABASE")) {//创建新的数据库
+            sql.newDatabase(s[2]);
         }
-        if (s[2].equalsIgnoreCase(("TABLE"))) {//创建新表
+        if (s[1].equalsIgnoreCase(("TABLE"))) {//创建新表
             if (database == null) {
                 throw new NotAlterException();
             }
