@@ -1,5 +1,6 @@
 package sql.elements;
 
+import java.util.Arrays;
 import java.util.Scanner;
 import java.util.regex.Pattern;
 import org.jetbrains.annotations.NotNull;
@@ -7,6 +8,9 @@ import sql.exceptions.DataInvalidException;
 
 public class Data {
 
+    // TODO: 2019/12/21 change the save type
+//    private String value;
+    static public final int size = 100;
     private static final String cardIDRegex = "(^[1-9]\\d{5}(18|19|20)\\d{2}((0[1-9])|(10|11|12))(("
         + "[0-2][1-9])|10|20|30|31)\\d{3}[0-9Xx]$)|(^[1-9]\\d{5}\\d{2}((0[1-9])|(10|11|12))(([0-2]["
         + "1-9])|10|20|30|31)\\d{3}$)";
@@ -20,9 +24,8 @@ public class Data {
     private static final String timeRegex =
         "(((0?[0-9])|([1][0-9])|([2][0-4]))\\\\:([0-5]?[0-9])((\\\\s)|(\\\\:([0-5]?[0-9]))))?$";
     private static final String phoneNumberRegex = "^1[3|4|5|7|8][0-9]\\d{4,8}$";
-
-    // TODO: 2019/12/21 change the save type
-    private String value;
+    char[] value;
+    Data next;
 
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
@@ -34,7 +37,10 @@ public class Data {
     }
 
     public String getValue() {
-        return value;
+        if (this.next == null) {
+            return Arrays.toString(this.value);
+        }
+        return String.valueOf(this.value) + String.valueOf(this.next.value);
     }
 
     public void setValue(@NotNull Column column, String value) throws DataInvalidException {
@@ -62,6 +68,17 @@ public class Data {
         if (!pattern.matcher(value).matches()) {
             throw new DataInvalidException(type, value);
         }
-        this.value = value;
+        this.setString(value);
+    }
+
+    private void setString(String value) {
+        if (value.length() < size) {
+            this.value = value.toCharArray();
+        } else {
+            this.value = value.substring(0, 100).toCharArray();
+            value = value.substring(101);
+            this.next = new Data();
+            this.next.setString(value);
+        }
     }
 }
