@@ -30,7 +30,7 @@ public class Charge {
             throw new NotAlterException();
         }
         if (s[1].equals("*")) {//选取表中所有列
-
+            // TODO: 2019/12/21  api selectAll
         } else {
             if (s.length < 4) {
                 throw new WrongCommandException();
@@ -56,7 +56,8 @@ public class Charge {
     }
 
     private static void delete(String[] s)
-        throws NotAlterException, NotFoundException {//删除表中的行  DELETE FROM 表名称 WHERE 列名称 = 值
+        throws NotAlterException, NotFoundException, WrongCommandException {//删除表中的行  DELETE FROM 表名称 WHERE 列名称 = 值
+        // TODO: 2019/12/21 是不是ifelse写反了？ 
         if (s.length != 7 || !compare(s[1], "FROM") || !compare(s[3], "WHERE") || !s[5]
             .equals("=")) {
             if (database == null) {
@@ -70,6 +71,8 @@ public class Charge {
                 }
             }
             table.deleteLine((Order[]) orders.toArray());
+        } else {
+            throw new WrongCommandException();
         }
     }
 
