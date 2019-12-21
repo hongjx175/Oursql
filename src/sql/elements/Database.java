@@ -10,8 +10,8 @@ import sql.exceptions.UnknownSequenceException;
 public class Database implements DatabaseAble, Serializable {
 
     transient private static final String historyTableName = "History";
+    public Table choosingTable;
     String name;
-    Table choosingTable;
     ArrayList<Table> tables = new ArrayList<>();
 
     public Database(String name) {
