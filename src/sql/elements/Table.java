@@ -30,6 +30,14 @@ public class Table implements TableAble {
         this.data = new ArrayList<>();
     }
 
+    public String[] getColumnNames() {
+        ArrayList<String> colNames = new ArrayList<String>();
+        for (Column c : columnList) {
+            colNames.add(c.getName());
+        }
+        return (String[]) colNames.toArray();
+    }
+
     @SuppressWarnings("unchecked")
     private static <T> ArrayList<T> getSame(ArrayList<T>... list) {
         ArrayList<T> result = new ArrayList<>();

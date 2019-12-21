@@ -19,7 +19,6 @@ import sql.exceptions.WrongCommandException;
 public class Charge {
 
     static Scanner scan = new Scanner(System.in);
-    static WrongCommandException problem = new WrongCommandException();
     static Mysql sql = Mysql.getInstance();
     static Database database;
     //static Table tablea;
@@ -80,8 +79,25 @@ public class Charge {
         }
     }
 
-    private static void update(String[] s) {
+    private static void update(String[] s)
+        throws NotAlterException, WrongCommandException, DataInvalidException {
         //UPDATE 表名称 SET 列名称 = 新值 WHERE 列名称 = 某值
+        if (database == null) {
+            throw new NotAlterException();
+        }
+        if (s.length != 10) {
+            throw new WrongCommandException();
+        }
+        if (!s[2].equalsIgnoreCase("SET") || !s[4].equals("=") || !s[8].equals("=") || !s[6]
+            .equalsIgnoreCase("WHERE")) {
+            throw new WrongCommandException();
+        }
+        Table table = database.getTable(s[1]);
+        //ArrayList<Order> search = new ArrayList<Order>();
+        //ArrayList<Order> update = new ArrayList<Order>();
+        Order[] search = {new Order(table, s[7], s[9])};
+        Order[] update = {new Order(table, s[3], s[5])};
+        table.update(search, update);
     }
 
     //删除库、表、列
@@ -113,11 +129,48 @@ public class Charge {
     }
 
     //插入行
-    private static void insert(String[] s) {
+    private static void insert(String[] s)
+        throws NotAlterException, WrongCommandException, DataInvalidException {
         //INSERT INTO 语句用于向表格中插入新的行。
-        //INSERT INTO 表名称 VALUES (值1, 值2,....)
-        //INSERT INTO 表名称 (列1, 列2,...) VALUES (值1, 值2,....)指定列
-
+        //INSERT INTO 表名称 VALUES 值1,值2,....
+        //INSERT INTO 表名称 列1,列2,... VALUES 值1, 值2,....//(指定列)
+        if (database == null) {
+            throw new NotAlterException();
+        }
+        if (s.length != 5 && s.length != 6) {
+            throw new WrongCommandException();
+        }
+        Table table = database.getTable(s[2]);
+        ArrayList<Order> orders = new ArrayList<Order>();
+        if (s.length == 5) {
+            if (!s[1].equalsIgnoreCase("INTO") || !s[3].equalsIgnoreCase("VALUES")) {
+                throw new WrongCommandException();
+            } else {
+                String[] colNames = table.getColumnNames();
+                String[] values = s[4].split(",");
+                if (colNames.length != values.length) {
+                    throw new WrongCommandException();
+                }
+                for (int i = 0; i < colNames.length; i++) {
+                    orders.add(new Order(table, colNames[i], values[i]));
+                }
+            }
+        }
+        if (s.length == 6) {
+            if (!s[1].equalsIgnoreCase("INTO") || !s[4].equalsIgnoreCase("VALUES")) {
+                throw new WrongCommandException();
+            } else {
+                String[] colNames = s[3].split(",");
+                String[] values = s[5].split(",");
+                if (colNames.length != values.length) {
+                    throw new WrongCommandException();
+                }
+                for (int i = 0; i < values.length; i++) {
+                    orders.add(new Order(table, colNames[i], values[i]));
+                }
+            }
+        }
+        table.insert((Order[]) orders.toArray());
     }
 
     //建库、表
@@ -242,7 +295,7 @@ public class Charge {
                     add(sp);
                     break;
                 default:
-                    throw problem;
+                    throw new WrongCommandException();
             }
         } catch (Exception e) {
             System.out.println("请输入合法的命令.");

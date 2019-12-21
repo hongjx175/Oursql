@@ -40,6 +40,10 @@ public class Column {
         this.maxLength = maxLength;
     }
 
+    public String getName() {
+        return this.name;
+    }
+
     Column(String name) {
         this.name = name;
     }
