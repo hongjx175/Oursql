@@ -4,6 +4,7 @@ import org.jetbrains.annotations.NotNull;
 
 public class Data {
 
+    // TODO: 2019/12/21 change the save type 
     String type;
     private String value;
 

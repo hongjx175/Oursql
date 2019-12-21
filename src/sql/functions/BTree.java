@@ -99,6 +99,10 @@ class Node<V> {
         return ((Node<V>) refers[pos]).get(key);
     }
 
+    void delete(long key) {
+        // TODO: 2019/12/21 delete
+    }
+
     Node<V> copyNew(@NotNull NeedRenew newError) {
         Node<V> tmp = new Node<>(this.isLeaf);
         if (this.isLeaf) {

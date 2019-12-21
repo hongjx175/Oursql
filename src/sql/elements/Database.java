@@ -56,7 +56,7 @@ public class Database implements DatabaseAble, Serializable {
     }
 
     @Override
-    public void newTable(String name, Column[] columns, Index[] index)
+    public void newTable(String name, Column[] columns, HashIndex[] index)
         throws IsExistedException, NotFoundException {
         Table x = this.getTable(name);
         if (x != null) {
@@ -68,7 +68,7 @@ public class Database implements DatabaseAble, Serializable {
             x.addColumn(column);
         }
         if (index != null) {
-            for (Index t : index) {
+            for (HashIndex t : index) {
                 x.setIndex(t.type, t.name, t.columns);
             }
         }

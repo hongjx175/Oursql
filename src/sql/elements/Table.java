@@ -21,7 +21,7 @@ public class Table implements TableAble {
     private int column_count = 0;
     private ArrayList<Column> columnList = new ArrayList<>();
     transient private ArrayList<Line> data;
-    private ArrayList<Index> indexList = new ArrayList<>();
+    private ArrayList<HashIndex> indexList = new ArrayList<>();
 
     @Contract(pure = true)
     Table(String name) {
@@ -88,8 +88,8 @@ public class Table implements TableAble {
         return null;
     }
 
-    Index getIndex(String name) {
-        for (Index x : indexList) {
+    HashIndex getIndex(String name) {
+        for (HashIndex x : indexList) {
             if (x.name.equals(name)) {
                 return x;
             }
@@ -140,7 +140,7 @@ public class Table implements TableAble {
 
     @NotNull
     @SuppressWarnings("unchecked")
-    private ArrayList<Integer> selectInIndex(HashMap<Column, Data> map, @NotNull Index index) {
+    private ArrayList<Integer> selectInIndex(HashMap<Column, Data> map, @NotNull HashIndex index) {
         StringBuilder str = new StringBuilder();
         for (Column x : index.columns) {
             str.append(map.get(x));
@@ -187,7 +187,7 @@ public class Table implements TableAble {
         for (Order x : where) {
             map.putIfAbsent(x.column, x.value);
         }
-        for (Index index : this.indexList) {
+        for (HashIndex index : this.indexList) {
             if (getSame(index.columns.toArray(), Order.castNameList(where)).length == index.columns
                 .size()) {
                 HashMap<Column, Data> checkList = new HashMap<>();
@@ -266,11 +266,11 @@ public class Table implements TableAble {
     public void setIndex(String type, String name, ArrayList<Column> columns)
         throws NotFoundException, IsExistedException {
         ArrayList<Integer> num = new ArrayList<>();
-        Index x = getIndex(name);
+        HashIndex x = getIndex(name);
         if (x != null) {
             throw new IsExistedException("index", name);
         }
-        x = new Index();
+        x = new HashIndex();
         for (Column column : columns) {
             if (column == null) {
                 throw new NotFoundException("column", name);
