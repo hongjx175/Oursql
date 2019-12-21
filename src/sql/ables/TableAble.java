@@ -3,6 +3,7 @@ package sql.ables;
 import org.jetbrains.annotations.NotNull;
 import sql.elements.Column;
 import sql.elements.Order;
+import sql.exceptions.DataInvalidException;
 import sql.exceptions.IsExistedException;
 import sql.exceptions.NotFoundException;
 
@@ -14,7 +15,7 @@ public interface TableAble {
 
     void insert(Order[] orders);
 
-    void update(Order[] search, Order[] update) throws NotFoundException;
+    void update(Order[] search, Order[] update) throws NotFoundException, DataInvalidException;
 
     void deleteLine(Order[] search) throws NotFoundException;
 

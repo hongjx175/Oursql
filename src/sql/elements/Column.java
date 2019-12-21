@@ -17,9 +17,9 @@ public class Column {
         switch (type) {
             case "String":
             case "Number":
+            case "PhoneNumber":
                 this.maxLength = 100;
                 break;
-            case "Integer":
             case "CardID":
                 this.maxLength = 20;
                 break;

@@ -9,6 +9,7 @@ import java.util.Map.Entry;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import sql.ables.TableAble;
+import sql.exceptions.DataInvalidException;
 import sql.exceptions.IsExistedException;
 import sql.exceptions.NotFoundException;
 import sql.exceptions.UnknownSequenceException;
@@ -166,8 +167,8 @@ public class Table implements TableAble {
             boolean is_equal = true;
             for (Entry<Column, Data> y : where.entrySet()) {
                 int index = y.getKey().id;
-                if (!y.getValue().getStringValue()
-                    .equalsIgnoreCase(x.data.get(index).getStringValue())) {
+                if (!y.getValue().getValue()
+                    .equalsIgnoreCase(x.data.get(index).getValue())) {
                     is_equal = false;
                     break;
                 }
@@ -216,12 +217,12 @@ public class Table implements TableAble {
             }
             if (order_by.length != 0) {
                 for (Order j : order_by) {
-                    String s = tmp.data.get(j.column.id).getStringValue();
+                    String s = tmp.data.get(j.column.id).getValue();
                     int len = s.length();
                     for (int ch = 0; ch < len; ch++) {
-                        if (j.value.getStringValue().equals("1")) {
+                        if (j.value.getValue().equals("1")) {
                             tmp.cmp += s.charAt(ch);
-                        } else if (j.value.getStringValue().equals("-1")) {
+                        } else if (j.value.getValue().equals("-1")) {
                             tmp.cmp += (char) (65536 - s.charAt(ch));
                         } else {
                             throw new UnknownSequenceException();
@@ -243,11 +244,13 @@ public class Table implements TableAble {
     }
 
     @Override
-    public void update(@NotNull Order[] set, @NotNull Order[] where) {
+    public void update(@NotNull Order[] set, @NotNull Order[] where) throws DataInvalidException {
         ArrayList<Integer> result = selectWhereIntoNumbers(where);
         for (int x : result) {
             for (Order y : set) {
-                this.data.get(x).data.get(y.column.id).setString(y.value.getStringValue());
+                Line line = this.data.get(x);
+                Data datum = line.data.get(y.column.id);
+                datum.setValue(y.column, y.value.getValue());
             }
         }
     }
