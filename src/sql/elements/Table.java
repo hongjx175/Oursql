@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.Map;
 import java.util.Map.Entry;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
@@ -13,6 +12,7 @@ import sql.exceptions.DataInvalidException;
 import sql.exceptions.IsExistedException;
 import sql.exceptions.NotFoundException;
 import sql.exceptions.UnknownSequenceException;
+import sql.functions.GetSame;
 import sql.functions.Hash;
 
 public class Table implements TableAble {
@@ -33,64 +33,16 @@ public class Table implements TableAble {
     public String[] getColumnNames() {
         ArrayList<String> colNames = new ArrayList<String>();
         for (Column c : columnList) {
-            colNames.add(c.getName());
+            if (!c.isDeleted) {
+                colNames.add(c.getName());
+            }
         }
         return (String[]) colNames.toArray();
     }
 
-    @SuppressWarnings("unchecked")
-    private static <T> ArrayList<T> getSame(ArrayList<T>... list) {
-        ArrayList<T> result = new ArrayList<>();
-        HashMap<T, Integer> hashMap = new HashMap<>();
-        for (ArrayList<T> x : list) {
-            for (T data : x) {
-                hashMap.compute(data, (k, v) -> v != null ? v++ : 1);
-            }
-        }
-        for (Map.Entry<T, Integer> entry : hashMap.entrySet()) {
-            if (entry.getValue() == list.length) {
-                result.add(entry.getKey());
-            }
-        }
-        return result;
-    }
-
-    @SuppressWarnings("unchecked")
-    private static <T> T[] getSame(T[]... list) {
-        ArrayList<T> result = new ArrayList<>();
-        HashMap<T, Integer> hashMap = new HashMap<>();
-        for (T[] x : list) {
-            for (T data : x) {
-                hashMap.compute(data, (k, v) -> v != null ? v++ : 1);
-            }
-        }
-        for (Map.Entry<T, Integer> entry : hashMap.entrySet()) {
-            if (entry.getValue() == list.length) {
-                result.add(entry.getKey());
-            }
-        }
-        return (T[]) result.toArray();
-    }
-
-    private static <T> ArrayList<T> getSame(ArrayList<ArrayList<T>> list) {
-        ArrayList<T> result = new ArrayList<>();
-        HashMap<T, Integer> hashMap = new HashMap<>();
-        for (ArrayList<T> x : list) {
-            for (T data : x) {
-                hashMap.compute(data, (k, v) -> v != null ? v++ : 1);
-            }
-        }
-        for (Map.Entry<T, Integer> entry : hashMap.entrySet()) {
-            if (entry.getValue() == list.size()) {
-                result.add(entry.getKey());
-            }
-        }
-        return result;
-    }
-
     public Column getColumn(String name) {
         for (Column x : columnList) {
-            if (x.name.equals(name)) {
+            if (x.name.equals(name) && !x.isDeleted) {
                 return x;
             }
         }
@@ -134,7 +86,7 @@ public class Table implements TableAble {
         if (x == null) {
             throw new NotFoundException("column", name);
         }
-        this.columnList.remove(x);
+        x.isDeleted = true;
     }
 
     @Override
@@ -161,7 +113,7 @@ public class Table implements TableAble {
         if (ans1 == null || ans2 == null) {
             return new ArrayList<>();
         }
-        return getSame(ans1, ans2);
+        return GetSame.getSame(ans1, ans2);
     }
 
     private ArrayList<Integer> selectDefault(HashMap<Column, Data> where,
@@ -197,7 +149,8 @@ public class Table implements TableAble {
             map.putIfAbsent(x.column, x.value);
         }
         for (HashIndex index : this.indexList) {
-            if (getSame(index.columns.toArray(), Order.castNameList(where)).length == index.columns
+            if (GetSame.getSame(index.columns.toArray(), Order.castNameList(where)).length
+                == index.columns
                 .size()) {
                 HashMap<Column, Data> checkList = new HashMap<>();
                 for (Column x : index.columns) {
@@ -207,9 +160,9 @@ public class Table implements TableAble {
                 checkResult.add(selectInIndex(checkList, index));
             }
         }
-        ArrayList<Integer> result = getSame(checkResult);
+        ArrayList<Integer> result = GetSame.getSame(checkResult);
         if (map.size() > 0 && result.size() > 0) {
-            return getSame(selectDefault(map, result), result);
+            return GetSame.getSame(selectDefault(map, result), result);
         }
         return result;
     }
