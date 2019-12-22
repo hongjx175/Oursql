@@ -71,7 +71,7 @@ public class Data {
         this.setString(value);
     }
 
-    private void setString(String value) {
+    private void setString(@NotNull String value) {
         if (value.length() < size) {
             this.value = value.toCharArray();
         } else {

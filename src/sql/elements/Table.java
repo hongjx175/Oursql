@@ -18,8 +18,8 @@ import sql.functions.Hash;
 public class Table implements TableAble {
 
     public String name;
-    private int index_count = 0;
-    private int column_count = 0;
+    private int idCount = 0;
+    private int columnCount = 0;
     private ArrayList<Column> columnList = new ArrayList<>();
     transient private ArrayList<Line> data;
     private ArrayList<HashIndex> indexList = new ArrayList<>();
@@ -66,7 +66,7 @@ public class Table implements TableAble {
                     + ".");
         }
         Line new_data = new Line();
-        new_data.index = index_count++;
+        new_data.index = idCount++;
         new_data.data.addAll(Arrays.asList(str));
         this.data.add(new_data);
     }
@@ -91,12 +91,12 @@ public class Table implements TableAble {
 
     @Override
     public void insert(@NotNull Order[] orders) {
-        Line new_data = new Line();
-        new_data.index = index_count++;
+        Line newData = new Line();
+        newData.index = idCount++;
         for (Order x : orders) {
-            new_data.data.add(x.column.id, x.value);
+            newData.data.add(x.column.id, x.value);
         }
-        data.add(new_data);
+        data.add(newData);
     }
 
     @NotNull
@@ -124,16 +124,16 @@ public class Table implements TableAble {
             if (x.isDeleted) {
                 continue;
             }
-            boolean is_equal = true;
+            boolean isEqual = true;
             for (Entry<Column, Data> y : where.entrySet()) {
                 int index = y.getKey().id;
                 if (!y.getValue().getValue()
                     .equalsIgnoreCase(x.data.get(index).getValue())) {
-                    is_equal = false;
+                    isEqual = false;
                     break;
                 }
             }
-            if (is_equal) {
+            if (isEqual) {
                 result.add(i);
             }
         }
@@ -171,7 +171,7 @@ public class Table implements TableAble {
         return this.selectPrivate((Column[]) this.columnList.toArray(), where, orderBy);
     }
 
-    ArrayList<Line> selectPrivate(Column[] columns, Order[] where, Order[] order_by)
+    ArrayList<Line> selectPrivate(Column[] columns, Order[] where, Order[] orderBy)
         throws UnknownSequenceException {
         ArrayList<Integer> result = selectWhereIntoNumbers(where);
         ArrayList<Line> array = new ArrayList<>();
@@ -180,8 +180,8 @@ public class Table implements TableAble {
             for (Column j : columns) {
                 add.data.add(tmp.data.get(j.id));
             }
-            if (order_by.length != 0) {
-                for (Order j : order_by) {
+            if (orderBy.length != 0) {
+                for (Order j : orderBy) {
                     String s = tmp.data.get(j.column.id).getValue();
                     int len = s.length();
                     for (int ch = 0; ch < len; ch++) {
@@ -197,7 +197,7 @@ public class Table implements TableAble {
             }
             array.add(add);
         }
-        if (order_by.length != 0) {
+        if (orderBy.length != 0) {
             Collections.sort(array);
             for (int j = 1; j < array.size(); j++) {
                 if (array.get(j - 1).equals(array.get(j))) {
@@ -288,19 +288,19 @@ public class Table implements TableAble {
         if (arr.length < 2) {
             throw new Exception("Massage is too short in adding columns.");
         }
-        boolean can_null = false;
+        boolean canNull = false;
         for (int i = 2; i < arr.length; i++) {
             if (arr[i - 1].equalsIgnoreCase("NOT")
                 && arr[i].equalsIgnoreCase("NULL")) {
-                can_null = true;
+                canNull = true;
                 break;
             }
         }
-        addColumn(arr[0], arr[1], can_null);
+        addColumn(arr[0], arr[1], canNull);
     }
 
-    private void addColumn(String name, String type, boolean can_null) throws NotFoundException {
-        this.columnList.add(new Column(column_count++, name, type, can_null));
+    private void addColumn(String name, String type, boolean canNull) throws NotFoundException {
+        this.columnList.add(new Column(columnCount++, name, type, canNull));
     }
 
     @Override
@@ -311,8 +311,8 @@ public class Table implements TableAble {
         return super.equals(obj);
     }
 
-    public int getColumn_count() {
-        return column_count;
+    public int getColumnCount() {
+        return columnCount;
     }
 }
 

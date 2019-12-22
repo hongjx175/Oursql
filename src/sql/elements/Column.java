@@ -16,11 +16,11 @@ public class Column {
         this(id, name, type, 0, canNull);
         switch (type) {
             case "String":
-            case "Number":
-            case "PhoneNumber":
                 this.maxLength = 100;
                 break;
             case "CardID":
+            case "Number":
+            case "PhoneNumber":
                 this.maxLength = 20;
                 break;
             case "Date":
@@ -40,12 +40,12 @@ public class Column {
         this.maxLength = maxLength;
     }
 
-    public String getName() {
-        return this.name;
-    }
-
     Column(String name) {
         this.name = name;
+    }
+
+    public String getName() {
+        return this.name;
     }
 
     @Override

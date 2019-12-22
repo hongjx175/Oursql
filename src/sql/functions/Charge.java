@@ -257,7 +257,7 @@ public class Charge {
             throw new WrongCommandException();
         }
         Column col;
-        col = new Column(database.choosingTable.getColumn_count() + 1, s[1], s[2], s.length != 5);
+        col = new Column(database.choosingTable.getColumnCount() + 1, s[1], s[2], s.length != 5);
         database.choosingTable.addColumn(col);
     }
 
