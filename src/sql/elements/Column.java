@@ -5,12 +5,12 @@ import sql.exceptions.NotFoundException;
 
 public class Column {
 
-    int id;
-    int maxLength;
-    String name;
-    String type;
-    boolean canNull;
-    boolean isDeleted;
+    public int id;
+    public int maxLength;
+    public String name;
+    public String type;
+    public boolean canNull;
+    public boolean isDeleted;
 
     public Column(int id, String name, String type, boolean canNull) throws NotFoundException {
         this(id, name, type, 0, canNull);

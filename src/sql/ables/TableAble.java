@@ -22,5 +22,5 @@ public interface TableAble {
     void setIndex(String type, String name, String[] columnInOrder)
         throws NotFoundException, IsExistedException;
 
-    public void delete(@NotNull Order[] where) throws Exception;
+    void delete(@NotNull Order[] where) throws NotFoundException;
 }

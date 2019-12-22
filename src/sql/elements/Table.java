@@ -12,22 +12,27 @@ import sql.exceptions.DataInvalidException;
 import sql.exceptions.IsExistedException;
 import sql.exceptions.NotFoundException;
 import sql.exceptions.UnknownSequenceException;
+import sql.functions.DataIOer;
 import sql.functions.GetSame;
 import sql.functions.Hash;
 
 public class Table implements TableAble {
 
     public String name;
+    public Database database;
+    public ArrayList<Column> columnList = new ArrayList<>();
+    public ArrayList<HashIndex> indexList = new ArrayList<>();
     private int idCount = 0;
     private int columnCount = 0;
-    private ArrayList<Column> columnList = new ArrayList<>();
     transient private ArrayList<Line> data;
-    private ArrayList<HashIndex> indexList = new ArrayList<>();
+    private DataIOer dataIOer;
 
     @Contract(pure = true)
-    Table(String name) {
+    Table(String name, Database database) {
         this.name = name;
+        this.database = database;
         this.data = new ArrayList<>();
+        this.dataIOer = new DataIOer(this.database, this);
     }
 
     public String[] getColumnNames() {
@@ -66,7 +71,7 @@ public class Table implements TableAble {
                     + ".");
         }
         Line newData = new Line();
-        newData.index = idCount++;
+        newData.id = idCount++;
         newData.data.addAll(Arrays.asList(str));
         this.data.add(newData);
     }
@@ -92,7 +97,7 @@ public class Table implements TableAble {
     @Override
     public void insert(@NotNull Order[] orders) {
         Line newData = new Line();
-        newData.index = idCount++;
+        newData.id = idCount++;
         for (Order x : orders) {
             newData.data.add(x.column.id, x.value);
         }
@@ -272,10 +277,10 @@ public class Table implements TableAble {
     }
 
     @Override
-    public void delete(@NotNull Order[] where) throws Exception {
+    public void delete(@NotNull Order[] where) throws NotFoundException {
         ArrayList<Integer> result = selectWhereIntoNumbers(where);
         if (result.isEmpty()) {
-            throw new Exception("Data not found.");
+            throw new NotFoundException("data", "your information");
         }
         for (int x : result) {
             data.remove(x);

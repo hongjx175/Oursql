@@ -1,15 +1,13 @@
 package sql.elements;
 
 import java.util.Arrays;
-import java.util.Scanner;
 import java.util.regex.Pattern;
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import sql.exceptions.DataInvalidException;
 
 public class Data {
 
-    // TODO: 2019/12/21 change the save type
-//    private String value;
     static public final int size = 100;
     private static final String cardIDRegex = "(^[1-9]\\d{5}(18|19|20)\\d{2}((0[1-9])|(10|11|12))(("
         + "[0-2][1-9])|10|20|30|31)\\d{3}[0-9Xx]$)|(^[1-9]\\d{5}\\d{2}((0[1-9])|(10|11|12))(([0-2]["
@@ -27,13 +25,12 @@ public class Data {
     char[] value;
     Data next;
 
-    public static void main(String[] args) {
-        Scanner scanner = new Scanner(System.in);
-        String line;
-        Pattern pattern = Pattern.compile(timeRegex);
-        while ((line = scanner.nextLine()).length() != 0) {
-            System.out.println(pattern.matcher(line).matches());
-        }
+    @Contract(pure = true)
+    public Data(@NotNull String string) {
+        this.value = string.toCharArray();
+    }
+
+    public Data() {
     }
 
     public String getValue() {

@@ -11,7 +11,7 @@ public class Database implements DatabaseAble, Serializable {
 
     transient private static final String historyTableName = "History";
     public Table choosingTable;
-    String name;
+    public String name;
     ArrayList<Table> tables = new ArrayList<>();
 
     public Database(String name) {
@@ -69,7 +69,7 @@ public class Database implements DatabaseAble, Serializable {
         if (x != null) {
             throw new IsExistedException("table", name);
         }
-        x = new Table(name);
+        x = new Table(name, this);
         tables.add(x);
         for (Column column : columns) {
             x.addColumn(column);

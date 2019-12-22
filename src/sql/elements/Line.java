@@ -7,13 +7,17 @@ import org.jetbrains.annotations.NotNull;
 public class Line implements Comparable<Line> {
 
     public ArrayList<Data> data;
-    int index;
+    int id;
     boolean isDeleted = false;
     String cmp;
 
     @Contract(pure = true)
     Line() {
         data = new ArrayList<>();
+    }
+
+    public Line(ArrayList<Data> dataArray) {
+        this.data = dataArray;
     }
 
     @Override
