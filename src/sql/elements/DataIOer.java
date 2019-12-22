@@ -1,14 +1,10 @@
-package sql.functions;
+package sql.elements;
 
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.io.Serializable;
 import java.util.ArrayList;
-import sql.elements.Column;
-import sql.elements.Data;
-import sql.elements.Database;
-import sql.elements.Line;
-import sql.elements.Table;
+import sql.functions.Caster;
 
 public class DataIOer implements Serializable {
 

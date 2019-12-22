@@ -12,7 +12,6 @@ import sql.exceptions.DataInvalidException;
 import sql.exceptions.IsExistedException;
 import sql.exceptions.NotFoundException;
 import sql.exceptions.UnknownSequenceException;
-import sql.functions.DataIOer;
 import sql.functions.GetSame;
 import sql.functions.Hash;
 
