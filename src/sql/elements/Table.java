@@ -65,10 +65,10 @@ public class Table implements TableAble {
                 "Length is not correct. Expect " + this.columnList.size() + " , found " + str.length
                     + ".");
         }
-        Line new_data = new Line();
-        new_data.index = idCount++;
-        new_data.data.addAll(Arrays.asList(str));
-        this.data.add(new_data);
+        Line newData = new Line();
+        newData.index = idCount++;
+        newData.data.addAll(Arrays.asList(str));
+        this.data.add(newData);
     }
 
     @Override

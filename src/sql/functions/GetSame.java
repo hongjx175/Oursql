@@ -3,11 +3,13 @@ package sql.functions;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import org.jetbrains.annotations.NotNull;
 
 public class GetSame {
 
+    @NotNull
     @SuppressWarnings("unchecked")
-    public static <T> ArrayList<T> getSame(ArrayList<T>... list) {
+    public static <T> ArrayList<T> getSame(@NotNull ArrayList<T>... list) {
         ArrayList<T> result = new ArrayList<>();
         HashMap<T, Integer> hashMap = new HashMap<>();
         for (ArrayList<T> x : list) {
@@ -23,8 +25,9 @@ public class GetSame {
         return result;
     }
 
+    @NotNull
     @SuppressWarnings("unchecked")
-    public static <T> T[] getSame(T[]... list) {
+    public static <T> T[] getSame(@NotNull T[]... list) {
         ArrayList<T> result = new ArrayList<>();
         HashMap<T, Integer> hashMap = new HashMap<>();
         for (T[] x : list) {
@@ -40,7 +43,8 @@ public class GetSame {
         return (T[]) result.toArray();
     }
 
-    public static <T> ArrayList<T> getSame(ArrayList<ArrayList<T>> list) {
+    @NotNull
+    public static <T> ArrayList<T> getSame(@NotNull ArrayList<ArrayList<T>> list) {
         ArrayList<T> result = new ArrayList<>();
         HashMap<T, Integer> hashMap = new HashMap<>();
         for (ArrayList<T> x : list) {
