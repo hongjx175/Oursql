@@ -8,17 +8,18 @@ import org.jetbrains.annotations.NotNull;
 
 public class BTree<V> {
 
-    private Node<V> root = new Node<>(true);
+    private Node<V> root = new Node<>(null, true);
 
     public void add(long key, V value) {
         NeedRenew newError = root.add(key, value);
         if (newError == null) {
             return;
         }
-        Node<V> newRoot = new Node<>(false);
+        Node<V> newRoot = new Node<>(null, false);
         newRoot.refers[0] = root;
         newRoot.refers[1] = newError.node;
         newRoot.hash[0] = newError.hash;
+        newRoot.parent = root;
         root = newRoot;
     }
 
@@ -34,8 +35,9 @@ class Node<V> {
     boolean isLeaf;
     Object[] refers = new Object[n + 1];
     long[] hash = new long[n];
+    Node<V> parent;
 
-    Node(boolean isLeaf) {
+    Node(Node<V> parent, boolean isLeaf) {
         Arrays.fill(hash, inf);
         this.isLeaf = isLeaf;
     }
@@ -104,7 +106,7 @@ class Node<V> {
     }
 
     Node<V> copyNew(@NotNull NeedRenew newError) {
-        Node<V> tmp = new Node<>(this.isLeaf);
+        Node<V> tmp = new Node<>(this.parent, this.isLeaf);
         if (this.isLeaf) {
             tmp.refers[n] = this.refers[n];
             this.refers[n] = tmp;

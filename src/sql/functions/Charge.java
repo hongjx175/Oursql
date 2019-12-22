@@ -21,11 +21,10 @@ public class Charge {
     static Scanner scan = new Scanner(System.in);
     static Mysql sql = Mysql.getInstance();
     static Database database;
-    //static Table tablea;
 
 
-    static boolean compare(@NotNull String a, String b) {
-        return a.equalsIgnoreCase(b);
+    static boolean notCompare(@NotNull String a, String b) {
+        return !a.equalsIgnoreCase(b);
     }
 
     public static void select(String[] s)
@@ -35,7 +34,8 @@ public class Charge {
             throw new NotAlterException();
         }
         if (s[1].equals("*")) {//选取表中所有列
-            // TODO: 2019/12/21  api selectAll
+//           database.selectAll() available了
+            // TODO: 2019/12/22 @h-primes
         } else {
             if (s.length < 4) {
                 throw new WrongCommandException();
@@ -61,22 +61,21 @@ public class Charge {
     //删除表中的行  DELETE FROM 表名称 WHERE 列名称 = 值
     private static void delete(String[] s)
         throws NotAlterException, NotFoundException, WrongCommandException, DataInvalidException {
-        if (s.length != 7 || !compare(s[1], "FROM") || !compare(s[3], "WHERE") || !s[5]
+        if (s.length != 7 || notCompare(s[1], "FROM") || notCompare(s[3], "WHERE") || !s[5]
             .equals("=")) {
             throw new WrongCommandException();
-        } else {
-            if (database == null) {
-                throw new NotAlterException();
-            }
-            Table table = database.getTable(s[2]);
-            ArrayList<Order> orders = new ArrayList<>();
-            for (int i = 4; i < s.length; i++) {
-                if (s[i].equals("=")) {
-                    orders.add(new Order(table, s[i - 1], s[i + 1]));
-                }
-            }
-            table.deleteLine((Order[]) orders.toArray());
         }
+        if (database == null) {
+            throw new NotAlterException();
+        }
+        Table table = database.getTable(s[2]);
+        ArrayList<Order> orders = new ArrayList<>();
+        for (int i = 4; i < s.length; i++) {
+            if (s[i].equals("=")) {
+                orders.add(new Order(table, s[i - 1], s[i + 1]));
+            }
+        }
+        table.deleteLine((Order[]) orders.toArray());
     }
 
     private static void update(String[] s)
@@ -141,7 +140,7 @@ public class Charge {
             throw new WrongCommandException();
         }
         Table table = database.getTable(s[2]);
-        ArrayList<Order> orders = new ArrayList<Order>();
+        ArrayList<Order> orders = new ArrayList<>();
         if (s.length == 5) {
             if (!s[1].equalsIgnoreCase("INTO") || !s[3].equalsIgnoreCase("VALUES")) {
                 throw new WrongCommandException();
@@ -196,7 +195,7 @@ public class Charge {
                 throw new NotAlterException();
             }
             int colNum = 0;
-            ArrayList<Column> cols = new ArrayList<Column>();
+            ArrayList<Column> cols = new ArrayList<>();
             scan.nextLine();
             String str = scan.nextLine();
             while (!str.equals(")")) {
