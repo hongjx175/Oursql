@@ -26,9 +26,8 @@ public class DataIOer implements Serializable {
 
     public Line getLine(long index) throws IOException {
         int[] result = Caster.longToInt(index);
-        int block = result[0];
-        byte[] blockBytes = Caster.intToBytes(block);
-        ioFile = new RandomAccessFile(this.filePath + new String(blockBytes), "r");
+        ioFile = new RandomAccessFile(this.filePath +
+            new String(Caster.intToBytes(result[0])), "r");
         ArrayList<Data> dataArray = new ArrayList<>();
         for (Column x : table.columnList) {
             int size = Math.min(defaultSize, x.maxLength);
@@ -46,6 +45,15 @@ public class DataIOer implements Serializable {
             dataArray.add(new Data(stringBuilder.toString()));
         }
         return new Line(dataArray);
+    }
+
+    public void setLine(long index, Line line) throws IOException {
+        int[] result = Caster.longToInt(index);
+        ArrayList<Data> dataArray = line.data;
+        ioFile = new RandomAccessFile(this.filePath +
+            new String(Caster.intToBytes(result[0])), "rw");
+        
+
     }
 
     public String getString(int strBlock, int strIndex) throws IOException {
