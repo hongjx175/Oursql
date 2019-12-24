@@ -91,6 +91,7 @@ public class Table implements TableAble {
             throw new NotFoundException("column", name);
         }
         x.isDeleted = true;
+        x.name += x.hashCode();
     }
 
     @Override
@@ -171,7 +172,7 @@ public class Table implements TableAble {
         return result;
     }
 
-    public ArrayList<Line> selectAll(Order[] where, Order[] orderBy)
+    ArrayList<Line> selectAll(Order[] where, Order[] orderBy)
         throws UnknownSequenceException {
         return this.selectPrivate((Column[]) this.columnList.toArray(), where, orderBy);
     }
