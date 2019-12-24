@@ -40,10 +40,9 @@ public class Charge {
             // TODO: 2019/12/22 @h-primes
             /*ArrayList<Line> selectAll(Order[] where, Order[] orderBy) */
             Table table = database.getTable(s[3]);
-            table.selectAll();
+            //table.selectAll();
 
         } else {
-
             String[] cols = s[1].split(",");
             Table table = database.getTable(s[3]);
             ArrayList<Column> getColumn = new ArrayList<>();
