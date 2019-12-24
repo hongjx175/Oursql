@@ -33,4 +33,9 @@ public class Caster {
         result[1] = (int) (number & 0xffffffffL);
         return result;
     }
+
+    @Contract(pure = true)
+    public static long intsToLong(@NotNull int[] ints) {
+        return ((long) ints[0] << 32) + ints[1];
+    }
 }
