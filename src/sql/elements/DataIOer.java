@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Arrays;
 import org.jetbrains.annotations.NotNull;
 import sql.exceptions.TooLongException;
 import sql.functions.Caster;
@@ -52,12 +53,12 @@ public class DataIOer implements Serializable {
             }
             dataArray.add(new Data(stringBuilder.toString()));
         }
+        ioFile.close();
         return new Line(dataArray, (Column[]) table.columnList.toArray());
     }
 
     public long setLine(@NotNull Line lines) throws IOException {
         int[] result = allocatePosition(true);
-        ArrayList<Data> dataArray = lines.data;
         ioFile = new RandomAccessFile(this.filePath +
             new String(Caster.intToBytes(result[0])), "rw");
         ioFile.seek(result[1]);
@@ -71,16 +72,22 @@ public class DataIOer implements Serializable {
                 }
                 bytes = stringBuilder.toString().getBytes();
                 ioFile.write(bytes, 0, size);
+                if (size > defaultSize) {
+                    bytes = Integer.toString(-1).getBytes();
+                    ioFile.write(bytes, 0, intSize - 1);
+                    ioFile.write(bytes, 0, intSize - 1);
+                }
             } else {
-                bytes = stringBuilder.substring(0, 99).getBytes();
+                bytes = stringBuilder.substring(0, defaultSize - 1).getBytes();
                 ioFile.write(bytes, 0, size);
-                int[] next = setString(stringBuilder.delete(0, 99).toString());
+                int[] next = setString(stringBuilder.delete(0, defaultSize - 1).toString());
                 bytes = Integer.toString(next[0]).getBytes();
                 ioFile.write(bytes, 0, intSize);
                 bytes = Integer.toString(next[1]).getBytes();
                 ioFile.write(bytes, 0, intSize);
             }
         }
+        ioFile.close();
         return ((long) result[0] << 32) + result[1];
     }
 
@@ -97,12 +104,32 @@ public class DataIOer implements Serializable {
         if (nextBlock != 0 && nextIndex != 0) {
             str += getString(nextBlock, nextIndex);
         }
+        ioFile.close();
         return str;
     }
 
-    public int[] setString(String string) {
+    public int[] setString(String string) throws IOException {
         int[] result = allocatePosition(false);
-
+        ioFile = new RandomAccessFile(
+            this.filePath + string + new String(Caster.intToBytes(result[0])), "rw");
+        ioFile.seek(result[1]);
+        StringBuilder stringBuilder = new StringBuilder(string);
+        if (string.length() < defaultSize) {
+            while (stringBuilder.length() < defaultSize) {
+                stringBuilder.append(" ");
+            }
+            bytes = stringBuilder.toString().getBytes();
+            ioFile.write(bytes, 0, defaultSize);
+            Arrays.fill(bytes, 0, longSize - 1, (byte) 0);
+            ioFile.write(bytes, 0, longSize);
+        } else {
+            int[] next = setString(stringBuilder.substring(0, defaultSize - 1));
+            bytes = Caster.intToBytes(next[0]);
+            ioFile.write(bytes, 0, intSize);
+            bytes = Caster.intToBytes(next[1]);
+            ioFile.write(bytes, 0, intSize);
+        }
+        ioFile.close();
         return result;
     }
 
