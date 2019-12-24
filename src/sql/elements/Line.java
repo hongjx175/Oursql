@@ -3,6 +3,7 @@ package sql.elements;
 import java.util.ArrayList;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
+import sql.exceptions.TooLongException;
 
 public class Line implements Comparable<Line> {
 
@@ -16,8 +17,18 @@ public class Line implements Comparable<Line> {
         data = new ArrayList<>();
     }
 
-    public Line(ArrayList<Data> dataArray) {
+    public Line(ArrayList<Data> dataArray, Column[] columns) throws TooLongException {
         this.data = dataArray;
+        lengthCheck(columns);
+    }
+
+    @Contract(pure = true)
+    private void lengthCheck(@NotNull Column[] columns) throws TooLongException {
+        for (int i = 0; i < columns.length; i++) {
+            if (data.get(i).value.length > columns[i].maxLength) {
+                throw new TooLongException(columns[i].name, columns[i].maxLength);
+            }
+        }
     }
 
     @Override
