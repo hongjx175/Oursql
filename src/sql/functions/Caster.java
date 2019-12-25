@@ -1,5 +1,7 @@
 package sql.functions;
 
+import java.io.UnsupportedEncodingException;
+import java.util.Arrays;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
@@ -37,5 +39,19 @@ public class Caster {
     @Contract(pure = true)
     public static long intsToLong(@NotNull int[] ints) {
         return ((long) ints[0] << 32) + ints[1];
+    }
+
+    public static void main(String[] args) throws UnsupportedEncodingException {
+        int x = 114514;
+        int y = 1919810;
+        byte[] a, b;
+        System.out.println(Arrays.toString(a = intToBytes(x)));
+        System.out.println(Arrays.toString(b = intToBytes(y)));
+        System.out.println(new String(a));
+        System.out.println(new String(b));
+        System.out.println(bytesToInt(a));
+        System.out.println(bytesToInt(b));
+        a = "我说了会计师费".getBytes("GBK");
+        System.out.println(new String(a, "GBK"));
     }
 }

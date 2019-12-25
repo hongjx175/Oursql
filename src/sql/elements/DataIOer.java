@@ -35,6 +35,22 @@ public class DataIOer implements Serializable {
         stringByteCnt.add(0);
     }
 
+    public static void main(String[] args) throws Exception {
+        Database database = new Database("name");
+        Table table = database.getTable("History");
+        Order[] orders = new Order[1];
+        orders[0] = new Order(table, "user",
+            "56165a1sd65f1651f65s1f56s1afa561f651sfdsaf1s63f15s63f1fasdsf51ff6f1");
+//        orders[1] = new Order(table, "date", "20191225");
+        table.insert(orders);
+        DataIOer dataIOer = new DataIOer(database, table);
+        dataIOer.setLine(table.selectAll(orders, null).get(0));
+        Line line = dataIOer.getLine(1L << 32);
+        for (Data data : line.data) {
+            System.out.println(data.value);
+        }
+    }
+
     public Line getLine(long index) throws IOException, TooLongException {
         int[] result = Caster.longToInt(index);
         RandomAccessFile ioFile = new RandomAccessFile(this.filePath + result[0] + defaultEnd, "r");
