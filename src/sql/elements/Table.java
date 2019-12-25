@@ -121,8 +121,9 @@ public class Table implements TableAble {
         return GetSame.getSame(ans1, ans2);
     }
 
+    @NotNull
     private ArrayList<Integer> selectDefault(HashMap<Column, Data> where,
-        ArrayList<Integer> checkList) {
+        @NotNull ArrayList<Integer> checkList) {
         ArrayList<Integer> result = new ArrayList<>();
         for (int i : checkList) {
             Line x = data.get(i);

@@ -91,7 +91,8 @@ public class DataIOer implements Serializable {
         return ((long) result[0] << 32) + result[1];
     }
 
-    public String getString(int strBlock, int strIndex) throws IOException {
+    @NotNull
+    private String getString(int strBlock, int strIndex) throws IOException {
         byte[] blockBytes = Caster.intToBytes(strBlock);
         ioFile = new RandomAccessFile(this.filePath + "string" + new String(blockBytes), "r");
         ioFile.seek(strIndex);
@@ -108,7 +109,8 @@ public class DataIOer implements Serializable {
         return str;
     }
 
-    public int[] setString(String string) throws IOException {
+    @NotNull
+    private int[] setString(String string) throws IOException {
         int[] result = allocatePosition(false);
         ioFile = new RandomAccessFile(
             this.filePath + string + new String(Caster.intToBytes(result[0])), "rw");
