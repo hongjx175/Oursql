@@ -10,10 +10,11 @@ public class Column {
     public String name;
     public String type;
     public boolean canNull;
-    public boolean isDeleted;
+    public boolean isDeleted = false;
+    public boolean canShow = true;
 
-    public Column(int id, String name, String type, boolean canNull) throws NotFoundException {
-        this(id, name, type, 0, canNull);
+    public Column(String name, String type, boolean canNull) throws NotFoundException {
+        this(name, type, 0, canNull);
         switch (type) {
             case "String":
                 this.maxLength = 100;
@@ -33,16 +34,11 @@ public class Column {
     }
 
     @Contract(pure = true)
-    public Column(int id, String name, String type, int maxLength, boolean canNull) {
-        this.id = id;
+    public Column(String name, String type, int maxLength, boolean canNull) {
         this.name = name;
         this.type = type;
         this.canNull = canNull;
         this.maxLength = maxLength;
-    }
-
-    Column(String name) {
-        this.name = name;
     }
 
     public String getName() {

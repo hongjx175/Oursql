@@ -10,6 +10,7 @@ import org.jetbrains.annotations.NotNull;
 import sql.ables.TableAble;
 import sql.exceptions.DataInvalidException;
 import sql.exceptions.IsExistedException;
+import sql.exceptions.LengthIncorrectException;
 import sql.exceptions.NotFoundException;
 import sql.exceptions.UnknownSequenceException;
 import sql.functions.GetSame;
@@ -23,6 +24,7 @@ public class Table implements TableAble {
     public ArrayList<HashIndex> indexList = new ArrayList<>();
     private int idCount = 0;
     private int columnCount = 0;
+    private int onShowColumnCount = 0;
     transient private ArrayList<Line> data;
     private DataIOer dataIOer;
 
@@ -32,16 +34,27 @@ public class Table implements TableAble {
         this.database = database;
         this.data = new ArrayList<>();
         this.dataIOer = new DataIOer(this.database, this);
+        try {
+            Column cid = new Column("#id", "Number", false);
+            Column isDel = new Column("#isDel", "Number", false);
+            cid.canShow = false;
+            isDel.canShow = false;
+            this.addColumn(cid);
+            this.addColumn(isDel);
+            this.onShowColumnCount -= 2;
+        } catch (NotFoundException | IsExistedException e) {
+            e.printStackTrace();
+        }
     }
 
-    public String[] getColumnNames() {
-        ArrayList<String> colNames = new ArrayList<String>();
+    public ArrayList<String> getColumnNames() {
+        ArrayList<String> colNames = new ArrayList<>();
         for (Column c : columnList) {
             if (!c.isDeleted) {
                 colNames.add(c.getName());
             }
         }
-        return colNames.toArray(new String[0]);
+        return colNames;
     }
 
     public Column getColumn(String name) {
@@ -63,16 +76,14 @@ public class Table implements TableAble {
     }
 
     @Deprecated
+    // TODO: 2019/12/25 checking
     private void insert(@NotNull Data[] str) throws Exception {
-        if (str.length != this.columnList.size()) {
-            throw new Exception(
-                "Length is not correct. Expect " + this.columnList.size() + " , found " + str.length
-                    + ".");
+        if (str.length != this.onShowColumnCount) {
+            throw new LengthIncorrectException("data", this.onShowColumnCount, str.length);
         }
-        Line newData = new Line();
-        newData.id = idCount++;
-        newData.data.addAll(Arrays.asList(str));
-        this.data.add(newData);
+//        Line newData = new Line();
+//        newData.id = idCount++;
+//        for(Column)
     }
 
     @Override
@@ -82,7 +93,8 @@ public class Table implements TableAble {
             throw new IsExistedException("column", column.name);
         }
         this.columnList.add(column);
-        this.columnCount++;
+        column.id = this.columnCount++;
+        this.onShowColumnCount++;
     }
 
     @Override
@@ -93,6 +105,7 @@ public class Table implements TableAble {
         }
         x.isDeleted = true;
         x.name += x.hashCode();
+        this.onShowColumnCount--;
     }
 
     @Override
@@ -302,37 +315,12 @@ public class Table implements TableAble {
         }
     }
 
-    @Deprecated
-    public void addColumn(@NotNull String line) throws Exception {
-        String[] arr = line.split(" ");
-        if (arr.length < 2) {
-            throw new Exception("Massage is too short in adding columns.");
-        }
-        boolean canNull = false;
-        for (int i = 2; i < arr.length; i++) {
-            if (arr[i - 1].equalsIgnoreCase("NOT")
-                && arr[i].equalsIgnoreCase("NULL")) {
-                canNull = true;
-                break;
-            }
-        }
-        addColumn(arr[0], arr[1], canNull);
-    }
-
-    private void addColumn(String name, String type, boolean canNull) throws NotFoundException {
-        this.columnList.add(new Column(columnCount++, name, type, canNull));
-    }
-
     @Override
     public boolean equals(Object obj) {
         if (obj instanceof Table) {
             return this.name.equals(((Table) obj).name);
         }
         return super.equals(obj);
-    }
-
-    public int getColumnCount() {
-        return columnCount;
     }
 }
 

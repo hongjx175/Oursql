@@ -155,13 +155,13 @@ public class Charge {
             if (!s[1].equalsIgnoreCase("INTO") || !s[3].equalsIgnoreCase("VALUES")) {
                 throw new WrongCommandException();
             } else {
-                String[] colNames = table.getColumnNames();
+                ArrayList<String> colNames = table.getColumnNames();
                 String[] values = s[4].split(",");
-                if (colNames.length != values.length) {
+                if (colNames.size() != values.length) {
                     throw new WrongCommandException();
                 }
-                for (int i = 0; i < colNames.length; i++) {
-                    orders.add(new Order(table, colNames[i], values[i]));
+                for (int i = 0; i < colNames.size(); i++) {
+                    orders.add(new Order(table, colNames.get(i), values[i]));
                 }
             }
         }
@@ -267,7 +267,7 @@ public class Charge {
             throw new WrongCommandException();
         }
         Column col;
-        col = new Column(database.choosingTable.getColumnCount() + 1, s[1], s[2], s.length != 5);
+        col = new Column(s[1], s[2], s.length != 5);
         database.choosingTable.addColumn(col);
     }
 
