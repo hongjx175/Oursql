@@ -87,7 +87,7 @@ public class Table implements TableAble {
     }
 
     @Override
-    public void addColumn(Column column) throws IsExistedException {
+    public void addColumn(@NotNull Column column) throws IsExistedException {
         Column x = this.getColumn(column.name);
         if (x != null) {
             throw new IsExistedException("column", column.name);
@@ -97,6 +97,22 @@ public class Table implements TableAble {
         this.onShowColumnCount++;
     }
 
+    public void changeColumnName(String oldOne, String newOne)
+        throws NotFoundException, IsExistedException, ClassNotFoundException {
+        Column c = this.getColumn(newOne);
+        if (c != null) {
+            throw new IsExistedException("Column", newOne);
+        }
+        c = this.getColumn(oldOne);
+        if (c == null) {
+            throw new NotFoundException("Column", oldOne);
+        }
+        if (!c.canShow) {
+            throw new ClassNotFoundException();
+        }
+        c.name = newOne;
+    }
+
     @Override
     public void deleteColumn(String name) throws NotFoundException {
         Column x = this.getColumn(name);
@@ -104,7 +120,7 @@ public class Table implements TableAble {
             throw new NotFoundException("column", name);
         }
         x.isDeleted = true;
-        x.name += x.hashCode();
+        x.name = "#" + x.name + x.hashCode();
         this.onShowColumnCount--;
     }
 

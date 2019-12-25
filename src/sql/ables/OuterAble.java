@@ -2,7 +2,7 @@ package sql.ables;
 
 import java.io.File;
 import java.io.IOException;
-import sql.exceptions.CannotDeleteException;
+import sql.exceptions.CommandDeniedException;
 import sql.exceptions.IsExistedException;
 import sql.exceptions.NotFoundException;
 
@@ -26,5 +26,5 @@ public interface OuterAble {
 
     boolean addUser(String name, String password) throws IsExistedException;
 
-    boolean deleteUser(String name) throws NotFoundException, CannotDeleteException;
+    boolean deleteUser(String name) throws NotFoundException, CommandDeniedException;
 }

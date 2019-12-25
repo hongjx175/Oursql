@@ -8,7 +8,7 @@ import sql.elements.Database;
 import sql.elements.Mysql;
 import sql.elements.Order;
 import sql.elements.Table;
-import sql.exceptions.CannotDeleteException;
+import sql.exceptions.CommandDeniedException;
 import sql.exceptions.DataInvalidException;
 import sql.exceptions.IsExistedException;
 import sql.exceptions.NotAlterException;
@@ -111,7 +111,7 @@ public class Charge {
 
     //删除库、表、列
     private static void drop(String[] s)
-        throws WrongCommandException, NotAlterException, NotFoundException, CannotDeleteException {
+        throws WrongCommandException, NotAlterException, NotFoundException, CommandDeniedException {
         //DROP TABLE 表名称
         //DROP DATABASE 数据库名称
         //ALTER TABLE table_name
@@ -219,7 +219,7 @@ public class Charge {
                 }
 
                 boolean canNull = (sp.length != 4);
-                cols.add(new Column(colNum++, sp[0], sp[1], canNull));
+                cols.add(new Column(sp[0], sp[1], canNull));
                 str = scan.nextLine();
             }
             // TODO: 2019/12/21 处理index[]

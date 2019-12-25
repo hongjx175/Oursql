@@ -16,10 +16,10 @@ public class Database implements DatabaseAble, Serializable {
 
     public Database(String name) throws NotFoundException, IsExistedException {
         this.name = name;
-        Column date = new Column(0, "date", "Date", false);
-        Column time = new Column(1, "time", "Time", false);
-        Column user = new Column(2, "user", "String", false);
-        Column type = new Column(3, "event", "String", false);
+        Column date = new Column("date", "Date", false);
+        Column time = new Column("time", "Time", false);
+        Column user = new Column("user", "String", false);
+        Column type = new Column("event", "String", false);
         newTable(historyTableName, new Column[]{date, time, user, type}, null);
     }
 

@@ -10,7 +10,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import sql.ables.OuterAble;
-import sql.exceptions.CannotDeleteException;
+import sql.exceptions.CommandDeniedException;
 import sql.exceptions.IsExistedException;
 import sql.exceptions.NotFoundException;
 
@@ -97,7 +97,7 @@ public class Mysql implements OuterAble, Serializable {
     }
 
     @Override
-    public boolean deleteUser(String name) throws NotFoundException, CannotDeleteException {
+    public boolean deleteUser(String name) throws NotFoundException, CommandDeniedException {
         if (userUsing == null) {
             return false;
         }
@@ -105,7 +105,7 @@ public class Mysql implements OuterAble, Serializable {
             throw new NotFoundException("user", name);
         }
         if (name.equals("root")) {
-            throw new CannotDeleteException("user", "the root account cannot be deleted.");
+            throw new CommandDeniedException();
         }
         passwordList.remove(name);
         return true;
@@ -129,12 +129,12 @@ public class Mysql implements OuterAble, Serializable {
         this.databases.add(database);
     }
 
-    public void deleteDatabase(String name) throws NotFoundException, CannotDeleteException {
+    public void deleteDatabase(String name) throws NotFoundException, CommandDeniedException {
         Database database = getDatabase(name);
         if (database == null) {
             throw new NotFoundException("database", name);
         } else if (name.equals("default")) {
-            throw new CannotDeleteException("default database", "the database is default.");
+            throw new CommandDeniedException();
         }
         this.databases.remove(database);
     }
