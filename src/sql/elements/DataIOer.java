@@ -13,6 +13,7 @@ public class DataIOer implements Serializable {
 
     public static final int defaultSize = 50;
     static final private String defaultFile = "D:\\sql\\";
+    static final private String defaultEnd = ".data";
     private static final int intSize = 4;
     private static final int longSize = 8;
     private static final int maxLengthInData = 1000000;
@@ -42,20 +43,20 @@ public class DataIOer implements Serializable {
         table.insert(orders);
         DataIOer dataIOer = new DataIOer(database, table);
         dataIOer.setLine(table.selectAll(orders, null).get(0));
-
+//        System.out.println(dataIOer.getLine(0));
     }
 
     public Line getLine(long index) throws IOException, TooLongException {
         int[] result = Caster.longToInt(index);
-        ioFile = new RandomAccessFile(this.filePath + result[0], "r");
+        ioFile = new RandomAccessFile(this.filePath + result[0] + defaultEnd, "r");
         ArrayList<Data> dataArray = new ArrayList<>();
+        ioFile.seek(result[1]);
         for (Column x : table.columnList) {
             int size = Math.min(defaultSize, x.maxLength);
             StringBuilder stringBuilder = new StringBuilder();
-            ioFile.seek(result[1]);
             ioFile.read(bytes, 0, size);
             stringBuilder.append(new String(bytes));
-            if (x.maxLength > size) {
+            if (x.maxLength > defaultSize) {
                 ioFile.read(bytes, 0, intSize);
                 int strBlock = Caster.bytesToInt(bytes);
                 ioFile.read(bytes, 0, intSize);
@@ -70,19 +71,25 @@ public class DataIOer implements Serializable {
 
     public long setLine(@NotNull Line lines) throws IOException {
         int[] result = allocatePosition(true);
-        ioFile = new RandomAccessFile(this.filePath + result[0], "rw");
+        ioFile = new RandomAccessFile(this.filePath + result[0] + defaultEnd, "rw");
         ioFile.seek(result[1]);
         for (int i = 0; i < table.columnList.size(); i++) {
             StringBuilder stringBuilder = new StringBuilder();
-            stringBuilder.append(lines.data.get(i));
-            int size = Math.min(defaultSize, table.columnList.get(i).maxLength);
+            Data data = lines.data.get(i);
+            if (data == null) {
+                stringBuilder.append("null");
+            } else {
+                stringBuilder.append(data.value);
+            }
+            int maxLength = table.columnList.get(i).maxLength;
+            int size = Math.min(defaultSize, maxLength);
             if (stringBuilder.length() < size) {
                 while (stringBuilder.length() < size) {
                     stringBuilder.append("\0");
                 }
                 bytes = stringBuilder.toString().getBytes();
                 ioFile.write(bytes, 0, size);
-                if (size > defaultSize) {
+                if (maxLength > defaultSize) {
                     bytes = Integer.toString(-1).getBytes();
                     ioFile.write(bytes, 0, intSize - 1);
                     ioFile.write(bytes, 0, intSize - 1);
@@ -103,7 +110,7 @@ public class DataIOer implements Serializable {
 
     @NotNull
     private String getString(int strBlock, int strIndex) throws IOException {
-        ioFile = new RandomAccessFile(this.filePath + "string" + strBlock, "r");
+        ioFile = new RandomAccessFile(this.filePath + "string" + strBlock + defaultEnd, "r");
         ioFile.seek(strIndex);
         ioFile.read(bytes, 0, defaultSize);
         String str = new String(bytes);
@@ -121,7 +128,7 @@ public class DataIOer implements Serializable {
     @NotNull
     private int[] setString(String string) throws IOException {
         int[] result = allocatePosition(false);
-        ioFile = new RandomAccessFile(this.filePath + string + result[0], "rw");
+        ioFile = new RandomAccessFile(this.filePath + string + result[0] + defaultEnd, "rw");
         ioFile.seek(result[1]);
         StringBuilder stringBuilder = new StringBuilder(string);
         if (string.length() < defaultSize) {
