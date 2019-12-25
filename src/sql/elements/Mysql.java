@@ -24,12 +24,12 @@ public class Mysql implements OuterAble, Serializable {
     ArrayList<Database> databases = new ArrayList<>();
     transient private String userUsing = null;
 
-    private Mysql() {
+    private Mysql() throws NotFoundException, IsExistedException {
         passwordList.put(defaultUsername, defaultPassword);
         databases.add(new Database("default"));
     }
 
-    public static Mysql getInstance() {
+    public static Mysql getInstance() throws NotFoundException, IsExistedException {
         if (instance == null) {
             instance = new Mysql();
         }
@@ -120,7 +120,7 @@ public class Mysql implements OuterAble, Serializable {
         return null;
     }
 
-    public void newDatabase(String name) throws IsExistedException {
+    public void newDatabase(String name) throws IsExistedException, NotFoundException {
         Database database = getDatabase(name);
         if (database != null) {
             throw new IsExistedException("database", name);

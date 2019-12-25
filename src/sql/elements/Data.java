@@ -1,7 +1,6 @@
 package sql.elements;
 
 import java.util.Arrays;
-import java.util.regex.Pattern;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import sql.exceptions.DataInvalidException;
@@ -33,6 +32,22 @@ public class Data {
     public Data() {
     }
 
+    private static boolean validCheck(String str, @NotNull String type) {
+        switch (type) {
+            case "Number":
+                return str.matches(numberRegex);
+            case "CardID":
+                return str.matches(cardIDRegex);
+            case "Date":
+                return str.matches(dateRegex);
+            case "Time":
+                return str.matches(timeRegex);
+            case "PhoneNumber":
+                return str.matches(phoneNumberRegex);
+        }
+        return true;
+    }
+
     public String getValue() {
         if (this.next == null) {
             return Arrays.toString(this.value);
@@ -42,27 +57,7 @@ public class Data {
 
     public void setValue(@NotNull Column column, String value) throws DataInvalidException {
         String type = column.type;
-        Pattern pattern;
-        switch (type) {
-            case "Number":
-                pattern = Pattern.compile(numberRegex);
-                break;
-            case "CardID":
-                pattern = Pattern.compile(cardIDRegex);
-                break;
-            case "Date":
-                pattern = Pattern.compile(dateRegex);
-                break;
-            case "Time":
-                pattern = Pattern.compile(timeRegex);
-                break;
-            case "PhoneNumber":
-                pattern = Pattern.compile(phoneNumberRegex);
-                break;
-            default:
-                pattern = Pattern.compile("*");
-        }
-        if (!pattern.matcher(value).matches()) {
+        if (!validCheck(value, type)) {
             throw new DataInvalidException(type, value);
         }
         this.setString(value);

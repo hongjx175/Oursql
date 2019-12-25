@@ -13,7 +13,7 @@ public interface TableAble {
 
     void deleteColumn(String name) throws NotFoundException;
 
-    void insert(Order[] orders);
+    void insert(Order[] orders) throws DataInvalidException;
 
     void update(Order[] search, Order[] update) throws NotFoundException, DataInvalidException;
 

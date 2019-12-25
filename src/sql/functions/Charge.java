@@ -19,9 +19,16 @@ import sql.exceptions.WrongCommandException;
 public class Charge {
 
     static Scanner scan = new Scanner(System.in);
-    static Mysql sql = Mysql.getInstance();
+    static Mysql sql;
     static Database database;
 
+    static {
+        try {
+            sql = Mysql.getInstance();
+        } catch (NotFoundException | IsExistedException e) {
+            e.printStackTrace();
+        }
+    }
 
     static boolean notCompare(@NotNull String a, String b) {
         return !a.equalsIgnoreCase(b);

@@ -82,6 +82,7 @@ public class Table implements TableAble {
             throw new IsExistedException("column", column.name);
         }
         this.columnList.add(column);
+        this.columnCount++;
     }
 
     @Override
@@ -98,9 +99,11 @@ public class Table implements TableAble {
     public void insert(@NotNull Order[] orders) {
         Line newData = new Line();
         newData.id = idCount++;
+        Data[] d = new Data[this.columnCount];
         for (Order x : orders) {
-            newData.data.add(x.column.id, x.value);
+            d[x.column.id] = x.value;
         }
+        newData.data = new ArrayList<>(Arrays.asList(d));
         data.add(newData);
     }
 
@@ -123,8 +126,14 @@ public class Table implements TableAble {
 
     @NotNull
     private ArrayList<Integer> selectDefault(HashMap<Column, Data> where,
-        @NotNull ArrayList<Integer> checkList) {
+        ArrayList<Integer> checkList) {
         ArrayList<Integer> result = new ArrayList<>();
+        if (checkList == null) {
+            checkList = new ArrayList<>();
+            for (int i = 0; i < this.data.size(); i++) {
+                checkList.add(i);
+            }
+        }
         for (int i : checkList) {
             Line x = data.get(i);
             if (x.isDeleted) {
@@ -151,13 +160,14 @@ public class Table implements TableAble {
     private ArrayList<Integer> selectWhereIntoNumbers(@NotNull Order[] where) {
         HashMap<Column, Data> map = new HashMap<>();
         ArrayList<ArrayList<Integer>> checkResult = new ArrayList<>();
+        boolean indexMatched = false;
         for (Order x : where) {
             map.putIfAbsent(x.column, x.value);
         }
         for (HashIndex index : this.indexList) {
             if (GetSame.getSame(index.columns.toArray(), Order.castNameList(where)).length
-                == index.columns
-                .size()) {
+                == index.columns.size()) {
+                indexMatched = true;
                 HashMap<Column, Data> checkList = new HashMap<>();
                 for (Column x : index.columns) {
                     checkList.putIfAbsent(x, map.get(x));
@@ -170,12 +180,15 @@ public class Table implements TableAble {
         if (map.size() > 0 && result.size() > 0) {
             return GetSame.getSame(selectDefault(map, result), result);
         }
+        if (!indexMatched) {
+            return GetSame.getSame(selectDefault(map, null));
+        }
         return result;
     }
 
     ArrayList<Line> selectAll(Order[] where, Order[] orderBy)
         throws UnknownSequenceException {
-        return this.selectPrivate((Column[]) this.columnList.toArray(), where, orderBy);
+        return this.selectPrivate(this.columnList.toArray(new Column[0]), where, orderBy);
     }
 
     ArrayList<Line> selectPrivate(Column[] columns, Order[] where, Order[] orderBy)
@@ -187,7 +200,7 @@ public class Table implements TableAble {
             for (Column j : columns) {
                 add.data.add(tmp.data.get(j.id));
             }
-            if (orderBy.length != 0) {
+            if (orderBy != null && orderBy.length != 0) {
                 for (Order j : orderBy) {
                     String s = tmp.data.get(j.column.id).getValue();
                     int len = s.length();
@@ -204,7 +217,7 @@ public class Table implements TableAble {
             }
             array.add(add);
         }
-        if (orderBy.length != 0) {
+        if (orderBy == null || orderBy.length != 0) {
             Collections.sort(array);
             for (int j = 1; j < array.size(); j++) {
                 if (array.get(j - 1).equals(array.get(j))) {

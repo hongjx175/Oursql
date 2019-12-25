@@ -33,10 +33,21 @@ public class DataIOer implements Serializable {
         stringByteCnt.add(0);
     }
 
+    public static void main(String[] args) throws Exception {
+        Database database = new Database("name");
+        Table table = database.getTable("History");
+        Order[] orders = new Order[1];
+        orders[0] = new Order(table, "user", "name");
+//        orders[1] = new Order(table, "date", "20191225");
+        table.insert(orders);
+        DataIOer dataIOer = new DataIOer(database, table);
+        dataIOer.setLine(table.selectAll(orders, null).get(0));
+
+    }
+
     public Line getLine(long index) throws IOException, TooLongException {
         int[] result = Caster.longToInt(index);
-        ioFile = new RandomAccessFile(this.filePath +
-            new String(Caster.intToBytes(result[0])), "r");
+        ioFile = new RandomAccessFile(this.filePath + result[0], "r");
         ArrayList<Data> dataArray = new ArrayList<>();
         for (Column x : table.columnList) {
             int size = Math.min(defaultSize, x.maxLength);
@@ -59,8 +70,7 @@ public class DataIOer implements Serializable {
 
     public long setLine(@NotNull Line lines) throws IOException {
         int[] result = allocatePosition(true);
-        ioFile = new RandomAccessFile(this.filePath +
-            new String(Caster.intToBytes(result[0])), "rw");
+        ioFile = new RandomAccessFile(this.filePath + result[0], "rw");
         ioFile.seek(result[1]);
         for (int i = 0; i < table.columnList.size(); i++) {
             StringBuilder stringBuilder = new StringBuilder();
@@ -93,8 +103,7 @@ public class DataIOer implements Serializable {
 
     @NotNull
     private String getString(int strBlock, int strIndex) throws IOException {
-        byte[] blockBytes = Caster.intToBytes(strBlock);
-        ioFile = new RandomAccessFile(this.filePath + "string" + new String(blockBytes), "r");
+        ioFile = new RandomAccessFile(this.filePath + "string" + strBlock, "r");
         ioFile.seek(strIndex);
         ioFile.read(bytes, 0, defaultSize);
         String str = new String(bytes);
@@ -112,8 +121,7 @@ public class DataIOer implements Serializable {
     @NotNull
     private int[] setString(String string) throws IOException {
         int[] result = allocatePosition(false);
-        ioFile = new RandomAccessFile(
-            this.filePath + string + new String(Caster.intToBytes(result[0])), "rw");
+        ioFile = new RandomAccessFile(this.filePath + string + result[0], "rw");
         ioFile.seek(result[1]);
         StringBuilder stringBuilder = new StringBuilder(string);
         if (string.length() < defaultSize) {

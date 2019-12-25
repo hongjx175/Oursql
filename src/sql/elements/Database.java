@@ -14,16 +14,13 @@ public class Database implements DatabaseAble, Serializable {
     public String name;
     ArrayList<Table> tables = new ArrayList<>();
 
-    public Database(String name) {
+    public Database(String name) throws NotFoundException, IsExistedException {
         this.name = name;
-        try {
-            Column date = new Column(1, "name", "Date", false);
-            Column time = new Column(2, "time", "Time", false);
-            Column user = new Column(3, "user", "String", false);
-            Column type = new Column(4, "event", "String", false);
-            newTable(historyTableName, new Column[]{date, time, user, type}, null);
-        } catch (Exception ignored) {
-        }
+        Column date = new Column(0, "date", "Date", false);
+        Column time = new Column(1, "time", "Time", false);
+        Column user = new Column(2, "user", "String", false);
+        Column type = new Column(3, "event", "String", false);
+        newTable(historyTableName, new Column[]{date, time, user, type}, null);
     }
 
     public Table getTable(String name) {

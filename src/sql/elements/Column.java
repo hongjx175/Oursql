@@ -26,6 +26,7 @@ public class Column {
             case "Date":
             case "Time":
                 this.maxLength = 15;
+                break;
             default:
                 throw new NotFoundException("column type", type);
         }
