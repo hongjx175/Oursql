@@ -41,7 +41,7 @@ public class Table implements TableAble {
                 colNames.add(c.getName());
             }
         }
-        return (String[]) colNames.toArray();
+        return colNames.toArray(new String[0]);
     }
 
     public Column getColumn(String name) {
@@ -165,8 +165,8 @@ public class Table implements TableAble {
             map.putIfAbsent(x.column, x.value);
         }
         for (HashIndex index : this.indexList) {
-            if (GetSame.getSame(index.columns.toArray(), Order.castNameList(where)).length
-                == index.columns.size()) {
+            if (GetSame.getSame(index.columns.toArray(new Column[0]),
+                Order.castNameList(where)).length == index.columns.size()) {
                 indexMatched = true;
                 HashMap<Column, Data> checkList = new HashMap<>();
                 for (Column x : index.columns) {
