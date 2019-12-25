@@ -21,7 +21,6 @@ public class DataIOer implements Serializable {
     String filePath;
     Database database;
     Table table;
-    RandomAccessFile ioFile;
     private int dataFileCnt = 1, stringFileCnt = 1;
     private ArrayList<Integer> dataByteCnt = new ArrayList<>();
     private ArrayList<Integer> stringByteCnt = new ArrayList<>();
@@ -36,9 +35,25 @@ public class DataIOer implements Serializable {
         stringByteCnt.add(0);
     }
 
+    public static void main(String[] args) throws Exception {
+        Database database = new Database("name");
+        Table table = database.getTable("History");
+        Order[] orders = new Order[1];
+        orders[0] = new Order(table, "user",
+            "56165a1sd65f1651f65s1f56s1afa561f651sfdsaf1s63f15s63f1fasdsf51ff6f1");
+//        orders[1] = new Order(table, "date", "20191225");
+        table.insert(orders);
+        DataIOer dataIOer = new DataIOer(database, table);
+        dataIOer.setLine(table.selectAll(orders, null).get(0));
+        Line line = dataIOer.getLine(1L << 32);
+        for (Data data : line.data) {
+            System.out.println(data.value);
+        }
+    }
+
     public Line getLine(long index) throws IOException, TooLongException {
         int[] result = Caster.longToInt(index);
-        ioFile = new RandomAccessFile(this.filePath + result[0] + defaultEnd, "r");
+        RandomAccessFile ioFile = new RandomAccessFile(this.filePath + result[0] + defaultEnd, "r");
         ArrayList<Data> dataArray = new ArrayList<>();
         ioFile.seek(result[1]);
         for (Column x : table.columnList) {
@@ -63,7 +78,8 @@ public class DataIOer implements Serializable {
 
     public long setLine(@NotNull Line lines) throws IOException {
         int[] result = allocatePosition(true);
-        ioFile = new RandomAccessFile(this.filePath + result[0] + defaultEnd, "rw");
+        RandomAccessFile ioFile = new RandomAccessFile(this.filePath + result[0] + defaultEnd,
+            "rw");
         ioFile.seek(result[1]);
         for (int i = 0; i < table.columnList.size(); i++) {
             StringBuilder stringBuilder = new StringBuilder();
@@ -86,12 +102,17 @@ public class DataIOer implements Serializable {
                     ioFile.write(bytes, 0, longSize);
                 }
             } else {
-                bytes = stringBuilder.substring(0, defaultSize - 1).getBytes();
+                StringBuilder builder = new StringBuilder(
+                    stringBuilder.substring(0, defaultSize - 1));
+                while (builder.length() < defaultSize) {
+                    builder.append("\0");
+                }
+                bytes = builder.toString().getBytes();
                 ioFile.write(bytes, 0, size);
                 int[] next = setString(stringBuilder.delete(0, defaultSize - 1).toString());
-                bytes = Integer.toString(next[0]).getBytes();
+                bytes = Caster.intToBytes(next[0]);
                 ioFile.write(bytes, 0, intSize);
-                bytes = Integer.toString(next[1]).getBytes();
+                bytes = Caster.intToBytes(next[1]);
                 ioFile.write(bytes, 0, intSize);
             }
         }
@@ -101,7 +122,8 @@ public class DataIOer implements Serializable {
 
     @NotNull
     private String getString(int strBlock, int strIndex) throws IOException {
-        ioFile = new RandomAccessFile(this.filePath + "string" + strBlock + defaultEnd, "r");
+        RandomAccessFile ioFile = new RandomAccessFile(
+            this.filePath + "string" + strBlock + defaultEnd, "r");
         ioFile.seek(strIndex);
         ioFile.read(bytes, 0, defaultSize);
         String str = new String(bytes, 0, defaultSize);
@@ -119,7 +141,8 @@ public class DataIOer implements Serializable {
     @NotNull
     private int[] setString(String string) throws IOException {
         int[] result = allocatePosition(false);
-        ioFile = new RandomAccessFile(this.filePath + string + result[0] + defaultEnd, "rw");
+        RandomAccessFile ioFile = new RandomAccessFile(
+            this.filePath + string + result[0] + defaultEnd, "rw");
         ioFile.seek(result[1]);
         StringBuilder stringBuilder = new StringBuilder(string);
         if (string.length() < defaultSize) {
