@@ -27,37 +27,159 @@ public class Charge {
         return !a.equalsIgnoreCase(b);
     }
 
-    public static void select(String[] s)
+    public static void select(String s)
         throws WrongCommandException, NotAlterException, UnknownSequenceException, DataInvalidException {
-        //SELECT 列名称 FROM 表名称 (WHERE 列 运算符 值)
+        //SELECT 列名称 FROM 表名称 WHERE 列 运算符= 值 ORDER BY 列名 ASC/DESC,列名 ASC/DESC
+        //规定指令中ASC和DESC不可省略
+        //例：
+        //SELECT Company,OrderNumber/* FROM Orders WHERE 列 = 值
+        //SELECT Company,OrderNumber FROM Orders ORDER BY Company DESC,OrderNumber ASC
+        //SELECT Company,OrderNumber FROM Orders WHERE 列 = 值 ORDER BY Company DESC,OrderNumber ASC
+
         if (database == null) {
             throw new NotAlterException();
         }
-        if (s.length < 4) {
-            throw new WrongCommandException();
+        String[] sp = s.split("SELECT|FROM|WHERE|ORDER BY");
+        Table table = database.getTable(sp[1]);
+        String[] sp1 = s.split(" ");
+        boolean hasORDER = false, hasWHERE = false;
+        for (int i = 0; i < sp1.length; i++) {
+            if (sp1[i].equalsIgnoreCase("ORDER")) {
+                hasORDER = true;
+            }
+            if (sp1[i].equalsIgnoreCase("WHERE")) {
+                hasWHERE = true;
+            }
+            if (hasORDER && hasWHERE) {
+                break;
+            }
         }
-        if (s[1].equals("*")) {//选取表中所有列
-            // TODO: 2019/12/22 @h-primes
-            /*ArrayList<Line> selectAll(Order[] where, Order[] orderBy) */
-            Table table = database.getTable(s[3]);
-            //table.selectAll();
+        if (sp[0].equals("*")) {
+            //ArrayList<Line> selectAll(String table, Order[] where, Order[] orderby)
+            if (sp.length == 3) {//WHERE和ORDER BY只有一个
+                if (hasORDER && hasWHERE) {
+                    throw new WrongCommandException();
+                }
+                if (hasORDER) {
+                    //SELECT * FROM 表名 ORDER BY Company DESC,OrderNumber ASC
+                    ArrayList<Order> orderby = new ArrayList<Order>();
+                    String[] orderbys = sp[2].split(" |,");
+                    if (orderbys.length % 2 != 0) {
+                        throw new WrongCommandException();
+                    }
+                    for (int i = 0; i < sp.length - 1; i += 2) {
+                        String ord = "1";
+                        if (sp[i + 1].equalsIgnoreCase("DESC")) {
+                            ord = "-1";
+                        }
+                        orderby.add(new Order(table, sp[i], ord));
+                    }
+                    database.selectAll(sp[1], null, (Order[]) orderby.toArray());
+                }
+                if (hasWHERE) {
+                    //SELECT * FROM Orders WHERE 列 = 值
+                    String[] wheres = sp[2].split(" |=");
+                    ArrayList<Order> where = new ArrayList<Order>();
+                    if (wheres.length % 2 != 0) {
+                        throw new WrongCommandException();
+                    }
+                    for (int i = 0; i < wheres.length; i += 2) {
+                        where.add(new Order(table, wheres[i], wheres[i + 1]));
+                    }
+                    database.selectAll(sp[1], (Order[]) where.toArray(), null);
+                }
+            } else if (sp.length == 4) {//WHERE和ORDER BY都有
+                ArrayList<Order> orderby = new ArrayList<Order>();
+                String[] orderbys = sp[3].split(" |,");
+                if (orderbys.length % 2 != 0) {
+                    throw new WrongCommandException();
+                }
+                for (int i = 0; i < sp.length - 1; i += 2) {
+                    String ord = "1";
+                    if (sp[i + 1].equalsIgnoreCase("DESC")) {
+                        ord = "-1";
+                    }
+                    orderby.add(new Order(table, sp[i], ord));
+                }
+                String[] wheres = sp[2].split(" |=");
+                ArrayList<Order> where = new ArrayList<Order>();
+                if (wheres.length % 2 != 0) {
+                    throw new WrongCommandException();
+                }
+                for (int i = 0; i < wheres.length; i += 2) {
+                    where.add(new Order(table, wheres[i], wheres[i + 1]));
+                }
+                database.selectAll(sp[1], (Order[]) where.toArray(), (Order[]) orderby.toArray());
+            } else {
+                throw new WrongCommandException();
+            }
 
         } else {
-            String[] cols = s[1].split(",");
-            Table table = database.getTable(s[3]);
-            ArrayList<Column> getColumn = new ArrayList<>();
-            ArrayList<Order> orders = new ArrayList<>();
-            for (String str : cols) {
-                Column x = table.getColumn(str);
-                getColumn.add(x);
+            //ArrayList<Line> select(String table, Column[] columns, Order[] where, Order[] orderBy)
+            // SELECT Company,OrderNumber FROM Orders WHERE 列 = 值 ORDER BY Company DESC,OrderNumber ASC
+            String[] colName = sp[0].split(",");
+            Column[] cols = new Column[colName.length];
+            for (int i = 0; i < colName.length; i++) {
+                cols[i] = table.getColumn(colName[i]);
             }
-            //假设只有and
-            for (int i = 5; i < s.length; i++) {
-                if (s[i].equals("=")) {
-                    orders.add(new Order(table, s[i - 1], s[i + 1]));
+            if (sp.length == 3) {//WHERE和ORDER BY只有一个
+                if (hasORDER && hasWHERE) {
+                    throw new WrongCommandException();
                 }
+                if (hasORDER) {
+                    //SELECT * FROM 表名 ORDER BY Company DESC,OrderNumber ASC
+                    ArrayList<Order> orderby = new ArrayList<Order>();
+                    String[] orderbys = sp[2].split(" |,");
+                    if (orderbys.length % 2 != 0) {
+                        throw new WrongCommandException();
+                    }
+                    for (int i = 0; i < sp.length - 1; i += 2) {
+                        String ord = "1";
+                        if (sp[i + 1].equalsIgnoreCase("DESC")) {
+                            ord = "-1";
+                        }
+                        orderby.add(new Order(table, sp[i], ord));
+                    }
+                    database.select(sp[1], cols, null, (Order[]) orderby.toArray());
+                }
+                if (hasWHERE) {
+                    //SELECT * FROM Orders WHERE 列 = 值
+                    String[] wheres = sp[2].split(" |=");
+                    ArrayList<Order> where = new ArrayList<Order>();
+                    if (wheres.length % 2 != 0) {
+                        throw new WrongCommandException();
+                    }
+                    for (int i = 0; i < wheres.length; i += 2) {
+                        where.add(new Order(table, wheres[i], wheres[i + 1]));
+                    }
+                    database.select(sp[1], cols, (Order[]) where.toArray(), null);
+                }
+            } else if (sp.length == 4) {//WHERE和ORDER BY都有
+                ArrayList<Order> orderby = new ArrayList<Order>();
+                String[] orderbys = sp[3].split(" |,");
+                if (orderbys.length % 2 != 0) {
+                    throw new WrongCommandException();
+                }
+                for (int i = 0; i < sp.length - 1; i += 2) {
+                    String ord = "1";
+                    if (sp[i + 1].equalsIgnoreCase("DESC")) {
+                        ord = "-1";
+                    }
+                    orderby.add(new Order(table, sp[i], ord));
+                }
+                String[] wheres = sp[2].split(" |=");
+                ArrayList<Order> where = new ArrayList<Order>();
+                if (wheres.length % 2 != 0) {
+                    throw new WrongCommandException();
+                }
+                for (int i = 0; i < wheres.length; i += 2) {
+                    where.add(new Order(table, wheres[i], wheres[i + 1]));
+                }
+                database
+                    .select(sp[1], cols, (Order[]) where.toArray(), (Order[]) orderby.toArray());
+            } else {
+                throw new WrongCommandException();
             }
-            database.select(s[3], (Column[]) getColumn.toArray(), (Order[]) orders.toArray(), null);
         }
     }
 
@@ -276,7 +398,7 @@ public class Charge {
                     alter(sp);
                     break;
                 case "SELECT":
-                    select(sp);
+                    select(cmd);
                     break;
                 case "DELETE":
                     delete(sp);

@@ -321,5 +321,9 @@ public class Table implements TableAble {
     public int getColumnCount() {
         return columnCount;
     }
+
+    public Column[] getColumnList() {
+        return (Column[]) this.columnList.toArray();
+    }
 }
 
