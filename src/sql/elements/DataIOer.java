@@ -29,8 +29,8 @@ public class DataIOer implements Serializable {
         this.database = database;
         this.table = table;
         this.filePath = defaultFile + database.name + "\\" + table.name + "\\";
-        dataByteCnt.add(0);
-        stringByteCnt.add(0);
+        dataByteCnt.add(-1);
+        stringByteCnt.add(-1);
         dataByteCnt.add(0);
         stringByteCnt.add(0);
     }
@@ -44,7 +44,7 @@ public class DataIOer implements Serializable {
             int size = Math.min(defaultSize, x.maxLength);
             StringBuilder stringBuilder = new StringBuilder();
             ioFile.read(bytes, 0, size);
-            stringBuilder.append(new String(bytes, 0, size));
+            stringBuilder.append(new String(bytes, 0, size, "GBK"));
             if (x.maxLength > defaultSize) {
                 ioFile.read(bytes, 0, intSize);
                 int strBlock = Caster.bytesToInt(bytes);
@@ -79,7 +79,7 @@ public class DataIOer implements Serializable {
                 while (stringBuilder.length() < size) {
                     stringBuilder.append("\0");
                 }
-                bytes = stringBuilder.toString().getBytes();
+                bytes = stringBuilder.toString().getBytes("GBK");
                 ioFile.write(bytes, 0, size);
                 if (maxLength > defaultSize) {
                     Arrays.fill(bytes, 0, longSize - 1, (byte) 0);
@@ -91,7 +91,7 @@ public class DataIOer implements Serializable {
                 while (builder.length() < defaultSize) {
                     builder.append("\0");
                 }
-                bytes = builder.toString().getBytes();
+                bytes = builder.toString().getBytes("GBK");
                 ioFile.write(bytes, 0, size);
                 int[] next = setString(stringBuilder.delete(0, defaultSize - 1).toString());
                 bytes = Caster.intToBytes(next[0]);
@@ -110,7 +110,7 @@ public class DataIOer implements Serializable {
             this.filePath + "string" + strBlock + defaultEnd, "r");
         ioFile.seek(strIndex);
         ioFile.read(bytes, 0, defaultSize);
-        String str = new String(bytes, 0, defaultSize);
+        String str = new String(bytes, 0, defaultSize, "GBK");
         ioFile.read(bytes, 0, intSize);
         int nextBlock = Caster.bytesToInt(bytes);
         ioFile.read(bytes, 0, intSize);
@@ -133,7 +133,7 @@ public class DataIOer implements Serializable {
             while (stringBuilder.length() < defaultSize) {
                 stringBuilder.append(" ");
             }
-            bytes = stringBuilder.toString().getBytes();
+            bytes = stringBuilder.toString().getBytes("GBK");
             ioFile.write(bytes, 0, defaultSize);
             Arrays.fill(bytes, 0, longSize - 1, (byte) 0);
             ioFile.write(bytes, 0, longSize);
