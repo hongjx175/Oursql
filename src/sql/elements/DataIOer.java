@@ -22,7 +22,7 @@ public class DataIOer implements Serializable {
     Database database;
     Table table;
     RandomAccessFile ioFile;
-    private int dataFileCnt = 0, stringFileCnt = 0;
+    private int dataFileCnt = 1, stringFileCnt = 1;
     private ArrayList<Integer> dataByteCnt = new ArrayList<>();
     private ArrayList<Integer> stringByteCnt = new ArrayList<>();
 
@@ -32,18 +32,8 @@ public class DataIOer implements Serializable {
         this.filePath = defaultFile + database.name + "\\" + table.name + "\\";
         dataByteCnt.add(0);
         stringByteCnt.add(0);
-    }
-
-    public static void main(String[] args) throws Exception {
-        Database database = new Database("name");
-        Table table = database.getTable("History");
-        Order[] orders = new Order[1];
-        orders[0] = new Order(table, "user", "name");
-//        orders[1] = new Order(table, "date", "20191225");
-        table.insert(orders);
-        DataIOer dataIOer = new DataIOer(database, table);
-        dataIOer.setLine(table.selectAll(orders, null).get(0));
-//        System.out.println(dataIOer.getLine(0));
+        dataByteCnt.add(0);
+        stringByteCnt.add(0);
     }
 
     public Line getLine(long index) throws IOException, TooLongException {
@@ -55,18 +45,20 @@ public class DataIOer implements Serializable {
             int size = Math.min(defaultSize, x.maxLength);
             StringBuilder stringBuilder = new StringBuilder();
             ioFile.read(bytes, 0, size);
-            stringBuilder.append(new String(bytes));
+            stringBuilder.append(new String(bytes, 0, size));
             if (x.maxLength > defaultSize) {
                 ioFile.read(bytes, 0, intSize);
                 int strBlock = Caster.bytesToInt(bytes);
                 ioFile.read(bytes, 0, intSize);
                 int strIndex = Caster.bytesToInt(bytes);
-                stringBuilder.append(this.getString(strBlock, strIndex));
+                if (strBlock != 0 && strIndex != 0) {
+                    stringBuilder.append(this.getString(strBlock, strIndex));
+                }
             }
             dataArray.add(new Data(stringBuilder.toString()));
         }
         ioFile.close();
-        return new Line(dataArray, (Column[]) table.columnList.toArray());
+        return new Line(dataArray, table.columnList.toArray(new Column[0]));
     }
 
     public long setLine(@NotNull Line lines) throws IOException {
@@ -90,9 +82,8 @@ public class DataIOer implements Serializable {
                 bytes = stringBuilder.toString().getBytes();
                 ioFile.write(bytes, 0, size);
                 if (maxLength > defaultSize) {
-                    bytes = Integer.toString(-1).getBytes();
-                    ioFile.write(bytes, 0, intSize - 1);
-                    ioFile.write(bytes, 0, intSize - 1);
+                    Arrays.fill(bytes, 0, longSize - 1, (byte) 0);
+                    ioFile.write(bytes, 0, longSize);
                 }
             } else {
                 bytes = stringBuilder.substring(0, defaultSize - 1).getBytes();
@@ -113,7 +104,7 @@ public class DataIOer implements Serializable {
         ioFile = new RandomAccessFile(this.filePath + "string" + strBlock + defaultEnd, "r");
         ioFile.seek(strIndex);
         ioFile.read(bytes, 0, defaultSize);
-        String str = new String(bytes);
+        String str = new String(bytes, 0, defaultSize);
         ioFile.read(bytes, 0, intSize);
         int nextBlock = Caster.bytesToInt(bytes);
         ioFile.read(bytes, 0, intSize);
