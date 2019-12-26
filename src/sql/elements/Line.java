@@ -15,16 +15,16 @@ public class Line implements Comparable<Line> {
         data = new ArrayList<>();
     }
 
-    public Line(ArrayList<Data> dataArray, Column[] columns) throws TooLongException {
+    public Line(ArrayList<Data> dataArray, ArrayList<Column> columns) throws TooLongException {
         this.data = dataArray;
         lengthCheck(columns);
     }
 
     @Contract(pure = true)
-    private void lengthCheck(@NotNull Column[] columns) throws TooLongException {
-        for (int i = 0; i < columns.length; i++) {
-            if (data.get(i).getValue().length() > columns[i].maxLength) {
-                throw new TooLongException(columns[i].name, columns[i].maxLength);
+    private void lengthCheck(@NotNull ArrayList<Column> columns) throws TooLongException {
+        for (int i = 0; i < columns.size(); i++) {
+            if (data.get(i).getValue().length() > columns.get(i).maxLength) {
+                throw new TooLongException(columns.get(i).name, columns.get(i).maxLength);
             }
         }
     }

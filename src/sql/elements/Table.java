@@ -1,17 +1,21 @@
 package sql.elements;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Map.Entry;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import sql.exceptions.DataInvalidException;
 import sql.exceptions.IsExistedException;
 import sql.exceptions.LengthIncorrectException;
 import sql.exceptions.NotFoundException;
+import sql.exceptions.TooLongException;
 import sql.exceptions.UnknownSequenceException;
 import sql.exceptions.WaitingException;
+import sql.functions.BTree;
 import sql.functions.GetSame;
 import sql.functions.Hash;
 
@@ -22,26 +26,22 @@ public class Table {
     public ArrayList<Column> columnList = new ArrayList<>();
     public ArrayList<HashIndex> indexList = new ArrayList<>();
     boolean locked = false;
-    private int idCount = 0;
+    int idCount = 0;
+    BTree<Long> indexTree = new BTree<>();
     private int columnCount = 0;
     private int onShowColumnCount = 0;
-    //    transient private ArrayList<Line> data;
     private DataIOer dataIOer;
 
     @Contract(pure = true)
     Table(String name, Database database) {
         this.name = name;
         this.database = database;
-//        this.data = new ArrayList<>();
         this.dataIOer = new DataIOer(this.database, this);
         try {
-            Column cid = new Column("#id", "Number", false);
             Column isDel = new Column("#isDel", "Number", false);
-            cid.canShow = false;
             isDel.canShow = false;
-            this.addColumn(cid);
             this.addColumn(isDel);
-            this.onShowColumnCount -= 2;
+            this.onShowColumnCount--;
         } catch (NotFoundException | IsExistedException e) {
             e.printStackTrace();
         }
@@ -87,7 +87,6 @@ public class Table {
             }
             orders.add(new Order(c, str.get(id++)));
         }
-        orders.add(new Order(this.getColumn("#id"), Integer.toString(this.idCount++)));
         orders.add(new Order(this.getColumn("#isDel"), "False"));
         this.insertByOrders(orders);
     }
@@ -107,7 +106,6 @@ public class Table {
         }
     }
 
-    // TODO: 2019/12/26 checking
     private void addColumn(@NotNull Column column) throws IsExistedException {
         Column x = this.getColumn(column.name);
         if (x != null) {
@@ -119,10 +117,7 @@ public class Table {
     }
 
     public void changeColumnName(String oldOne, String newOne)
-        throws NotFoundException, IsExistedException, ClassNotFoundException {
-        if (this.locked) {
-            throw new WaitingException();
-        }
+        throws NotFoundException, IsExistedException {
         Column c = this.getColumn(newOne);
         if (c != null) {
             throw new IsExistedException("Column", newOne);
@@ -132,7 +127,7 @@ public class Table {
             throw new NotFoundException("Column", oldOne);
         }
         if (!c.canShow) {
-            throw new ClassNotFoundException();
+            throw new NotFoundException("Column", oldOne);
         }
         c.name = newOne;
     }
@@ -146,24 +141,27 @@ public class Table {
             throw new NotFoundException("column", name);
         }
         x.isDeleted = true;
+        x.canShow = false;
         x.name = "#" + x.name + x.hashCode();
         this.onShowColumnCount--;
     }
 
-    public void insertByOrders(@NotNull ArrayList<Order> orders) {
+    public void insertByOrders(@NotNull ArrayList<Order> orders)
+        throws TooLongException, IOException {
         if (this.locked) {
             throw new WaitingException();
         }
         Line newData = new Line();
-//        newData.id = idCount++;
         Data[] d = new Data[this.columnCount];
         for (Order x : orders) {
             d[x.column.id] = x.value;
         }
         newData.data = new ArrayList<>(Arrays.asList(d));
-        data.add(newData);
+        indexTree.add(idCount++,
+            dataIOer.setLine(new Line(new ArrayList<>(Arrays.asList(d)), this.columnList)));
     }
 
+    // TODO: 2019/12/26 all the select unchecked
     @NotNull
     @SuppressWarnings("unchecked")
     private ArrayList<Integer> selectInIndex(HashMap<Column, Data> map, @NotNull HashIndex index) {
@@ -187,15 +185,15 @@ public class Table {
         ArrayList<Integer> result = new ArrayList<>();
         if (checkList == null) {
             checkList = new ArrayList<>();
-            for (int i = 0; i < this.data.size(); i++) {
+            for (int i = 0; i < this.idCount; i++) {
                 checkList.add(i);
             }
         }
         for (int i : checkList) {
-            Line x = data.get(i);
-//            if (x.isDeleted) {
-//                continue;
-//            }
+            Line x = dataIOer.getLine(indexTree.get(i));
+            if (x.data.get(getColumn("#isDel").id).getValue().equalsIgnoreCase("0")) {
+                continue;
+            }
             boolean isEqual = true;
             for (Entry<Column, Data> y : where.entrySet()) {
                 int index = y.getKey().id;
@@ -259,7 +257,7 @@ public class Table {
         ArrayList<Integer> result = selectWhereIntoNumbers(where);
         ArrayList<Line> array = new ArrayList<>();
         for (int i : result) {
-            Line tmp = data.get(i), add = new Line();
+            Line tmp = this.getLineByIndex(i), add = new Line();
             for (Column j : columns) {
                 add.data.add(tmp.data.get(j.id));
             }
@@ -299,7 +297,7 @@ public class Table {
         ArrayList<Integer> result = selectWhereIntoNumbers(where);
         for (int x : result) {
             for (Order y : set) {
-                Line line = this.data.get(x);
+                Line line = this.getLineByIndex(x);
                 Data datum = line.data.get(y.column.id);
                 datum.setValue(y.column, y.value.getValue());
             }
@@ -337,10 +335,10 @@ public class Table {
             x.columns.add(column);
             num.add(column.id);
         }
-        for (int i = 0; i < data.size(); i++) {
+        for (int i = 0; i < this.idCount; i++) {
             StringBuilder stringBuilder = new StringBuilder();
             for (int id : num) {
-                stringBuilder.append(this.data.get(i).data.get(id));
+                stringBuilder.append(this.getLineByIndex(i).data.get(id));
             }
             int hash1 = Hash.getHash1(stringBuilder.toString());
             int hash2 = Hash.getHash2(stringBuilder.toString());
@@ -373,7 +371,7 @@ public class Table {
             throw new NotFoundException("data", "your information");
         }
         for (int x : result) {
-            data.remove(x);
+//            data.remove(x);
         }
     }
 
@@ -383,6 +381,10 @@ public class Table {
             return this.name.equals(((Table) obj).name);
         }
         return super.equals(obj);
+    }
+
+    private Line getLineByIndex(long index) {
+        return this.dataIOer.getLine(this.indexTree.get(index));
     }
 }
 
