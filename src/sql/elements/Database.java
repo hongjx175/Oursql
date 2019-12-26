@@ -2,12 +2,11 @@ package sql.elements;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-import sql.ables.DatabaseAble;
 import sql.exceptions.IsExistedException;
 import sql.exceptions.NotFoundException;
 import sql.exceptions.UnknownSequenceException;
 
-public class Database implements DatabaseAble, Serializable {
+public class Database implements Serializable {
 
     transient private static final String historyTableName = "History";
     public Table choosingTable;
@@ -32,20 +31,18 @@ public class Database implements DatabaseAble, Serializable {
         return null;
     }
 
-    @Override
-    public ArrayList<Line> select(String table, Column[] columns, Order[] where, Order[] orderBy)
-        throws UnknownSequenceException {
+    public ArrayList<Line> select(String table, ArrayList<Column> columns, ArrayList<Order> where,
+        ArrayList<Order> orderBy) throws UnknownSequenceException {
         Table x = this.getTable(table);
         return x == null ? null : x.selectPrivate(columns, where, orderBy);
     }
 
-    public ArrayList<Line> selectAll(String table, Order[] where, Order[] orderby)
+    public ArrayList<Line> selectAll(String table, ArrayList<Order> where, ArrayList<Order> orderby)
         throws UnknownSequenceException {
         Table x = this.getTable(table);
         return x == null ? null : x.selectAll(where, orderby);
     }
 
-    @Override
     public void changeTableName(String oldOne, String newOne)
         throws NotFoundException, IsExistedException {
         Table x = this.getTable(oldOne);
@@ -59,7 +56,6 @@ public class Database implements DatabaseAble, Serializable {
         x.name = newOne;
     }
 
-    @Override
     public void newTable(String name, Column[] columns, HashIndex[] index)
         throws IsExistedException, NotFoundException {
         Table x = this.getTable(name);
@@ -78,7 +74,6 @@ public class Database implements DatabaseAble, Serializable {
         }
     }
 
-    @Override
     public void deleteTable(String name) throws NotFoundException {
         boolean isFound = false;
         for (int i = 0; i < this.tables.size(); i++) {
@@ -101,7 +96,6 @@ public class Database implements DatabaseAble, Serializable {
         return super.equals(obj);
     }
 
-    @Override
     public void alterTable(String name) {
         this.choosingTable = getTable(name);
     }

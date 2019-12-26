@@ -8,8 +8,6 @@ import sql.exceptions.TooLongException;
 public class Line implements Comparable<Line> {
 
     public ArrayList<Data> data;
-    int id;
-    boolean isDeleted = false;
     String cmp;
 
     @Contract(pure = true)
@@ -25,7 +23,7 @@ public class Line implements Comparable<Line> {
     @Contract(pure = true)
     private void lengthCheck(@NotNull Column[] columns) throws TooLongException {
         for (int i = 0; i < columns.length; i++) {
-            if (data.get(i).value.length > columns[i].maxLength) {
+            if (data.get(i).getValue().length() > columns[i].maxLength) {
                 throw new TooLongException(columns[i].name, columns[i].maxLength);
             }
         }

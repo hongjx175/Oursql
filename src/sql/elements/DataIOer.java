@@ -68,11 +68,7 @@ public class DataIOer implements Serializable {
         for (int i = 0; i < table.columnList.size(); i++) {
             StringBuilder stringBuilder = new StringBuilder();
             Data data = lines.data.get(i);
-            if (data == null) {
-                stringBuilder.append("null");
-            } else {
-                stringBuilder.append(data.value);
-            }
+            stringBuilder.append(data == null ? null : data.getValue());
             int maxLength = table.columnList.get(i).maxLength;
             int size = Math.min(defaultSize, maxLength);
             if (stringBuilder.length() < size) {

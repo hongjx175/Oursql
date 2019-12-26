@@ -1,6 +1,5 @@
 package sql.elements;
 
-import java.util.Arrays;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import sql.exceptions.DataInvalidException;
@@ -21,15 +20,11 @@ public class Data {
     private static final String timeRegex =
         "(((0?[0-9])|([1][0-9])|([2][0-4]))\\\\:([0-5]?[0-9])((\\\\s)|(\\\\:([0-5]?[0-9]))))?$";
     private static final String phoneNumberRegex = "^1[3|4|5|7|8][0-9]\\d{4,8}$";
-    char[] value;
-    Data next;
+    private String string;
 
     @Contract(pure = true)
-    public Data(@NotNull String string) {
-        this.value = string.toCharArray();
-    }
-
-    public Data() {
+    public Data(@NotNull Column column, @NotNull String string) throws DataInvalidException {
+        this.setValue(column, string);
     }
 
     private static boolean validCheck(String str, @NotNull String type) {
@@ -49,10 +44,7 @@ public class Data {
     }
 
     public String getValue() {
-        if (this.next == null) {
-            return Arrays.toString(this.value);
-        }
-        return String.valueOf(this.value) + String.valueOf(this.next.value);
+        return this.string;
     }
 
     public void setValue(@NotNull Column column, String value) throws DataInvalidException {
@@ -60,17 +52,7 @@ public class Data {
         if (!validCheck(value, type)) {
             throw new DataInvalidException(type, value);
         }
-        this.setString(value);
+        this.string = value;
     }
 
-    private void setString(@NotNull String value) {
-        if (value.length() < size) {
-            this.value = value.toCharArray();
-        } else {
-            this.value = value.substring(0, 100).toCharArray();
-            value = value.substring(101);
-            this.next = new Data();
-            this.next.setString(value);
-        }
-    }
 }

@@ -7,7 +7,6 @@ import java.util.HashMap;
 import java.util.Map.Entry;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
-import sql.ables.TableAble;
 import sql.exceptions.DataInvalidException;
 import sql.exceptions.IsExistedException;
 import sql.exceptions.LengthIncorrectException;
@@ -16,7 +15,7 @@ import sql.exceptions.UnknownSequenceException;
 import sql.functions.GetSame;
 import sql.functions.Hash;
 
-public class Table implements TableAble {
+public class Table {
 
     public String name;
     public Database database;
@@ -75,18 +74,24 @@ public class Table implements TableAble {
         return null;
     }
 
-    @Deprecated
-    // TODO: 2019/12/25 checking
-    private void insert(@NotNull Data[] str) throws Exception {
-        if (str.length != this.onShowColumnCount) {
-            throw new LengthIncorrectException("data", this.onShowColumnCount, str.length);
+    void insertByStrings(@NotNull ArrayList<Data> str) throws Exception {
+        if (str.size() != this.onShowColumnCount) {
+            throw new LengthIncorrectException("data", this.onShowColumnCount, str.size());
         }
-//        Line newData = new Line();
-//        newData.id = idCount++;
-//        for(Column)
+        ArrayList<Order> orders = new ArrayList<>();
+        int id = 0;
+        for (Column c : this.columnList) {
+            if (!c.canShow || c.isDeleted) {
+                continue;
+            }
+            orders.add(new Order(c, str.get(id++)));
+        }
+        orders.add(new Order(this.getColumn("#id"), Integer.toString(this.idCount++)));
+        orders.add(new Order(this.getColumn("#isDel"), "False"));
+        this.insertByOrders(orders);
     }
 
-    @Override
+    // TODO: 2019/12/26 checking 
     public void addColumn(@NotNull Column column) throws IsExistedException {
         Column x = this.getColumn(column.name);
         if (x != null) {
@@ -113,7 +118,6 @@ public class Table implements TableAble {
         c.name = newOne;
     }
 
-    @Override
     public void deleteColumn(String name) throws NotFoundException {
         Column x = this.getColumn(name);
         if (x == null) {
@@ -124,10 +128,9 @@ public class Table implements TableAble {
         this.onShowColumnCount--;
     }
 
-    @Override
-    public void insert(@NotNull Order[] orders) {
+    public void insertByOrders(@NotNull ArrayList<Order> orders) {
         Line newData = new Line();
-        newData.id = idCount++;
+//        newData.id = idCount++;
         Data[] d = new Data[this.columnCount];
         for (Order x : orders) {
             d[x.column.id] = x.value;
@@ -165,9 +168,9 @@ public class Table implements TableAble {
         }
         for (int i : checkList) {
             Line x = data.get(i);
-            if (x.isDeleted) {
-                continue;
-            }
+//            if (x.isDeleted) {
+//                continue;
+//            }
             boolean isEqual = true;
             for (Entry<Column, Data> y : where.entrySet()) {
                 int index = y.getKey().id;
@@ -186,7 +189,7 @@ public class Table implements TableAble {
 
     @NotNull
     @SuppressWarnings("unchecked")
-    private ArrayList<Integer> selectWhereIntoNumbers(@NotNull Order[] where) {
+    private ArrayList<Integer> selectWhereIntoNumbers(@NotNull ArrayList<Order> where) {
         HashMap<Column, Data> map = new HashMap<>();
         ArrayList<ArrayList<Integer>> checkResult = new ArrayList<>();
         boolean indexMatched = false;
@@ -215,13 +218,13 @@ public class Table implements TableAble {
         return result;
     }
 
-    ArrayList<Line> selectAll(Order[] where, Order[] orderBy)
+    ArrayList<Line> selectAll(ArrayList<Order> where, ArrayList<Order> orderBy)
         throws UnknownSequenceException {
-        return this.selectPrivate(this.columnList.toArray(new Column[0]), where, orderBy);
+        return this.selectPrivate(this.columnList, where, orderBy);
     }
 
-    ArrayList<Line> selectPrivate(Column[] columns, Order[] where, Order[] orderBy)
-        throws UnknownSequenceException {
+    ArrayList<Line> selectPrivate(ArrayList<Column> columns, ArrayList<Order> where,
+        ArrayList<Order> orderBy) throws UnknownSequenceException {
         ArrayList<Integer> result = selectWhereIntoNumbers(where);
         ArrayList<Line> array = new ArrayList<>();
         for (int i : result) {
@@ -229,7 +232,7 @@ public class Table implements TableAble {
             for (Column j : columns) {
                 add.data.add(tmp.data.get(j.id));
             }
-            if (orderBy != null && orderBy.length != 0) {
+            if (orderBy != null && orderBy.size() != 0) {
                 for (Order j : orderBy) {
                     String s = tmp.data.get(j.column.id).getValue();
                     int len = s.length();
@@ -246,7 +249,7 @@ public class Table implements TableAble {
             }
             array.add(add);
         }
-        if (orderBy == null || orderBy.length != 0) {
+        if (orderBy == null || orderBy.size() != 0) {
             Collections.sort(array);
             for (int j = 1; j < array.size(); j++) {
                 if (array.get(j - 1).equals(array.get(j))) {
@@ -257,8 +260,8 @@ public class Table implements TableAble {
         return array;
     }
 
-    @Override
-    public void update(@NotNull Order[] set, @NotNull Order[] where) throws DataInvalidException {
+    public void update(@NotNull ArrayList<Order> set, @NotNull ArrayList<Order> where)
+        throws DataInvalidException {
         ArrayList<Integer> result = selectWhereIntoNumbers(where);
         for (int x : result) {
             for (Order y : set) {
@@ -269,18 +272,17 @@ public class Table implements TableAble {
         }
     }
 
-    @Override
-    public void deleteLine(Order[] search) throws NotFoundException {
+    public void deleteLine(ArrayList<Order> search) throws NotFoundException {
         ArrayList<Integer> result = selectWhereIntoNumbers(search);
         if (result.size() == 0) {
             throw new NotFoundException("line", "your searching form");
         }
         for (int x : result) {
-            this.data.get(x).isDeleted = true;
+//            this.data.get(x).isDeleted = true;
         }
     }
 
-    public void setIndex(String type, String name, ArrayList<Column> columns)
+    public void setIndexByColumns(String type, String name, ArrayList<Column> columns)
         throws NotFoundException, IsExistedException {
         ArrayList<Integer> num = new ArrayList<>();
         HashIndex x = getIndex(name);
@@ -310,18 +312,16 @@ public class Table implements TableAble {
         indexList.add(x);
     }
 
-    @Override
-    public void setIndex(String type, String name, String[] columnInOrder)
-        throws NotFoundException, IsExistedException {
+    public void setIndexByStrings(String type, String name,
+        @NotNull ArrayList<String> columnInOrder) throws NotFoundException, IsExistedException {
         ArrayList<Column> columns = new ArrayList<>();
         for (String str : columnInOrder) {
             columns.add(getColumn(str));
         }
-        setIndex(type, name, columns);
+        setIndexByColumns(type, name, columns);
     }
 
-    @Override
-    public void delete(@NotNull Order[] where) throws NotFoundException {
+    public void delete(@NotNull ArrayList<Order> where) throws NotFoundException {
         ArrayList<Integer> result = selectWhereIntoNumbers(where);
         if (result.isEmpty()) {
             throw new NotFoundException("data", "your information");

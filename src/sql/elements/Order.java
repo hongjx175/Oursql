@@ -18,16 +18,22 @@ public class Order {
 
     public Order(@NotNull Table table, String column, String value) throws DataInvalidException {
         this.column = table.getColumn(column);
-        this.value = new Data();
+        this.value = new Data(this.column, value);
         this.value.setValue(this.column, value);
     }
 
-    Order(Column column) {
+    Order(Column column, String value) throws DataInvalidException {
         this.column = column;
+        this.value = new Data(column, value);
+    }
+
+    Order(Column column, Data data) {
+        this.column = column;
+        this.value = data;
     }
 
     @NotNull
-    public static Column[] castNameList(@NotNull Order[] orders) {
+    public static Column[] castNameList(@NotNull ArrayList<Order> orders) {
         ArrayList<Column> array = new ArrayList<>();
         for (Order x : orders) {
             array.add(x.column);
