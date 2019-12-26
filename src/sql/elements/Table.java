@@ -386,9 +386,5 @@ public class Table {
     private Line getLineByIndex(long index) {
         return this.dataIOer.getLine(this.indexTree.get(index));
     }
-
-    public Column[] getColumnList() {
-        return (Column[]) this.columnList.toArray();
-    }
 }
 

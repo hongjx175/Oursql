@@ -1,6 +1,9 @@
 package sql.functions;
 
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.Scanner;
 import org.jetbrains.annotations.NotNull;
 import sql.elements.Column;
@@ -13,6 +16,7 @@ import sql.exceptions.DataInvalidException;
 import sql.exceptions.IsExistedException;
 import sql.exceptions.NotAlterException;
 import sql.exceptions.NotFoundException;
+import sql.exceptions.TooLongException;
 import sql.exceptions.UnknownSequenceException;
 import sql.exceptions.WrongCommandException;
 
@@ -50,11 +54,11 @@ public class Charge {
         Table table = database.getTable(sp[1]);
         String[] sp1 = s.split(" ");
         boolean hasORDER = false, hasWHERE = false;
-        for (int i = 0; i < sp1.length; i++) {
-            if (sp1[i].equalsIgnoreCase("ORDER")) {
+        for (String value : sp1) {
+            if (value.equalsIgnoreCase("ORDER")) {
                 hasORDER = true;
             }
-            if (sp1[i].equalsIgnoreCase("WHERE")) {
+            if (value.equalsIgnoreCase("WHERE")) {
                 hasWHERE = true;
             }
             if (hasORDER && hasWHERE) {
@@ -70,7 +74,7 @@ public class Charge {
                 if (hasORDER) {
                     //SELECT * FROM 表名 ORDER BY Company DESC,OrderNumber ASC
                     ArrayList<Order> orderby = new ArrayList<Order>();
-                    String[] orderbys = sp[2].split(" |,");
+                    String[] orderbys = sp[2].split("[ ,]");
                     if (orderbys.length % 2 != 0) {
                         throw new WrongCommandException();
                     }
@@ -81,11 +85,11 @@ public class Charge {
                         }
                         orderby.add(new Order(table, sp[i], ord));
                     }
-                    database.selectAll(sp[1], null, (Order[]) orderby.toArray());
+                    database.selectAll(sp[1], null, orderby);
                 }
                 if (hasWHERE) {
                     //SELECT * FROM Orders WHERE 列 = 值
-                    String[] wheres = sp[2].split(" |=");
+                    String[] wheres = sp[2].split("[ =]");
                     ArrayList<Order> where = new ArrayList<Order>();
                     if (wheres.length % 2 != 0) {
                         throw new WrongCommandException();
@@ -93,11 +97,11 @@ public class Charge {
                     for (int i = 0; i < wheres.length; i += 2) {
                         where.add(new Order(table, wheres[i], wheres[i + 1]));
                     }
-                    database.selectAll(sp[1], (Order[]) where.toArray(), null);
+                    database.selectAll(sp[1], where, null);
                 }
             } else if (sp.length == 4) {//WHERE和ORDER BY都有
                 ArrayList<Order> orderby = new ArrayList<Order>();
-                String[] orderbys = sp[3].split(" |,");
+                String[] orderbys = sp[3].split("[ ,]");
                 if (orderbys.length % 2 != 0) {
                     throw new WrongCommandException();
                 }
@@ -108,7 +112,7 @@ public class Charge {
                     }
                     orderby.add(new Order(table, sp[i], ord));
                 }
-                String[] wheres = sp[2].split(" |=");
+                String[] wheres = sp[2].split("[ =]");
                 ArrayList<Order> where = new ArrayList<Order>();
                 if (wheres.length % 2 != 0) {
                     throw new WrongCommandException();
@@ -116,7 +120,7 @@ public class Charge {
                 for (int i = 0; i < wheres.length; i += 2) {
                     where.add(new Order(table, wheres[i], wheres[i + 1]));
                 }
-                database.selectAll(sp[1], (Order[]) where.toArray(), (Order[]) orderby.toArray());
+                database.selectAll(sp[1], where, orderby);
             } else {
                 throw new WrongCommandException();
             }
@@ -135,8 +139,8 @@ public class Charge {
                 }
                 if (hasORDER) {
                     //SELECT * FROM 表名 ORDER BY Company DESC,OrderNumber ASC
-                    ArrayList<Order> orderby = new ArrayList<Order>();
-                    String[] orderbys = sp[2].split(" |,");
+                    ArrayList<Order> orderby = new ArrayList<>();
+                    String[] orderbys = sp[2].split("[ ,]");
                     if (orderbys.length % 2 != 0) {
                         throw new WrongCommandException();
                     }
@@ -147,11 +151,11 @@ public class Charge {
                         }
                         orderby.add(new Order(table, sp[i], ord));
                     }
-                    database.select(sp[1], cols, null, (Order[]) orderby.toArray());
+                    database.select(sp[1], new ArrayList<>(Arrays.asList(cols)), null, orderby);
                 }
                 if (hasWHERE) {
                     //SELECT * FROM Orders WHERE 列 = 值
-                    String[] wheres = sp[2].split(" |=");
+                    String[] wheres = sp[2].split("[ =]");
                     ArrayList<Order> where = new ArrayList<Order>();
                     if (wheres.length % 2 != 0) {
                         throw new WrongCommandException();
@@ -159,11 +163,11 @@ public class Charge {
                     for (int i = 0; i < wheres.length; i += 2) {
                         where.add(new Order(table, wheres[i], wheres[i + 1]));
                     }
-                    database.select(sp[1], cols, (Order[]) where.toArray(), null);
+                    database.select(sp[1], new ArrayList<>(Arrays.asList(cols)), where, null);
                 }
             } else if (sp.length == 4) {//WHERE和ORDER BY都有
                 ArrayList<Order> orderby = new ArrayList<Order>();
-                String[] orderbys = sp[3].split(" |,");
+                String[] orderbys = sp[3].split("[ ,]");
                 if (orderbys.length % 2 != 0) {
                     throw new WrongCommandException();
                 }
@@ -174,7 +178,7 @@ public class Charge {
                     }
                     orderby.add(new Order(table, sp[i], ord));
                 }
-                String[] wheres = sp[2].split(" |=");
+                String[] wheres = sp[2].split("[ =]");
                 ArrayList<Order> where = new ArrayList<Order>();
                 if (wheres.length % 2 != 0) {
                     throw new WrongCommandException();
@@ -182,8 +186,7 @@ public class Charge {
                 for (int i = 0; i < wheres.length; i += 2) {
                     where.add(new Order(table, wheres[i], wheres[i + 1]));
                 }
-                database
-                    .select(sp[1], cols, (Order[]) where.toArray(), (Order[]) orderby.toArray());
+                database.select(sp[1], new ArrayList<>(Arrays.asList(cols)), where, orderby);
             } else {
                 throw new WrongCommandException();
             }
@@ -207,7 +210,7 @@ public class Charge {
                 orders.add(new Order(table, s[i - 1], s[i + 1]));
             }
         }
-        table.deleteLine((Order[]) orders.toArray());
+        table.deleteLine(orders);
     }
 
     private static void update(String[] s)
@@ -224,10 +227,10 @@ public class Charge {
             throw new WrongCommandException();
         }
         Table table = database.getTable(s[1]);
-        //ArrayList<Order> search = new ArrayList<Order>();
-        //ArrayList<Order> update = new ArrayList<Order>();
-        Order[] search = {new Order(table, s[7], s[9])};
-        Order[] update = {new Order(table, s[3], s[5])};
+        ArrayList<Order> search = new ArrayList<>(
+            Collections.singletonList(new Order(table, s[7], s[9])));
+        ArrayList<Order> update = new ArrayList<>(
+            Collections.singletonList(new Order(table, s[3], s[5])));
         table.update(search, update);
     }
 
@@ -261,7 +264,7 @@ public class Charge {
 
     //插入行
     private static void insert(String[] s)
-        throws NotAlterException, WrongCommandException, DataInvalidException {
+        throws NotAlterException, WrongCommandException, DataInvalidException, IOException, TooLongException {
         //INSERT INTO 语句用于向表格中插入新的行。
         //INSERT INTO 表名称 VALUES 值1,值2,....
         //INSERT INTO 表名称 列1,列2,... VALUES 值1, 值2,....//(指定列)
@@ -301,7 +304,7 @@ public class Charge {
                 }
             }
         }
-        table.insert((Order[]) orders.toArray());
+        table.insertByOrders(orders);
     }
 
     //建库、表
@@ -345,7 +348,7 @@ public class Charge {
                 str = scan.nextLine();
             }
             // TODO: 2019/12/21 处理index[]
-            database.newTable(s[2], (Column[]) cols.toArray(), null);
+            database.newTable(s[2], cols, null);
         }
     }
 
@@ -388,9 +391,8 @@ public class Charge {
             || !s[4].equalsIgnoreCase("NULL")))) {
             throw new WrongCommandException();
         }
-        Column col;
-        col = new Column(s[1], s[2], s.length != 5);
-        database.choosingTable.addColumn(col);
+        Column col = new Column(s[1], s[2], s.length != 5);
+        database.choosingTable.addColumns(new ArrayList<>(Collections.singletonList(col)));
     }
 
     public static void main(String[] args) {
