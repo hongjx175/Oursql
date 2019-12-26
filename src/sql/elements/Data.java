@@ -27,6 +27,11 @@ public class Data {
         this.setValue(column, string);
     }
 
+    @Deprecated
+    public Data(String string) {
+        this.string = string;
+    }
+
     private static boolean validCheck(String str, @NotNull String type) {
         switch (type) {
             case "Number":

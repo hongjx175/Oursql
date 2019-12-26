@@ -2,6 +2,7 @@ package sql.elements;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Arrays;
 import sql.exceptions.IsExistedException;
 import sql.exceptions.NotFoundException;
 import sql.exceptions.UnknownSequenceException;
@@ -19,7 +20,7 @@ public class Database implements Serializable {
         Column time = new Column("time", "Time", false);
         Column user = new Column("user", "String", false);
         Column type = new Column("event", "String", false);
-        newTable(historyTableName, new Column[]{date, time, user, type}, null);
+        newTable(historyTableName, new ArrayList<>(Arrays.asList(date, time, user, type)), null);
     }
 
     public Table getTable(String name) {
@@ -56,20 +57,22 @@ public class Database implements Serializable {
         x.name = newOne;
     }
 
-    public void newTable(String name, Column[] columns, HashIndex[] index)
-        throws IsExistedException, NotFoundException {
+    public void newTable(String name, ArrayList<Column> columns, ArrayList<HashIndex> index)
+        throws IsExistedException {
         Table x = this.getTable(name);
         if (x != null) {
             throw new IsExistedException("table", name);
         }
         x = new Table(name, this);
         tables.add(x);
-        for (Column column : columns) {
-            x.addColumn(column);
-        }
+        x.addColumns(columns);
         if (index != null) {
             for (HashIndex t : index) {
-                x.setIndex(t.type, t.name, t.columns);
+                try {
+                    x.setIndexByColumns(t.type, t.name, t.columns);
+                } catch (NotFoundException e) {
+                    e.printStackTrace();
+                }
             }
         }
     }

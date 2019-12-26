@@ -26,6 +26,10 @@ public class BTree<V> {
     public V get(long key) {
         return root.get(key);
     }
+
+    public Node<V> getFirstLeaf() {
+        return root.getFirstLeaf();
+    }
 }
 
 class Node<V> {
@@ -163,6 +167,15 @@ class Node<V> {
             this.refers[pos + 1] = newError.node;
         }
         this.hash[pos] = newError.hash;
+    }
+
+    @SuppressWarnings("unchecked")
+    Node<V> getFirstLeaf() {
+        if (this.isLeaf) {
+            return this;
+        } else {
+            return ((Node<V>) this.refers[0]).getFirstLeaf();
+        }
     }
 }
 

@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.Map.Entry;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import sql.exceptions.DataInvalidException;
@@ -12,6 +11,7 @@ import sql.exceptions.IsExistedException;
 import sql.exceptions.LengthIncorrectException;
 import sql.exceptions.NotFoundException;
 import sql.exceptions.UnknownSequenceException;
+import sql.exceptions.WaitingException;
 import sql.functions.GetSame;
 import sql.functions.Hash;
 
@@ -21,17 +21,18 @@ public class Table {
     public Database database;
     public ArrayList<Column> columnList = new ArrayList<>();
     public ArrayList<HashIndex> indexList = new ArrayList<>();
+    boolean locked = false;
     private int idCount = 0;
     private int columnCount = 0;
     private int onShowColumnCount = 0;
-    transient private ArrayList<Line> data;
+    //    transient private ArrayList<Line> data;
     private DataIOer dataIOer;
 
     @Contract(pure = true)
     Table(String name, Database database) {
         this.name = name;
         this.database = database;
-        this.data = new ArrayList<>();
+//        this.data = new ArrayList<>();
         this.dataIOer = new DataIOer(this.database, this);
         try {
             Column cid = new Column("#id", "Number", false);
@@ -91,8 +92,23 @@ public class Table {
         this.insertByOrders(orders);
     }
 
-    // TODO: 2019/12/26 checking 
-    public void addColumn(@NotNull Column column) throws IsExistedException {
+    public void addColumns(@NotNull ArrayList<Column> columns) throws IsExistedException {
+        if (this.locked) {
+            throw new WaitingException();
+        }
+        ArrayList<Column> oldList = new ArrayList<>(this.columnList);
+        for (Column column : columns) {
+            this.addColumn(column);
+        }
+        if (this.idCount != 0) {
+            this.locked = true;
+            this.dataIOer.onColumnAdd(oldList, this.columnList);
+            this.locked = false;
+        }
+    }
+
+    // TODO: 2019/12/26 checking
+    private void addColumn(@NotNull Column column) throws IsExistedException {
         Column x = this.getColumn(column.name);
         if (x != null) {
             throw new IsExistedException("column", column.name);
@@ -104,6 +120,9 @@ public class Table {
 
     public void changeColumnName(String oldOne, String newOne)
         throws NotFoundException, IsExistedException, ClassNotFoundException {
+        if (this.locked) {
+            throw new WaitingException();
+        }
         Column c = this.getColumn(newOne);
         if (c != null) {
             throw new IsExistedException("Column", newOne);
@@ -119,6 +138,9 @@ public class Table {
     }
 
     public void deleteColumn(String name) throws NotFoundException {
+        if (this.locked) {
+            throw new WaitingException();
+        }
         Column x = this.getColumn(name);
         if (x == null) {
             throw new NotFoundException("column", name);
@@ -129,6 +151,9 @@ public class Table {
     }
 
     public void insertByOrders(@NotNull ArrayList<Order> orders) {
+        if (this.locked) {
+            throw new WaitingException();
+        }
         Line newData = new Line();
 //        newData.id = idCount++;
         Data[] d = new Data[this.columnCount];
@@ -220,11 +245,17 @@ public class Table {
 
     ArrayList<Line> selectAll(ArrayList<Order> where, ArrayList<Order> orderBy)
         throws UnknownSequenceException {
+        if (this.locked) {
+            throw new WaitingException();
+        }
         return this.selectPrivate(this.columnList, where, orderBy);
     }
 
     ArrayList<Line> selectPrivate(ArrayList<Column> columns, ArrayList<Order> where,
         ArrayList<Order> orderBy) throws UnknownSequenceException {
+        if (this.locked) {
+            throw new WaitingException();
+        }
         ArrayList<Integer> result = selectWhereIntoNumbers(where);
         ArrayList<Line> array = new ArrayList<>();
         for (int i : result) {
@@ -262,6 +293,9 @@ public class Table {
 
     public void update(@NotNull ArrayList<Order> set, @NotNull ArrayList<Order> where)
         throws DataInvalidException {
+        if (this.locked) {
+            throw new WaitingException();
+        }
         ArrayList<Integer> result = selectWhereIntoNumbers(where);
         for (int x : result) {
             for (Order y : set) {
@@ -273,6 +307,9 @@ public class Table {
     }
 
     public void deleteLine(ArrayList<Order> search) throws NotFoundException {
+        if (this.locked) {
+            throw new WaitingException();
+        }
         ArrayList<Integer> result = selectWhereIntoNumbers(search);
         if (result.size() == 0) {
             throw new NotFoundException("line", "your searching form");
@@ -284,6 +321,9 @@ public class Table {
 
     public void setIndexByColumns(String type, String name, ArrayList<Column> columns)
         throws NotFoundException, IsExistedException {
+        if (this.locked) {
+            throw new WaitingException();
+        }
         ArrayList<Integer> num = new ArrayList<>();
         HashIndex x = getIndex(name);
         if (x != null) {
@@ -314,6 +354,9 @@ public class Table {
 
     public void setIndexByStrings(String type, String name,
         @NotNull ArrayList<String> columnInOrder) throws NotFoundException, IsExistedException {
+        if (this.locked) {
+            throw new WaitingException();
+        }
         ArrayList<Column> columns = new ArrayList<>();
         for (String str : columnInOrder) {
             columns.add(getColumn(str));
@@ -322,6 +365,9 @@ public class Table {
     }
 
     public void delete(@NotNull ArrayList<Order> where) throws NotFoundException {
+        if (this.locked) {
+            throw new WaitingException();
+        }
         ArrayList<Integer> result = selectWhereIntoNumbers(where);
         if (result.isEmpty()) {
             throw new NotFoundException("data", "your information");

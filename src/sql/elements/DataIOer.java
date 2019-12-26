@@ -164,4 +164,8 @@ public class DataIOer implements Serializable {
         }
         return result;
     }
+
+    public void onColumnAdd(@NotNull ArrayList<Column> oldOne, @NotNull ArrayList<Column> newOne) {
+
+    }
 }
