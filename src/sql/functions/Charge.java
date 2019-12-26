@@ -8,7 +8,7 @@ import sql.elements.Database;
 import sql.elements.Mysql;
 import sql.elements.Order;
 import sql.elements.Table;
-import sql.exceptions.CannotDeleteException;
+import sql.exceptions.CommandDeniedException;
 import sql.exceptions.DataInvalidException;
 import sql.exceptions.IsExistedException;
 import sql.exceptions.NotAlterException;
@@ -19,9 +19,16 @@ import sql.exceptions.WrongCommandException;
 public class Charge {
 
     static Scanner scan = new Scanner(System.in);
-    static Mysql sql = Mysql.getInstance();
+    static Mysql sql;
     static Database database;
 
+    static {
+        try {
+            sql = Mysql.getInstance();
+        } catch (NotFoundException | IsExistedException e) {
+            e.printStackTrace();
+        }
+    }
 
     static boolean notCompare(@NotNull String a, String b) {
         return !a.equalsIgnoreCase(b);
@@ -226,7 +233,7 @@ public class Charge {
 
     //删除库、表、列
     private static void drop(String[] s)
-        throws WrongCommandException, NotAlterException, NotFoundException, CannotDeleteException {
+        throws WrongCommandException, NotAlterException, NotFoundException, CommandDeniedException {
         //DROP TABLE 表名称
         //DROP DATABASE 数据库名称
         //ALTER TABLE table_name
@@ -270,13 +277,13 @@ public class Charge {
             if (!s[1].equalsIgnoreCase("INTO") || !s[3].equalsIgnoreCase("VALUES")) {
                 throw new WrongCommandException();
             } else {
-                String[] colNames = table.getColumnNames();
+                ArrayList<String> colNames = table.getColumnNames();
                 String[] values = s[4].split(",");
-                if (colNames.length != values.length) {
+                if (colNames.size() != values.length) {
                     throw new WrongCommandException();
                 }
-                for (int i = 0; i < colNames.length; i++) {
-                    orders.add(new Order(table, colNames[i], values[i]));
+                for (int i = 0; i < colNames.size(); i++) {
+                    orders.add(new Order(table, colNames.get(i), values[i]));
                 }
             }
         }
@@ -334,7 +341,7 @@ public class Charge {
                 }
 
                 boolean canNull = (sp.length != 4);
-                cols.add(new Column(colNum++, sp[0], sp[1], canNull));
+                cols.add(new Column(sp[0], sp[1], canNull));
                 str = scan.nextLine();
             }
             // TODO: 2019/12/21 处理index[]
@@ -382,7 +389,7 @@ public class Charge {
             throw new WrongCommandException();
         }
         Column col;
-        col = new Column(database.choosingTable.getColumnCount() + 1, s[1], s[2], s.length != 5);
+        col = new Column(s[1], s[2], s.length != 5);
         database.choosingTable.addColumn(col);
     }
 

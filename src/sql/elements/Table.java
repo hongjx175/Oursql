@@ -1,5 +1,6 @@
 package sql.elements;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -7,41 +8,53 @@ import java.util.HashMap;
 import java.util.Map.Entry;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
-import sql.ables.TableAble;
 import sql.exceptions.DataInvalidException;
 import sql.exceptions.IsExistedException;
+import sql.exceptions.LengthIncorrectException;
 import sql.exceptions.NotFoundException;
+import sql.exceptions.TooLongException;
 import sql.exceptions.UnknownSequenceException;
+import sql.exceptions.WaitingException;
+import sql.functions.BTree;
 import sql.functions.GetSame;
 import sql.functions.Hash;
 
-public class Table implements TableAble {
+public class Table {
 
     public String name;
     public Database database;
     public ArrayList<Column> columnList = new ArrayList<>();
     public ArrayList<HashIndex> indexList = new ArrayList<>();
-    private int idCount = 0;
+    boolean locked = false;
+    int idCount = 0;
+    BTree<Long> indexTree = new BTree<>();
     private int columnCount = 0;
-    transient private ArrayList<Line> data;
+    private int onShowColumnCount = 0;
     private DataIOer dataIOer;
 
     @Contract(pure = true)
     Table(String name, Database database) {
         this.name = name;
         this.database = database;
-        this.data = new ArrayList<>();
         this.dataIOer = new DataIOer(this.database, this);
+        try {
+            Column isDel = new Column("#isDel", "Number", false);
+            isDel.canShow = false;
+            this.addColumn(isDel);
+            this.onShowColumnCount--;
+        } catch (NotFoundException | IsExistedException e) {
+            e.printStackTrace();
+        }
     }
 
-    public String[] getColumnNames() {
-        ArrayList<String> colNames = new ArrayList<String>();
+    public ArrayList<String> getColumnNames() {
+        ArrayList<String> colNames = new ArrayList<>();
         for (Column c : columnList) {
             if (!c.isDeleted) {
                 colNames.add(c.getName());
             }
         }
-        return (String[]) colNames.toArray();
+        return colNames;
     }
 
     public Column getColumn(String name) {
@@ -62,48 +75,93 @@ public class Table implements TableAble {
         return null;
     }
 
-    @Deprecated
-    private void insert(@NotNull Data[] str) throws Exception {
-        if (str.length != this.columnList.size()) {
-            throw new Exception(
-                "Length is not correct. Expect " + this.columnList.size() + " , found " + str.length
-                    + ".");
+    void insertByStrings(@NotNull ArrayList<Data> str) throws Exception {
+        if (str.size() != this.onShowColumnCount) {
+            throw new LengthIncorrectException("data", this.onShowColumnCount, str.size());
         }
-        Line newData = new Line();
-        newData.id = idCount++;
-        newData.data.addAll(Arrays.asList(str));
-        this.data.add(newData);
+        ArrayList<Order> orders = new ArrayList<>();
+        int id = 0;
+        for (Column c : this.columnList) {
+            if (!c.canShow || c.isDeleted) {
+                continue;
+            }
+            orders.add(new Order(c, str.get(id++)));
+        }
+        orders.add(new Order(this.getColumn("#isDel"), "False"));
+        this.insertByOrders(orders);
     }
 
-    @Override
-    public void addColumn(Column column) throws IsExistedException {
+    public void addColumns(@NotNull ArrayList<Column> columns) throws IsExistedException {
+        if (this.locked) {
+            throw new WaitingException();
+        }
+        ArrayList<Column> oldList = new ArrayList<>(this.columnList);
+        for (Column column : columns) {
+            this.addColumn(column);
+        }
+        if (this.idCount != 0) {
+            this.locked = true;
+            this.dataIOer.onColumnAdd(oldList, this.columnList);
+            this.locked = false;
+        }
+    }
+
+    private void addColumn(@NotNull Column column) throws IsExistedException {
         Column x = this.getColumn(column.name);
         if (x != null) {
             throw new IsExistedException("column", column.name);
         }
         this.columnList.add(column);
+        column.id = this.columnCount++;
+        this.onShowColumnCount++;
     }
 
-    @Override
+    public void changeColumnName(String oldOne, String newOne)
+        throws NotFoundException, IsExistedException {
+        Column c = this.getColumn(newOne);
+        if (c != null) {
+            throw new IsExistedException("Column", newOne);
+        }
+        c = this.getColumn(oldOne);
+        if (c == null) {
+            throw new NotFoundException("Column", oldOne);
+        }
+        if (!c.canShow) {
+            throw new NotFoundException("Column", oldOne);
+        }
+        c.name = newOne;
+    }
+
     public void deleteColumn(String name) throws NotFoundException {
+        if (this.locked) {
+            throw new WaitingException();
+        }
         Column x = this.getColumn(name);
         if (x == null) {
             throw new NotFoundException("column", name);
         }
         x.isDeleted = true;
-        x.name += x.hashCode();
+        x.canShow = false;
+        x.name = "#" + x.name + x.hashCode();
+        this.onShowColumnCount--;
     }
 
-    @Override
-    public void insert(@NotNull Order[] orders) {
-        Line newData = new Line();
-        newData.id = idCount++;
-        for (Order x : orders) {
-            newData.data.add(x.column.id, x.value);
+    public void insertByOrders(@NotNull ArrayList<Order> orders)
+        throws TooLongException, IOException {
+        if (this.locked) {
+            throw new WaitingException();
         }
-        data.add(newData);
+        Line newData = new Line();
+        Data[] d = new Data[this.columnCount];
+        for (Order x : orders) {
+            d[x.column.id] = x.value;
+        }
+        newData.data = new ArrayList<>(Arrays.asList(d));
+        indexTree.add(idCount++,
+            dataIOer.setLine(new Line(new ArrayList<>(Arrays.asList(d)), this.columnList)));
     }
 
+    // TODO: 2019/12/26 all the select unchecked
     @NotNull
     @SuppressWarnings("unchecked")
     private ArrayList<Integer> selectInIndex(HashMap<Column, Data> map, @NotNull HashIndex index) {
@@ -123,11 +181,17 @@ public class Table implements TableAble {
 
     @NotNull
     private ArrayList<Integer> selectDefault(HashMap<Column, Data> where,
-        @NotNull ArrayList<Integer> checkList) {
+        ArrayList<Integer> checkList) {
         ArrayList<Integer> result = new ArrayList<>();
+        if (checkList == null) {
+            checkList = new ArrayList<>();
+            for (int i = 0; i < this.idCount; i++) {
+                checkList.add(i);
+            }
+        }
         for (int i : checkList) {
-            Line x = data.get(i);
-            if (x.isDeleted) {
+            Line x = dataIOer.getLine(indexTree.get(i));
+            if (x.data.get(getColumn("#isDel").id).getValue().equalsIgnoreCase("0")) {
                 continue;
             }
             boolean isEqual = true;
@@ -148,16 +212,17 @@ public class Table implements TableAble {
 
     @NotNull
     @SuppressWarnings("unchecked")
-    private ArrayList<Integer> selectWhereIntoNumbers(@NotNull Order[] where) {
+    private ArrayList<Integer> selectWhereIntoNumbers(@NotNull ArrayList<Order> where) {
         HashMap<Column, Data> map = new HashMap<>();
         ArrayList<ArrayList<Integer>> checkResult = new ArrayList<>();
+        boolean indexMatched = false;
         for (Order x : where) {
             map.putIfAbsent(x.column, x.value);
         }
         for (HashIndex index : this.indexList) {
-            if (GetSame.getSame(index.columns.toArray(), Order.castNameList(where)).length
-                == index.columns
-                .size()) {
+            if (GetSame.getSame(index.columns.toArray(new Column[0]),
+                Order.castNameList(where)).length == index.columns.size()) {
+                indexMatched = true;
                 HashMap<Column, Data> checkList = new HashMap<>();
                 for (Column x : index.columns) {
                     checkList.putIfAbsent(x, map.get(x));
@@ -170,24 +235,33 @@ public class Table implements TableAble {
         if (map.size() > 0 && result.size() > 0) {
             return GetSame.getSame(selectDefault(map, result), result);
         }
+        if (!indexMatched) {
+            return GetSame.getSame(selectDefault(map, null));
+        }
         return result;
     }
 
-    ArrayList<Line> selectAll(Order[] where, Order[] orderBy)
+    ArrayList<Line> selectAll(ArrayList<Order> where, ArrayList<Order> orderBy)
         throws UnknownSequenceException {
-        return this.selectPrivate((Column[]) this.columnList.toArray(), where, orderBy);
+        if (this.locked) {
+            throw new WaitingException();
+        }
+        return this.selectPrivate(this.columnList, where, orderBy);
     }
 
-    ArrayList<Line> selectPrivate(Column[] columns, Order[] where, Order[] orderBy)
-        throws UnknownSequenceException {
+    ArrayList<Line> selectPrivate(ArrayList<Column> columns, ArrayList<Order> where,
+        ArrayList<Order> orderBy) throws UnknownSequenceException {
+        if (this.locked) {
+            throw new WaitingException();
+        }
         ArrayList<Integer> result = selectWhereIntoNumbers(where);
         ArrayList<Line> array = new ArrayList<>();
         for (int i : result) {
-            Line tmp = data.get(i), add = new Line();
+            Line tmp = this.getLineByIndex(i), add = new Line();
             for (Column j : columns) {
                 add.data.add(tmp.data.get(j.id));
             }
-            if (orderBy.length != 0) {
+            if (orderBy != null && orderBy.size() != 0) {
                 for (Order j : orderBy) {
                     String s = tmp.data.get(j.column.id).getValue();
                     int len = s.length();
@@ -204,7 +278,7 @@ public class Table implements TableAble {
             }
             array.add(add);
         }
-        if (orderBy.length != 0) {
+        if (orderBy == null || orderBy.size() != 0) {
             Collections.sort(array);
             for (int j = 1; j < array.size(); j++) {
                 if (array.get(j - 1).equals(array.get(j))) {
@@ -215,31 +289,39 @@ public class Table implements TableAble {
         return array;
     }
 
-    @Override
-    public void update(@NotNull Order[] set, @NotNull Order[] where) throws DataInvalidException {
+    public void update(@NotNull ArrayList<Order> set, @NotNull ArrayList<Order> where)
+        throws DataInvalidException {
+        if (this.locked) {
+            throw new WaitingException();
+        }
         ArrayList<Integer> result = selectWhereIntoNumbers(where);
         for (int x : result) {
             for (Order y : set) {
-                Line line = this.data.get(x);
+                Line line = this.getLineByIndex(x);
                 Data datum = line.data.get(y.column.id);
                 datum.setValue(y.column, y.value.getValue());
             }
         }
     }
 
-    @Override
-    public void deleteLine(Order[] search) throws NotFoundException {
+    public void deleteLine(ArrayList<Order> search) throws NotFoundException {
+        if (this.locked) {
+            throw new WaitingException();
+        }
         ArrayList<Integer> result = selectWhereIntoNumbers(search);
         if (result.size() == 0) {
             throw new NotFoundException("line", "your searching form");
         }
         for (int x : result) {
-            this.data.get(x).isDeleted = true;
+//            this.data.get(x).isDeleted = true;
         }
     }
 
-    public void setIndex(String type, String name, ArrayList<Column> columns)
+    public void setIndexByColumns(String type, String name, ArrayList<Column> columns)
         throws NotFoundException, IsExistedException {
+        if (this.locked) {
+            throw new WaitingException();
+        }
         ArrayList<Integer> num = new ArrayList<>();
         HashIndex x = getIndex(name);
         if (x != null) {
@@ -253,10 +335,10 @@ public class Table implements TableAble {
             x.columns.add(column);
             num.add(column.id);
         }
-        for (int i = 0; i < data.size(); i++) {
+        for (int i = 0; i < this.idCount; i++) {
             StringBuilder stringBuilder = new StringBuilder();
             for (int id : num) {
-                stringBuilder.append(this.data.get(i).data.get(id));
+                stringBuilder.append(this.getLineByIndex(i).data.get(id));
             }
             int hash1 = Hash.getHash1(stringBuilder.toString());
             int hash2 = Hash.getHash2(stringBuilder.toString());
@@ -268,46 +350,29 @@ public class Table implements TableAble {
         indexList.add(x);
     }
 
-    @Override
-    public void setIndex(String type, String name, String[] columnInOrder)
-        throws NotFoundException, IsExistedException {
+    public void setIndexByStrings(String type, String name,
+        @NotNull ArrayList<String> columnInOrder) throws NotFoundException, IsExistedException {
+        if (this.locked) {
+            throw new WaitingException();
+        }
         ArrayList<Column> columns = new ArrayList<>();
         for (String str : columnInOrder) {
             columns.add(getColumn(str));
         }
-        setIndex(type, name, columns);
+        setIndexByColumns(type, name, columns);
     }
 
-    @Override
-    public void delete(@NotNull Order[] where) throws NotFoundException {
+    public void delete(@NotNull ArrayList<Order> where) throws NotFoundException {
+        if (this.locked) {
+            throw new WaitingException();
+        }
         ArrayList<Integer> result = selectWhereIntoNumbers(where);
         if (result.isEmpty()) {
             throw new NotFoundException("data", "your information");
         }
         for (int x : result) {
-            data.remove(x);
+//            data.remove(x);
         }
-    }
-
-    @Deprecated
-    public void addColumn(@NotNull String line) throws Exception {
-        String[] arr = line.split(" ");
-        if (arr.length < 2) {
-            throw new Exception("Massage is too short in adding columns.");
-        }
-        boolean canNull = false;
-        for (int i = 2; i < arr.length; i++) {
-            if (arr[i - 1].equalsIgnoreCase("NOT")
-                && arr[i].equalsIgnoreCase("NULL")) {
-                canNull = true;
-                break;
-            }
-        }
-        addColumn(arr[0], arr[1], canNull);
-    }
-
-    private void addColumn(String name, String type, boolean canNull) throws NotFoundException {
-        this.columnList.add(new Column(columnCount++, name, type, canNull));
     }
 
     @Override
@@ -318,8 +383,8 @@ public class Table implements TableAble {
         return super.equals(obj);
     }
 
-    public int getColumnCount() {
-        return columnCount;
+    private Line getLineByIndex(long index) {
+        return this.dataIOer.getLine(this.indexTree.get(index));
     }
 
     public Column[] getColumnList() {

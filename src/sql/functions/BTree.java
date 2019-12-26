@@ -26,11 +26,15 @@ public class BTree<V> {
     public V get(long key) {
         return root.get(key);
     }
+
+    public Node<V> getFirstLeaf() {
+        return root.getFirstLeaf();
+    }
 }
 
 class Node<V> {
 
-    public static final int n = 123;
+    public static final int n = 5;
     public static final long inf = (long) 1e18;
     boolean isLeaf;
     Object[] refers = new Object[n + 1];
@@ -164,33 +168,46 @@ class Node<V> {
         }
         this.hash[pos] = newError.hash;
     }
+
+    @SuppressWarnings("unchecked")
+    Node<V> getFirstLeaf() {
+        if (this.isLeaf) {
+            return this;
+        } else {
+            return ((Node<V>) this.refers[0]).getFirstLeaf();
+        }
+    }
 }
 
 class Controller {
 
     public static void main(String[] args) {
-        BTree<Integer> bTree = new BTree<>();
-        ArrayList<Integer> array = new ArrayList<>();
-        HashMap<Integer, Boolean> map = new HashMap<>();
-        Random random = new Random();
-        for (int i = 0; i < 100000; i++) {
-            int x = random.nextInt(1000000);
-            while (map.getOrDefault(x, false)) {
-                x = random.nextInt(1000000);
+        while (true) {
+            BTree<Integer> bTree = new BTree<>();
+            ArrayList<Integer> array = new ArrayList<>();
+            HashMap<Integer, Boolean> map = new HashMap<>();
+            Random random = new Random();
+            for (int i = 0; i < 100; i++) {
+                int x = random.nextInt(1000000);
+                while (map.getOrDefault(x, false)) {
+                    x = random.nextInt(1000000);
+                }
+                map.put(i, true);
+                bTree.add(x, x);
+                array.add(x);
             }
-            map.put(i, true);
-            bTree.add(x, x);
-            array.add(x);
-        }
-        ArrayList<Integer> cnt = new ArrayList<>();
-        for (Integer x : array) {
-            Integer w = bTree.get(x);
-            if (!x.equals(w)) {
-                cnt.add(x);
+            ArrayList<Integer> cnt = new ArrayList<>();
+            for (Integer x : array) {
+                Integer w = bTree.get(x);
+                if (!x.equals(w)) {
+                    cnt.add(x);
+                }
+            }
+            array.sort(Integer::compareTo);
+            if (cnt.size() > 0) {
+                break;
             }
         }
-        array.sort(Integer::compareTo);
-        System.out.println(cnt);
     }
 }
 

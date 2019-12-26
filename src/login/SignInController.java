@@ -5,9 +5,13 @@ import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
 import javafx.scene.input.MouseEvent;
 import sql.elements.Mysql;
+import sql.exceptions.IsExistedException;
+import sql.exceptions.NotFoundException;
 
 public class SignInController {
 
+    @FXML
+    public Button button2;
     private MainApp mainapp;
     private Mysql mysql = Mysql.getInstance();
     @FXML
@@ -16,11 +20,11 @@ public class SignInController {
     private TextField password;
     @FXML
     private Button button1;
-    @FXML
-    public Button button2;
-
     private String accountStr;
     private String passwordStr;
+
+    public SignInController() throws NotFoundException, IsExistedException {
+    }
 
     public void setMainApp(MainApp mainapp) {
         this.mainapp = mainapp;

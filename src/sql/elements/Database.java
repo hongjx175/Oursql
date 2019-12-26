@@ -2,28 +2,25 @@ package sql.elements;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-import sql.ables.DatabaseAble;
+import java.util.Arrays;
 import sql.exceptions.IsExistedException;
 import sql.exceptions.NotFoundException;
 import sql.exceptions.UnknownSequenceException;
 
-public class Database implements DatabaseAble, Serializable {
+public class Database implements Serializable {
 
     transient private static final String historyTableName = "History";
     public Table choosingTable;
     public String name;
     ArrayList<Table> tables = new ArrayList<>();
 
-    public Database(String name) {
+    public Database(String name) throws NotFoundException, IsExistedException {
         this.name = name;
-        try {
-            Column date = new Column(1, "name", "Date", false);
-            Column time = new Column(2, "time", "Time", false);
-            Column user = new Column(3, "user", "String", false);
-            Column type = new Column(4, "event", "String", false);
-            newTable(historyTableName, new Column[]{date, time, user, type}, null);
-        } catch (Exception ignored) {
-        }
+        Column date = new Column("date", "Date", false);
+        Column time = new Column("time", "Time", false);
+        Column user = new Column("user", "String", false);
+        Column type = new Column("event", "String", false);
+        newTable(historyTableName, new ArrayList<>(Arrays.asList(date, time, user, type)), null);
     }
 
     public Table getTable(String name) {
@@ -35,20 +32,18 @@ public class Database implements DatabaseAble, Serializable {
         return null;
     }
 
-    @Override
-    public ArrayList<Line> select(String table, Column[] columns, Order[] where, Order[] orderBy)
-        throws UnknownSequenceException {
+    public ArrayList<Line> select(String table, ArrayList<Column> columns, ArrayList<Order> where,
+        ArrayList<Order> orderBy) throws UnknownSequenceException {
         Table x = this.getTable(table);
         return x == null ? null : x.selectPrivate(columns, where, orderBy);
     }
 
-    public ArrayList<Line> selectAll(String table, Order[] where, Order[] orderby)
+    public ArrayList<Line> selectAll(String table, ArrayList<Order> where, ArrayList<Order> orderby)
         throws UnknownSequenceException {
         Table x = this.getTable(table);
         return x == null ? null : x.selectAll(where, orderby);
     }
 
-    @Override
     public void changeTableName(String oldOne, String newOne)
         throws NotFoundException, IsExistedException {
         Table x = this.getTable(oldOne);
@@ -62,26 +57,26 @@ public class Database implements DatabaseAble, Serializable {
         x.name = newOne;
     }
 
-    @Override
-    public void newTable(String name, Column[] columns, HashIndex[] index)
-        throws IsExistedException, NotFoundException {
+    public void newTable(String name, ArrayList<Column> columns, ArrayList<HashIndex> index)
+        throws IsExistedException {
         Table x = this.getTable(name);
         if (x != null) {
             throw new IsExistedException("table", name);
         }
         x = new Table(name, this);
         tables.add(x);
-        for (Column column : columns) {
-            x.addColumn(column);
-        }
+        x.addColumns(columns);
         if (index != null) {
             for (HashIndex t : index) {
-                x.setIndex(t.type, t.name, t.columns);
+                try {
+                    x.setIndexByColumns(t.type, t.name, t.columns);
+                } catch (NotFoundException e) {
+                    e.printStackTrace();
+                }
             }
         }
     }
 
-    @Override
     public void deleteTable(String name) throws NotFoundException {
         boolean isFound = false;
         for (int i = 0; i < this.tables.size(); i++) {
@@ -104,7 +99,6 @@ public class Database implements DatabaseAble, Serializable {
         return super.equals(obj);
     }
 
-    @Override
     public void alterTable(String name) {
         this.choosingTable = getTable(name);
     }

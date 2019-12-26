@@ -6,6 +6,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import sql.exceptions.TooLongException;
 import sql.functions.Caster;
 
@@ -13,6 +14,7 @@ public class DataIOer implements Serializable {
 
     public static final int defaultSize = 50;
     static final private String defaultFile = "D:\\sql\\";
+    static final private String defaultEnd = ".data";
     private static final int intSize = 4;
     private static final int longSize = 8;
     private static final int maxLengthInData = 1000000;
@@ -20,8 +22,7 @@ public class DataIOer implements Serializable {
     String filePath;
     Database database;
     Table table;
-    RandomAccessFile ioFile;
-    private int dataFileCnt = 0, stringFileCnt = 0;
+    private int dataFileCnt = 1, stringFileCnt = 1;
     private ArrayList<Integer> dataByteCnt = new ArrayList<>();
     private ArrayList<Integer> stringByteCnt = new ArrayList<>();
 
@@ -29,110 +30,147 @@ public class DataIOer implements Serializable {
         this.database = database;
         this.table = table;
         this.filePath = defaultFile + database.name + "\\" + table.name + "\\";
+        dataByteCnt.add(-1);
+        stringByteCnt.add(-1);
         dataByteCnt.add(0);
         stringByteCnt.add(0);
     }
 
-    public Line getLine(long index) throws IOException, TooLongException {
-        int[] result = Caster.longToInt(index);
-        ioFile = new RandomAccessFile(this.filePath +
-            new String(Caster.intToBytes(result[0])), "r");
-        ArrayList<Data> dataArray = new ArrayList<>();
-        for (Column x : table.columnList) {
-            int size = Math.min(defaultSize, x.maxLength);
-            StringBuilder stringBuilder = new StringBuilder();
+    public Line getLine(long index) {
+        try {
+            int[] result = Caster.longToInt(index);
+            RandomAccessFile ioFile = new RandomAccessFile(this.filePath + result[0] + defaultEnd,
+                "r");
+            ArrayList<Data> dataArray = new ArrayList<>();
             ioFile.seek(result[1]);
-            ioFile.read(bytes, 0, size);
-            stringBuilder.append(new String(bytes));
-            if (x.maxLength > size) {
-                ioFile.read(bytes, 0, intSize);
-                int strBlock = Caster.bytesToInt(bytes);
-                ioFile.read(bytes, 0, intSize);
-                int strIndex = Caster.bytesToInt(bytes);
-                stringBuilder.append(this.getString(strBlock, strIndex));
+            for (Column x : table.columnList) {
+                int size = Math.min(defaultSize, x.maxLength);
+                StringBuilder stringBuilder = new StringBuilder();
+                ioFile.read(bytes, 0, size);
+                stringBuilder.append(new String(bytes, 0, size, "GBK"));
+                if (x.maxLength > defaultSize) {
+                    ioFile.read(bytes, 0, intSize);
+                    int strBlock = Caster.bytesToInt(bytes);
+                    ioFile.read(bytes, 0, intSize);
+                    int strIndex = Caster.bytesToInt(bytes);
+                    if (strBlock != 0 && strIndex != 0) {
+                        stringBuilder.append(this.getString(strBlock, strIndex));
+                    }
+                }
+                int i;
+                for (i = 0; i < stringBuilder.length(); i++) {
+                    if (stringBuilder.charAt(i) == 0) {
+                        break;
+                    }
+                }
+                dataArray.add(new Data(i == stringBuilder.length() ? stringBuilder.toString()
+                    : stringBuilder.substring(0, i)));
             }
-            dataArray.add(new Data(stringBuilder.toString()));
+            ioFile.close();
+            return new Line(dataArray, table.columnList);
+        } catch (IOException | TooLongException e) {
+            e.printStackTrace();
+            return null;
         }
-        ioFile.close();
-        return new Line(dataArray, (Column[]) table.columnList.toArray());
     }
 
-    public long setLine(@NotNull Line lines) throws IOException {
-        int[] result = allocatePosition(true);
-        ioFile = new RandomAccessFile(this.filePath +
-            new String(Caster.intToBytes(result[0])), "rw");
-        ioFile.seek(result[1]);
-        for (int i = 0; i < table.columnList.size(); i++) {
-            StringBuilder stringBuilder = new StringBuilder();
-            stringBuilder.append(lines.data.get(i));
-            int size = Math.min(defaultSize, table.columnList.get(i).maxLength);
-            if (stringBuilder.length() < size) {
-                while (stringBuilder.length() < size) {
-                    stringBuilder.append("\0");
+    public long setLine(@NotNull Line lines) {
+        try {
+            int[] result = allocatePosition(true);
+            RandomAccessFile ioFile = new RandomAccessFile(this.filePath + result[0] + defaultEnd,
+                "rw");
+            ioFile.seek(result[1]);
+            for (int i = 0; i < table.columnList.size(); i++) {
+                StringBuilder stringBuilder = new StringBuilder();
+                Data data = lines.data.get(i);
+                stringBuilder.append(data == null ? null : data.getValue());
+                int maxLength = table.columnList.get(i).maxLength;
+                int size = Math.min(defaultSize, maxLength);
+                if (stringBuilder.length() < size) {
+                    while (stringBuilder.length() < size) {
+                        stringBuilder.append("\0");
+                    }
+                    bytes = stringBuilder.toString().getBytes("GBK");
+                    ioFile.write(bytes, 0, size);
+                    if (maxLength > defaultSize) {
+                        Arrays.fill(bytes, 0, longSize - 1, (byte) 0);
+                        ioFile.write(bytes, 0, longSize);
+                    }
+                } else {
+                    StringBuilder builder = new StringBuilder(
+                        stringBuilder.substring(0, defaultSize - 1));
+                    while (builder.length() < defaultSize) {
+                        builder.append("\0");
+                    }
+                    bytes = builder.toString().getBytes("GBK");
+                    ioFile.write(bytes, 0, size);
+                    int[] next = setString(stringBuilder.delete(0, defaultSize - 1).toString());
+                    bytes = Caster.intToBytes(next[0]);
+                    ioFile.write(bytes, 0, intSize);
+                    bytes = Caster.intToBytes(next[1]);
+                    ioFile.write(bytes, 0, intSize);
                 }
-                bytes = stringBuilder.toString().getBytes();
-                ioFile.write(bytes, 0, size);
-                if (size > defaultSize) {
-                    bytes = Integer.toString(-1).getBytes();
-                    ioFile.write(bytes, 0, intSize - 1);
-                    ioFile.write(bytes, 0, intSize - 1);
+            }
+            ioFile.close();
+            return ((long) result[0] << 32) + result[1];
+        } catch (IOException e) {
+            e.printStackTrace();
+            return -1;
+        }
+    }
+
+    @NotNull
+    private String getString(int strBlock, int strIndex) {
+        try {
+            RandomAccessFile ioFile = new RandomAccessFile(
+                this.filePath + "string" + strBlock + defaultEnd, "r");
+            ioFile.seek(strIndex);
+            ioFile.read(bytes, 0, defaultSize);
+            String str = new String(bytes, 0, defaultSize, "GBK");
+            ioFile.read(bytes, 0, intSize);
+            int nextBlock = Caster.bytesToInt(bytes);
+            ioFile.read(bytes, 0, intSize);
+            int nextIndex = Caster.bytesToInt(bytes);
+            if (nextBlock != 0 && nextIndex != 0) {
+                str += getString(nextBlock, nextIndex);
+            }
+            ioFile.close();
+            return str;
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return "";
+    }
+
+    @Nullable
+    private int[] setString(String string) {
+        try {
+            int[] result = allocatePosition(false);
+            RandomAccessFile ioFile = new RandomAccessFile(
+                this.filePath + string + result[0] + defaultEnd, "rw");
+            ioFile.seek(result[1]);
+            StringBuilder stringBuilder = new StringBuilder(string);
+            if (string.length() < defaultSize) {
+                while (stringBuilder.length() < defaultSize) {
+                    stringBuilder.append(" ");
                 }
+                bytes = stringBuilder.toString().getBytes("GBK");
+                ioFile.write(bytes, 0, defaultSize);
+                Arrays.fill(bytes, 0, longSize - 1, (byte) 0);
+                ioFile.write(bytes, 0, longSize);
             } else {
-                bytes = stringBuilder.substring(0, defaultSize - 1).getBytes();
-                ioFile.write(bytes, 0, size);
-                int[] next = setString(stringBuilder.delete(0, defaultSize - 1).toString());
-                bytes = Integer.toString(next[0]).getBytes();
+                int[] next = setString(stringBuilder.substring(0, defaultSize - 1));
+                bytes = Caster.intToBytes(next[0]);
                 ioFile.write(bytes, 0, intSize);
-                bytes = Integer.toString(next[1]).getBytes();
+                bytes = Caster.intToBytes(next[1]);
                 ioFile.write(bytes, 0, intSize);
             }
+            ioFile.close();
+            return result;
+        } catch (IOException e) {
+            e.printStackTrace();
         }
-        ioFile.close();
-        return ((long) result[0] << 32) + result[1];
-    }
-
-    @NotNull
-    private String getString(int strBlock, int strIndex) throws IOException {
-        byte[] blockBytes = Caster.intToBytes(strBlock);
-        ioFile = new RandomAccessFile(this.filePath + "string" + new String(blockBytes), "r");
-        ioFile.seek(strIndex);
-        ioFile.read(bytes, 0, defaultSize);
-        String str = new String(bytes);
-        ioFile.read(bytes, 0, intSize);
-        int nextBlock = Caster.bytesToInt(bytes);
-        ioFile.read(bytes, 0, intSize);
-        int nextIndex = Caster.bytesToInt(bytes);
-        if (nextBlock != 0 && nextIndex != 0) {
-            str += getString(nextBlock, nextIndex);
-        }
-        ioFile.close();
-        return str;
-    }
-
-    @NotNull
-    private int[] setString(String string) throws IOException {
-        int[] result = allocatePosition(false);
-        ioFile = new RandomAccessFile(
-            this.filePath + string + new String(Caster.intToBytes(result[0])), "rw");
-        ioFile.seek(result[1]);
-        StringBuilder stringBuilder = new StringBuilder(string);
-        if (string.length() < defaultSize) {
-            while (stringBuilder.length() < defaultSize) {
-                stringBuilder.append(" ");
-            }
-            bytes = stringBuilder.toString().getBytes();
-            ioFile.write(bytes, 0, defaultSize);
-            Arrays.fill(bytes, 0, longSize - 1, (byte) 0);
-            ioFile.write(bytes, 0, longSize);
-        } else {
-            int[] next = setString(stringBuilder.substring(0, defaultSize - 1));
-            bytes = Caster.intToBytes(next[0]);
-            ioFile.write(bytes, 0, intSize);
-            bytes = Caster.intToBytes(next[1]);
-            ioFile.write(bytes, 0, intSize);
-        }
-        ioFile.close();
-        return result;
+        return null;
     }
 
     @NotNull
@@ -154,5 +192,9 @@ public class DataIOer implements Serializable {
             result[1] = stringByteCnt.get(stringFileCnt);
         }
         return result;
+    }
+
+    public void onColumnAdd(@NotNull ArrayList<Column> oldOne, @NotNull ArrayList<Column> newOne) {
+// TODO: 2019/12/26 reload
     }
 }

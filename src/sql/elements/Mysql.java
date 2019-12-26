@@ -9,12 +9,11 @@ import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
-import sql.ables.OuterAble;
-import sql.exceptions.CannotDeleteException;
+import sql.exceptions.CommandDeniedException;
 import sql.exceptions.IsExistedException;
 import sql.exceptions.NotFoundException;
 
-public class Mysql implements OuterAble, Serializable {
+public class Mysql implements Serializable {
 
     transient private static final String defaultUsername = "root";
     transient private static final String defaultPassword = "123456";
@@ -24,12 +23,12 @@ public class Mysql implements OuterAble, Serializable {
     ArrayList<Database> databases = new ArrayList<>();
     transient private String userUsing = null;
 
-    private Mysql() {
+    private Mysql() throws NotFoundException, IsExistedException {
         passwordList.put(defaultUsername, defaultPassword);
         databases.add(new Database("default"));
     }
 
-    public static Mysql getInstance() {
+    public static Mysql getInstance() throws NotFoundException, IsExistedException {
         if (instance == null) {
             instance = new Mysql();
         }
@@ -40,7 +39,6 @@ public class Mysql implements OuterAble, Serializable {
         return userUsing;
     }
 
-    @Override
     public void load(File file) throws IOException, ClassNotFoundException {
         FileInputStream fileInputStream = new FileInputStream(IOFile);
         ObjectInputStream objectInputStream = new ObjectInputStream(fileInputStream);
@@ -48,7 +46,6 @@ public class Mysql implements OuterAble, Serializable {
         objectInputStream.close();
     }
 
-    @Override
     public void save(File file) throws IOException {
         FileOutputStream fileOutputStream = new FileOutputStream(IOFile);
         ObjectOutputStream objectOutputStream = new ObjectOutputStream(fileOutputStream);
@@ -63,7 +60,6 @@ public class Mysql implements OuterAble, Serializable {
      * @param password password
      * @return boolean is successfully login
      */
-    @Override
     public boolean login(String name, String password) {
         String passwords = passwordList.get(name);
         if (name == null || password == null) {
@@ -76,7 +72,6 @@ public class Mysql implements OuterAble, Serializable {
         return false;
     }
 
-    @Override
     public boolean changePassword(String oldOne, String newOne) {
         if (userUsing == null) {
             return false;
@@ -84,7 +79,6 @@ public class Mysql implements OuterAble, Serializable {
         return passwordList.replace(userUsing, oldOne, newOne);
     }
 
-    @Override
     public boolean addUser(String name, String password) throws IsExistedException {
         if (userUsing == null) {
             return false;
@@ -96,8 +90,7 @@ public class Mysql implements OuterAble, Serializable {
         return true;
     }
 
-    @Override
-    public boolean deleteUser(String name) throws NotFoundException, CannotDeleteException {
+    public boolean deleteUser(String name) throws NotFoundException, CommandDeniedException {
         if (userUsing == null) {
             return false;
         }
@@ -105,7 +98,7 @@ public class Mysql implements OuterAble, Serializable {
             throw new NotFoundException("user", name);
         }
         if (name.equals("root")) {
-            throw new CannotDeleteException("user", "the root account cannot be deleted.");
+            throw new CommandDeniedException();
         }
         passwordList.remove(name);
         return true;
@@ -120,7 +113,7 @@ public class Mysql implements OuterAble, Serializable {
         return null;
     }
 
-    public void newDatabase(String name) throws IsExistedException {
+    public void newDatabase(String name) throws IsExistedException, NotFoundException {
         Database database = getDatabase(name);
         if (database != null) {
             throw new IsExistedException("database", name);
@@ -129,12 +122,12 @@ public class Mysql implements OuterAble, Serializable {
         this.databases.add(database);
     }
 
-    public void deleteDatabase(String name) throws NotFoundException, CannotDeleteException {
+    public void deleteDatabase(String name) throws NotFoundException, CommandDeniedException {
         Database database = getDatabase(name);
         if (database == null) {
             throw new NotFoundException("database", name);
         } else if (name.equals("default")) {
-            throw new CannotDeleteException("default database", "the database is default.");
+            throw new CommandDeniedException();
         }
         this.databases.remove(database);
     }
