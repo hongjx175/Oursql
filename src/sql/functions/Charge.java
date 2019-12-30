@@ -194,7 +194,7 @@ public class Charge {
     }
 
     //删除表中的行  DELETE FROM 表名称 WHERE 列名称 = 值
-    private static void delete(String[] s)
+    private static void delete(@NotNull String[] s)
         throws NotAlterException, NotFoundException, WrongCommandException, DataInvalidException {
         if (s.length != 7 || notCompare(s[1], "FROM") || notCompare(s[3], "WHERE") || !s[5]
             .equals("=")) {
@@ -235,7 +235,7 @@ public class Charge {
     }
 
     //删除库、表、列
-    private static void drop(String[] s)
+    private static void drop(@NotNull String[] s)
         throws WrongCommandException, NotAlterException, NotFoundException, CommandDeniedException {
         //DROP TABLE 表名称
         //DROP DATABASE 数据库名称
@@ -308,7 +308,7 @@ public class Charge {
     }
 
     //建库、表
-    private static void create(String[] s)
+    private static void create(@NotNull String[] s)
         throws WrongCommandException, NotAlterException, IsExistedException, NotFoundException {
         //CREATE DATABASE database_name
         //CREATE TABLE 表名称
@@ -353,7 +353,7 @@ public class Charge {
     }
 
     //更改
-    private static void alter(String[] s) throws WrongCommandException, NotAlterException {
+    private static void alter(@NotNull String[] s) throws WrongCommandException, NotAlterException {
         //ALTER TABLE table_name (MODIFY NAME = new_tbname)
         //ALTER DATABASE database_name (MODIFY NAME = new_dbname)
         if ((!s[1].equalsIgnoreCase("TABLE") && !s[1].equalsIgnoreCase("DATABASE")) || (
@@ -383,7 +383,7 @@ public class Charge {
     }
 
     //向表中添加列
-    private static void add(String[] s)
+    private static void add(@NotNull String[] s)
         throws WrongCommandException, NotFoundException, IsExistedException {
         ////ALTER TABLE table_name
         //ADD column_name datatype
@@ -397,41 +397,44 @@ public class Charge {
 
     public static void main(String[] args) {
         String cmd;
-        try {
-            cmd = scan.nextLine();
-            String[] sp = cmd.split(" ");
-            sp[0] = sp[0].toUpperCase();
-            //System.out.println(sp[0]);
-            switch (sp[0]) {
-                case "ALTER":
-                    alter(sp);
-                    break;
-                case "SELECT":
-                    select(cmd);
-                    break;
-                case "DELETE":
-                    delete(sp);
-                    break;
-                case "DROP":
-                    drop(sp);
-                    break;
-                case "UPDATE":
-                    update(sp);
-                    break;
-                case "INSERT":
-                    insert(sp);
-                    break;
-                case "CREATE":
-                    create(sp);
-                    break;
-                case "ADD":
-                    add(sp);
-                    break;
-                default:
-                    throw new WrongCommandException();
+        while (true) {
+            try {
+                cmd = scan.nextLine();
+                String[] sp = cmd.split(" ");
+                sp[0] = sp[0].toUpperCase();
+                //System.out.println(sp[0]);
+                switch (sp[0]) {
+                    case "ALTER":
+                        alter(sp);
+                        break;
+                    case "SELECT":
+                        select(cmd);
+                        break;
+                    case "DELETE":
+                        delete(sp);
+                        break;
+                    case "DROP":
+                        drop(sp);
+                        break;
+                    case "UPDATE":
+                        update(sp);
+                        break;
+                    case "INSERT":
+                        insert(sp);
+                        break;
+                    case "CREATE":
+                        create(sp);
+                        break;
+                    case "ADD":
+                        add(sp);
+                        break;
+                    default:
+                        throw new WrongCommandException();
+                }
+            } catch (Exception e) {
+                System.out.println("请输入合法的命令.");
+                e.printStackTrace();
             }
-        } catch (Exception e) {
-            System.out.println("请输入合法的命令.");
         }
     }
 }
