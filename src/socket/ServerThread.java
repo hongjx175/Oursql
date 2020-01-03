@@ -19,6 +19,20 @@ public class ServerThread implements Runnable {
         this.socket = socket;
     }
 
+    public static void main(String[] args) throws IOException {
+//        ObjectOutputStream writer = new ObjectOutputStream(System.out);
+//        ObjectInputStream reader = new ObjectInputStream(System.in);
+        Charge charge = new Charge(null, null);
+        try {
+            while (true) {
+                String cmd = charge.process();
+//            System.out.println(cmd);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
     @Override
     public void run() {
         try {
@@ -26,7 +40,6 @@ public class ServerThread implements Runnable {
             ObjectInputStream reader = new ObjectInputStream(socket.getInputStream());
             Charge charge = new Charge(reader, writer);
             String ip = socket.getRemoteSocketAddress().toString();
-            System.out.println("lalla");
             while (true) {
                 String date = LocalDate.now().toString();
                 String time = LocalTime.now().toString();
