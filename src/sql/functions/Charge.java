@@ -26,13 +26,12 @@ public class Charge {
     static Mysql sql;
     Database database;
     ObjectInputStream reader;
-    ObjectOutputStream writer;
+    StringBuilder stringBuilder;
 
     public Charge(ObjectInputStream reader, ObjectOutputStream writer) {
         try {
             sql = Mysql.getInstance();
             this.reader = reader;
-            this.writer = writer;
         } catch (NotFoundException | IsExistedException e) {
             e.printStackTrace();
         }
@@ -44,6 +43,7 @@ public class Charge {
 
     private String getLine() throws IOException {
         try {
+            stringBuilder.append("waiting a line");
             return (String) this.reader.readObject();
         } catch (ClassNotFoundException ignored) {
             return "";
@@ -52,6 +52,7 @@ public class Charge {
 
     public String process() throws IOException {
         String cmd = "";
+        stringBuilder = new StringBuilder();
         try {
             System.out.println("lalala");
             cmd = this.getLine();
@@ -88,7 +89,8 @@ public class Charge {
                     throw new WrongCommandException();
             }
         } catch (Exception e) {
-            writer.writeObject(e.getMessage());
+            stringBuilder.append(e.getMessage()).append("\n");
+            e.printStackTrace();
         }
         return cmd;
     }

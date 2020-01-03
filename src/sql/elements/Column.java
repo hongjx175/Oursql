@@ -21,6 +21,7 @@ public class Column {
                 break;
             case "CardID":
             case "Number":
+            case "Integer":
             case "PhoneNumber":
                 this.maxLength = 20;
                 break;

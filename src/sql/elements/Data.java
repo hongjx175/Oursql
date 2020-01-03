@@ -52,6 +52,10 @@ public class Data {
         return this.string;
     }
 
+    void setValue(String value) {
+        this.string = value;
+    }
+
     public void setValue(@NotNull Column column, String value) throws DataInvalidException {
         String type = column.type;
         if (!validCheck(value, type)) {
@@ -59,5 +63,4 @@ public class Data {
         }
         this.string = value;
     }
-
 }
