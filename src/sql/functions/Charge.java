@@ -164,7 +164,7 @@ public class Charge {
             throw new NotAlterException();
         }
         String[] sp = s.split("SELECT | FROM | WHERE | ORDER BY ");
-        Table table = database.getTable(sp[2]);
+        Table table = database.getTable(sp[1]);
         String[] sp1 = s.split(" ");
         boolean hasORDER = false, hasWHERE = false;
         for (String value : sp1) {
@@ -182,14 +182,14 @@ public class Charge {
             //ArrayList<Line> selectAll(String table, Order[] where, Order[] orderby)
             if (sp.length == 3) {//WHERE和ORDER BY只有一个
                 if (hasORDER && hasWHERE) {
-                    throw new WrongCommandException("SELECT:");
+                    throw new WrongCommandException("SELECT:1");
                 }
                 if (hasORDER) {
                     //SELECT * FROM 表名 ORDER BY Company DESC,OrderNumber ASC
                     ArrayList<Order> orderby = new ArrayList<>();
                     String[] orderbys = sp[2].split("[ ,]");
                     if (orderbys.length % 2 != 0) {
-                        throw new WrongCommandException("SELECT");
+                        throw new WrongCommandException("SELECT2");
                     }
                     for (int i = 0; i < sp.length - 1; i += 2) {
                         String ord = "1";
@@ -205,7 +205,7 @@ public class Charge {
                     String[] wheres = sp[2].split("[ =]");
                     ArrayList<Order> where = new ArrayList<Order>();
                     if (wheres.length % 2 != 0) {
-                        throw new WrongCommandException("SELECT");
+                        throw new WrongCommandException("SELECT3");
                     }
                     for (int i = 0; i < wheres.length; i += 2) {
                         where.add(new Order(table, wheres[i], wheres[i + 1]));
@@ -216,7 +216,7 @@ public class Charge {
                 ArrayList<Order> orderby = new ArrayList<Order>();
                 String[] orderbys = sp[3].split("[ ,]");
                 if (orderbys.length % 2 != 0) {
-                    throw new WrongCommandException("SELECT");
+                    throw new WrongCommandException("SELECT4");
                 }
                 for (int i = 0; i < sp.length - 1; i += 2) {
                     String ord = "1";
@@ -228,14 +228,14 @@ public class Charge {
                 String[] wheres = sp[2].split("[ =]");
                 ArrayList<Order> where = new ArrayList<Order>();
                 if (wheres.length % 2 != 0) {
-                    throw new WrongCommandException("SELECT");
+                    throw new WrongCommandException("SELECT5");
                 }
                 for (int i = 0; i < wheres.length; i += 2) {
                     where.add(new Order(table, wheres[i], wheres[i + 1]));
                 }
                 lines = database.selectAll(sp[1], where, orderby);
             } else {
-                throw new WrongCommandException("SELECT");
+                throw new WrongCommandException("SELECT6");
             }
 
         } else {
@@ -248,14 +248,14 @@ public class Charge {
             }
             if (sp.length == 3) {//WHERE和ORDER BY只有一个
                 if (hasORDER && hasWHERE) {
-                    throw new WrongCommandException("SELECT");
+                    throw new WrongCommandException("SELECT7");
                 }
                 if (hasORDER) {
                     //SELECT * FROM 表名 ORDER BY Company DESC,OrderNumber ASC
                     ArrayList<Order> orderby = new ArrayList<>();
                     String[] orderbys = sp[2].split("[ ,]");
                     if (orderbys.length % 2 != 0) {
-                        throw new WrongCommandException("SELECT");
+                        throw new WrongCommandException("SELECT8");
                     }
                     for (int i = 0; i < sp.length - 1; i += 2) {
                         String ord = "1";
@@ -272,7 +272,7 @@ public class Charge {
                     String[] wheres = sp[2].split("[ =]");
                     ArrayList<Order> where = new ArrayList<Order>();
                     if (wheres.length % 2 != 0) {
-                        throw new WrongCommandException("SELECT");
+                        throw new WrongCommandException("SELECT9");
                     }
                     for (int i = 0; i < wheres.length; i += 2) {
                         where.add(new Order(table, wheres[i], wheres[i + 1]));
@@ -284,7 +284,7 @@ public class Charge {
                 ArrayList<Order> orderby = new ArrayList<Order>();
                 String[] orderbys = sp[3].split("[ ,]");
                 if (orderbys.length % 2 != 0) {
-                    throw new WrongCommandException("SELECT");
+                    throw new WrongCommandException("SELECT10");
                 }
                 for (int i = 0; i < sp.length - 1; i += 2) {
                     String ord = "1";
@@ -296,7 +296,7 @@ public class Charge {
                 String[] wheres = sp[2].split("[ =]");
                 ArrayList<Order> where = new ArrayList<Order>();
                 if (wheres.length % 2 != 0) {
-                    throw new WrongCommandException("SELECT");
+                    throw new WrongCommandException("SELECT11");
                 }
                 for (int i = 0; i < wheres.length; i += 2) {
                     where.add(new Order(table, wheres[i], wheres[i + 1]));
@@ -304,7 +304,7 @@ public class Charge {
                 lines = database
                     .select(sp[1], new ArrayList<>(Arrays.asList(cols)), where, orderby);
             } else {
-                throw new WrongCommandException("SELECT");
+                throw new WrongCommandException("SELECT12");
             }
         }
         printLines(lines, table);
