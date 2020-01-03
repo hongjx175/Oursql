@@ -408,7 +408,8 @@ public class Charge {
                 ArrayList<String> colNames = table.getColumnNames();
                 String[] values = s[4].split(",");
                 if (colNames.size() != values.length) {
-                    throw new WrongCommandException("INSERT");
+                    System.out.println(colNames.size() + "   " + values.length);
+                    throw new WrongCommandException("INSERT:*");
                 }
                 for (int i = 0; i < colNames.size(); i++) {
                     orders.add(new Order(table, colNames.get(i), values[i]));
