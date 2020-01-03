@@ -8,14 +8,14 @@ import org.jetbrains.annotations.NotNull;
 
 public class BTree<V> {
 
-    private Node<V> root = new Node<>(null, true);
+    private Node<V> root = new Node<>(null, true, 0);
 
     public void add(long key, V value) {
         NeedRenew newError = root.add(key, value);
         if (newError == null) {
             return;
         }
-        Node<V> newRoot = new Node<>(null, false);
+        Node<V> newRoot = new Node<>(null, false, 0);
         newRoot.refers[0] = root;
         newRoot.refers[1] = newError.node;
         newRoot.hash[0] = newError.hash;
@@ -30,6 +30,11 @@ public class BTree<V> {
     public Node<V> getFirstLeaf() {
         return root.getFirstLeaf();
     }
+
+    @Deprecated
+    public void delete(long key) {
+        this.root.getLeaf(key).delete(key);
+    }
 }
 
 class Node<V> {
@@ -40,10 +45,13 @@ class Node<V> {
     Object[] refers = new Object[n + 1];
     long[] hash = new long[n];
     Node<V> parent;
+    int pos;
 
-    Node(Node<V> parent, boolean isLeaf) {
+    Node(Node<V> parent, boolean isLeaf, int pos) {
         Arrays.fill(hash, inf);
+        this.parent = parent;
         this.isLeaf = isLeaf;
+        this.pos = pos;
     }
 
     @SuppressWarnings("unchecked")
@@ -54,7 +62,7 @@ class Node<V> {
         }
         if (this.isLeaf) {
             if (this.refers[n - 1] != null) {
-                Node<V> tmp = this.copyNew(new NeedRenew(value, key));
+                Node<V> tmp = this.copyNew(new NeedRenew(value, key), this.pos);
                 return new NeedRenew(tmp, tmp.hash[0]);
             }
             if (this.refers[pos] == null) {
@@ -72,7 +80,7 @@ class Node<V> {
                 return null;
             }
             if (this.refers[n] != null) {
-                Node<V> tmp = this.copyNew(newError);
+                Node<V> tmp = this.copyNew(newError, this.pos);
                 long x = this.hash[n - 1];
                 this.hash[n - 1] = inf;
                 return new NeedRenew(tmp, x);
@@ -85,6 +93,22 @@ class Node<V> {
             this.copyAdd(pos, newError);
         }
         return null;
+    }
+
+    private int getSize() {
+        int lt = 0, rt = n - 2;
+        while (lt < rt) {
+            int mid = (lt + rt) >> 1;
+            if (refers[mid] == null) {
+                rt = mid - 1;
+            } else {
+                lt = mid;
+            }
+        }
+        if (!isLeaf && refers[n - 1] != null) {
+            lt++;
+        }
+        return lt;
     }
 
     @SuppressWarnings("unchecked")
@@ -105,12 +129,44 @@ class Node<V> {
         return ((Node<V>) refers[pos]).get(key);
     }
 
-    void delete(long key) {
-        // TODO: 2019/12/21 delete
+    @SuppressWarnings("unchecked")
+    Node<V> getLeaf(long key) {
+        int pos = 0;
+        if (this.isLeaf) {
+            return this;
+        }
+        while (pos < n && key >= hash[pos]) {
+            pos++;
+        }
+        if (refers[pos] == null) {
+            return null;
+        }
+        return ((Node<V>) refers[pos]).getLeaf(key);
     }
 
-    Node<V> copyNew(@NotNull NeedRenew newError) {
-        Node<V> tmp = new Node<>(this.parent, this.isLeaf);
+    @SuppressWarnings("unchecked")
+    @Deprecated
+    void delete(long key) {
+        int pos = 0;
+        while (pos < n - 1 && hash[pos] < key) {
+            pos++;
+        }
+        if (refers[pos + 1] != null) {
+            for (int i = pos; i < n - 1; i++) {
+                refers[i] = refers[i + 1];
+                hash[i] = hash[i + 1];
+            }
+        }
+        if (this.getSize() < n / 2) {
+            if (this.pos != 0
+                && ((Node<V>) this.parent.refers[this.pos - 1]).getSize() + this.getSize() < n) {
+                // TODO: 2020/1/3
+            }
+        }
+    }
+
+    Node<V> copyNew(@NotNull NeedRenew newError, int pos) {
+        Node<V> tmp = new Node<>(this.parent, this.isLeaf, pos + 1);
         if (this.isLeaf) {
             tmp.refers[n] = this.refers[n];
             this.refers[n] = tmp;
