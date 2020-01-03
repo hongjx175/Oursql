@@ -57,6 +57,10 @@ public class Database implements Serializable {
         x.name = newOne;
     }
 
+    public void changeName(String newName) {
+        this.name = newName;
+    }
+
     public void newTable(String name, ArrayList<Column> columns, ArrayList<HashIndex> index)
         throws IsExistedException {
         Table x = this.getTable(name);
