@@ -163,8 +163,8 @@ public class Charge {
         if (database == null) {
             throw new NotAlterException();
         }
-        String[] sp = s.split("SELECT|FROM|WHERE|ORDER BY");
-        Table table = database.getTable(sp[1]);
+        String[] sp = s.split("SELECT | FROM | WHERE | ORDER BY ");
+        Table table = database.getTable(sp[2]);
         String[] sp1 = s.split(" ");
         boolean hasORDER = false, hasWHERE = false;
         for (String value : sp1) {
@@ -408,8 +408,7 @@ public class Charge {
                 ArrayList<String> colNames = table.getColumnNames();
                 String[] values = s[4].split(",");
                 if (colNames.size() != values.length) {
-                    System.out.println(colNames.size() + "   " + values.length);
-                    throw new WrongCommandException("INSERT:*");
+                    throw new WrongCommandException("INSERT");
                 }
                 for (int i = 0; i < colNames.size(); i++) {
                     orders.add(new Order(table, colNames.get(i), values[i]));
