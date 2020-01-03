@@ -9,6 +9,7 @@ import java.net.Socket;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import sql.elements.CommandMessage;
+import sql.functions.Charge;
 
 public class ServerThread implements Runnable {
 
@@ -27,13 +28,17 @@ public class ServerThread implements Runnable {
                 new InputStreamReader(socket.getInputStream()));
             BufferedWriter writer = new BufferedWriter(
                 new OutputStreamWriter(socket.getOutputStream()));
-            String cmd = reader.readLine();
+            Charge charge = new Charge(reader, writer);
             String ip = socket.getRemoteSocketAddress().toString();
-            String date = LocalDate.now().toString();
-            String time = LocalTime.now().toString();
-            String user = "";
-            // TODO: 2019/12/21 log in and get user
-            server.addLog(new CommandMessage(date, time, cmd, ip, user));
+            while (true) {
+                String date = LocalDate.now().toString();
+                String time = LocalTime.now().toString();
+                String user = charge.getUser();
+                String cmd = charge.process();
+                // TODO: 2019/12/21 log in and get user
+                server.addLog(new CommandMessage(date, time, cmd, ip, user));
+            }
+
         } catch (IOException e) {
             e.printStackTrace();
         }

@@ -1,10 +1,11 @@
 package sql.functions;
 
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Scanner;
 import org.jetbrains.annotations.NotNull;
 import sql.elements.Column;
 import sql.elements.Database;
@@ -22,13 +23,16 @@ import sql.exceptions.WrongCommandException;
 
 public class Charge {
 
-    static Scanner scan = new Scanner(System.in);
     static Mysql sql;
-    static Database database;
+    Database database;
+    BufferedReader reader;
+    BufferedWriter writer;
 
-    static {
+    public Charge(BufferedReader reader, BufferedWriter writer) {
         try {
             sql = Mysql.getInstance();
+            this.reader = reader;
+            this.writer = writer;
         } catch (NotFoundException | IsExistedException e) {
             e.printStackTrace();
         }
@@ -38,7 +42,92 @@ public class Charge {
         return !a.equalsIgnoreCase(b);
     }
 
-    public static void select(String s)
+    public String process() throws IOException {
+        String cmd = "";
+        try {
+            cmd = reader.readLine();
+            assert cmd != null;
+            String[] sp = cmd.split(" ");
+            sp[0] = sp[0].toUpperCase();
+            switch (sp[0]) {
+                case "ALTER":
+                    alter(sp);
+                    break;
+                case "SELECT":
+                    select(cmd);
+                    break;
+                case "DELETE":
+                    delete(sp);
+                    break;
+                case "DROP":
+                    drop(sp);
+                    break;
+                case "UPDATE":
+                    update(sp);
+                    break;
+                case "INSERT":
+                    insert(sp);
+                    break;
+                case "CREATE":
+                    create(sp);
+                    break;
+                case "ADD":
+                    add(sp);
+                    break;
+                default:
+                    throw new WrongCommandException();
+            }
+        } catch (Exception e) {
+            writer.write("请输入合法的命令.");
+            e.printStackTrace();
+        }
+        return cmd;
+    }
+
+    //更改
+    private void alter(@NotNull String[] s) throws WrongCommandException, NotAlterException {
+        //ALTER TABLE table_name (MODIFY NAME = new_tbname)
+        //ALTER DATABASE database_name (MODIFY NAME = new_dbname)
+        if ((!s[1].equalsIgnoreCase("TABLE") && !s[1].equalsIgnoreCase("DATABASE")) || (
+            s.length != 3 && s.length != 7)) {
+            throw new WrongCommandException();
+        }
+        if (s.length == 7 && (!s[3].equalsIgnoreCase("MODIFY") || !s[5].equals("=") || !s[4]
+            .equalsIgnoreCase("NAME"))) {
+            throw new WrongCommandException();
+        }
+        if (s[1].equalsIgnoreCase("TABLE")) {
+            if (database == null) {
+                throw new NotAlterException();
+            } else {
+                database.choosingTable = database.getTable(s[2]);
+            }
+            if (s.length == 7) {
+                //TODO:改名
+            }
+        }
+        if (s[1].equalsIgnoreCase("DATABASE")) {
+            database = sql.getDatabase(s[2]);
+            if (s.length == 7) {
+                //TODO:改名
+            }
+        }
+    }
+
+    //向表中添加列
+    private void add(@NotNull String[] s)
+        throws WrongCommandException, NotFoundException, IsExistedException {
+        ////ALTER TABLE table_name
+        //ADD column_name datatype
+        if ((s.length != 3 && s.length != 5) || (s.length == 5 && (!s[3].equalsIgnoreCase("NOT")
+            || !s[4].equalsIgnoreCase("NULL")))) {
+            throw new WrongCommandException();
+        }
+        Column col = new Column(s[1], s[2], s.length != 5);
+        database.choosingTable.addColumns(new ArrayList<>(Collections.singletonList(col)));
+    }
+
+    public void select(String s)
         throws WrongCommandException, NotAlterException, UnknownSequenceException, DataInvalidException {
         //SELECT 列名称 FROM 表名称 WHERE 列 运算符= 值 ORDER BY 列名 ASC/DESC,列名 ASC/DESC
         //规定指令中ASC和DESC不可省略
@@ -73,7 +162,7 @@ public class Charge {
                 }
                 if (hasORDER) {
                     //SELECT * FROM 表名 ORDER BY Company DESC,OrderNumber ASC
-                    ArrayList<Order> orderby = new ArrayList<Order>();
+                    ArrayList<Order> orderby = new ArrayList<>();
                     String[] orderbys = sp[2].split("[ ,]");
                     if (orderbys.length % 2 != 0) {
                         throw new WrongCommandException();
@@ -194,7 +283,7 @@ public class Charge {
     }
 
     //删除表中的行  DELETE FROM 表名称 WHERE 列名称 = 值
-    private static void delete(@NotNull String[] s)
+    private void delete(@NotNull String[] s)
         throws NotAlterException, NotFoundException, WrongCommandException, DataInvalidException {
         if (s.length != 7 || notCompare(s[1], "FROM") || notCompare(s[3], "WHERE") || !s[5]
             .equals("=")) {
@@ -213,7 +302,7 @@ public class Charge {
         table.deleteLine(orders);
     }
 
-    private static void update(String[] s)
+    private void update(String[] s)
         throws NotAlterException, WrongCommandException, DataInvalidException {
         //UPDATE 表名称 SET 列名称 = 新值 WHERE 列名称 = 某值
         if (database == null) {
@@ -235,7 +324,7 @@ public class Charge {
     }
 
     //删除库、表、列
-    private static void drop(@NotNull String[] s)
+    private void drop(@NotNull String[] s)
         throws WrongCommandException, NotAlterException, NotFoundException, CommandDeniedException {
         //DROP TABLE 表名称
         //DROP DATABASE 数据库名称
@@ -263,7 +352,7 @@ public class Charge {
     }
 
     //插入行
-    private static void insert(String[] s)
+    private void insert(String[] s)
         throws NotAlterException, WrongCommandException, DataInvalidException, IOException, TooLongException {
         //INSERT INTO 语句用于向表格中插入新的行。
         //INSERT INTO 表名称 VALUES 值1,值2,....
@@ -308,8 +397,8 @@ public class Charge {
     }
 
     //建库、表
-    private static void create(@NotNull String[] s)
-        throws WrongCommandException, NotAlterException, IsExistedException, NotFoundException {
+    private void create(@NotNull String[] s)
+        throws WrongCommandException, NotAlterException, IsExistedException, NotFoundException, IOException {
         //CREATE DATABASE database_name
         //CREATE TABLE 表名称
         //(
@@ -331,8 +420,8 @@ public class Charge {
             }
             int colNum = 0;
             ArrayList<Column> cols = new ArrayList<>();
-            scan.nextLine();
-            String str = scan.nextLine();
+            reader.readLine();
+            String str = reader.readLine();
             while (!str.equals(")")) {
                 String[] sp = str.split(" ");
                 if (sp.length != 4 && sp.length != 2) {
@@ -345,96 +434,14 @@ public class Charge {
 
                 boolean canNull = (sp.length != 4);
                 cols.add(new Column(sp[0], sp[1], canNull));
-                str = scan.nextLine();
+                str = reader.readLine();
             }
             // TODO: 2019/12/21 处理index[]
             database.newTable(s[2], cols, null);
         }
     }
 
-    //更改
-    private static void alter(@NotNull String[] s) throws WrongCommandException, NotAlterException {
-        //ALTER TABLE table_name (MODIFY NAME = new_tbname)
-        //ALTER DATABASE database_name (MODIFY NAME = new_dbname)
-        if ((!s[1].equalsIgnoreCase("TABLE") && !s[1].equalsIgnoreCase("DATABASE")) || (
-            s.length != 3 && s.length != 7)) {
-            throw new WrongCommandException();
-        }
-        if (s.length == 7 && (!s[3].equalsIgnoreCase("MODIFY") || !s[5].equals("=") || !s[4]
-            .equalsIgnoreCase("NAME"))) {
-            throw new WrongCommandException();
-        }
-        if (s[1].equalsIgnoreCase("TABLE")) {
-            if (database == null) {
-                throw new NotAlterException();
-            } else {
-                database.choosingTable = database.getTable(s[2]);
-            }
-            if (s.length == 7) {
-                //TODO:改名
-            }
-        }
-        if (s[1].equalsIgnoreCase("DATABASE")) {
-            database = sql.getDatabase(s[2]);
-            if (s.length == 7) {
-                //TODO:改名
-            }
-        }
-    }
-
-    //向表中添加列
-    private static void add(@NotNull String[] s)
-        throws WrongCommandException, NotFoundException, IsExistedException {
-        ////ALTER TABLE table_name
-        //ADD column_name datatype
-        if ((s.length != 3 && s.length != 5) || (s.length == 5 && (!s[3].equalsIgnoreCase("NOT")
-            || !s[4].equalsIgnoreCase("NULL")))) {
-            throw new WrongCommandException();
-        }
-        Column col = new Column(s[1], s[2], s.length != 5);
-        database.choosingTable.addColumns(new ArrayList<>(Collections.singletonList(col)));
-    }
-
-    public static void main(String[] args) {
-        String cmd;
-        while (true) {
-            try {
-                cmd = scan.nextLine();
-                String[] sp = cmd.split(" ");
-                sp[0] = sp[0].toUpperCase();
-                //System.out.println(sp[0]);
-                switch (sp[0]) {
-                    case "ALTER":
-                        alter(sp);
-                        break;
-                    case "SELECT":
-                        select(cmd);
-                        break;
-                    case "DELETE":
-                        delete(sp);
-                        break;
-                    case "DROP":
-                        drop(sp);
-                        break;
-                    case "UPDATE":
-                        update(sp);
-                        break;
-                    case "INSERT":
-                        insert(sp);
-                        break;
-                    case "CREATE":
-                        create(sp);
-                        break;
-                    case "ADD":
-                        add(sp);
-                        break;
-                    default:
-                        throw new WrongCommandException();
-                }
-            } catch (Exception e) {
-                System.out.println("请输入合法的命令.");
-                e.printStackTrace();
-            }
-        }
+    public String getUser() {
+        return sql.getUserUsing();
     }
 }

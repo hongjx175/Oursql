@@ -22,7 +22,6 @@ public class Server implements Serializable {
                 Socket socket = serverSocket.accept();
                 Thread thread = new Thread(new ServerThread(this, socket));
                 thread.start();
-
             }
         } catch (SocketTimeoutException ignored) {
         } catch (IOException e) {
