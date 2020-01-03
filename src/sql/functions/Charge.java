@@ -46,7 +46,7 @@ public class Charge {
 
     private String getLine() throws IOException {
         try {
-            stringBuilder.append("waiting a line");
+            stringBuilder.append("waiting a line\n");
             return (String) this.reader.readObject();
         } catch (ClassNotFoundException ignored) {
             return "";
