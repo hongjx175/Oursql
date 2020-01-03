@@ -8,9 +8,8 @@ import java.net.SocketTimeoutException;
 import java.util.ArrayList;
 import sql.elements.CommandMessage;
 
-public class Server implements Serializable {
+public class Server implements Serializable, Port {
 
-    static public final int port = 3540;
     transient ServerSocket serverSocket;
     ArrayList<CommandMessage> arrayList = new ArrayList<>();
 
