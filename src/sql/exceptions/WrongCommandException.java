@@ -8,5 +8,6 @@ public class WrongCommandException extends Exception {
 
     public WrongCommandException() {
         super("wrong command exception");
+
     }
 }

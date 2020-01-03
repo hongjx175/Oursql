@@ -89,7 +89,7 @@ public class Charge {
                     add(sp);
                     break;
                 default:
-                    throw new WrongCommandException();
+                    throw new WrongCommandException("超出指令范围");
             }
         } catch (Exception e) {
             stringBuilder.append(e.getMessage()).append("\n");
@@ -104,13 +104,15 @@ public class Charge {
         throws WrongCommandException, NotAlterException, NotFoundException, IsExistedException {
         //ALTER TABLE table_name (MODIFY NAME = new_tbname)
         //ALTER DATABASE database_name (MODIFY NAME = new_dbname)
-        if ((!s[1].equalsIgnoreCase("TABLE") && !s[1].equalsIgnoreCase("DATABASE")) || (
-            s.length != 3 && s.length != 7)) {
-            throw new WrongCommandException();
+        if ((!s[1].equalsIgnoreCase("TABLE") && !s[1].equalsIgnoreCase("DATABASE"))) {
+            throw new WrongCommandException("ATLER:请对TABLE和DATABASE操作");
+        }
+        if (s.length != 3 && s.length != 7) {
+            throw new WrongCommandException("ALTER:指令长度不合法，请注意空格位置");
         }
         if (s.length == 7 && (!s[3].equalsIgnoreCase("MODIFY") || !s[5].equals("=") || !s[4]
             .equalsIgnoreCase("NAME"))) {
-            throw new WrongCommandException();
+            throw new WrongCommandException("ALTER:");
         }
         if (s[1].equalsIgnoreCase("TABLE")) {
             if (database == null) {
@@ -137,7 +139,7 @@ public class Charge {
         //ADD column_name datatype
         if ((s.length != 3 && s.length != 5) || (s.length == 5 && (!s[3].equalsIgnoreCase("NOT")
             || !s[4].equalsIgnoreCase("NULL")))) {
-            throw new WrongCommandException();
+            throw new WrongCommandException("ADD");
         }
         Column col = new Column(s[1], s[2], s.length != 5);
         database.choosingTable.addColumns(new ArrayList<>(Collections.singletonList(col)));
@@ -175,14 +177,14 @@ public class Charge {
             //ArrayList<Line> selectAll(String table, Order[] where, Order[] orderby)
             if (sp.length == 3) {//WHERE和ORDER BY只有一个
                 if (hasORDER && hasWHERE) {
-                    throw new WrongCommandException();
+                    throw new WrongCommandException("SELECT");
                 }
                 if (hasORDER) {
                     //SELECT * FROM 表名 ORDER BY Company DESC,OrderNumber ASC
                     ArrayList<Order> orderby = new ArrayList<>();
                     String[] orderbys = sp[2].split("[ ,]");
                     if (orderbys.length % 2 != 0) {
-                        throw new WrongCommandException();
+                        throw new WrongCommandException("SELECT");
                     }
                     for (int i = 0; i < sp.length - 1; i += 2) {
                         String ord = "1";
@@ -198,7 +200,7 @@ public class Charge {
                     String[] wheres = sp[2].split("[ =]");
                     ArrayList<Order> where = new ArrayList<Order>();
                     if (wheres.length % 2 != 0) {
-                        throw new WrongCommandException();
+                        throw new WrongCommandException("SELECT");
                     }
                     for (int i = 0; i < wheres.length; i += 2) {
                         where.add(new Order(table, wheres[i], wheres[i + 1]));
@@ -209,7 +211,7 @@ public class Charge {
                 ArrayList<Order> orderby = new ArrayList<Order>();
                 String[] orderbys = sp[3].split("[ ,]");
                 if (orderbys.length % 2 != 0) {
-                    throw new WrongCommandException();
+                    throw new WrongCommandException("SELECT");
                 }
                 for (int i = 0; i < sp.length - 1; i += 2) {
                     String ord = "1";
@@ -221,14 +223,14 @@ public class Charge {
                 String[] wheres = sp[2].split("[ =]");
                 ArrayList<Order> where = new ArrayList<Order>();
                 if (wheres.length % 2 != 0) {
-                    throw new WrongCommandException();
+                    throw new WrongCommandException("SELECT");
                 }
                 for (int i = 0; i < wheres.length; i += 2) {
                     where.add(new Order(table, wheres[i], wheres[i + 1]));
                 }
                 lines = database.selectAll(sp[1], where, orderby);
             } else {
-                throw new WrongCommandException();
+                throw new WrongCommandException("SELECT");
             }
 
         } else {
@@ -241,14 +243,14 @@ public class Charge {
             }
             if (sp.length == 3) {//WHERE和ORDER BY只有一个
                 if (hasORDER && hasWHERE) {
-                    throw new WrongCommandException();
+                    throw new WrongCommandException("SELECT");
                 }
                 if (hasORDER) {
                     //SELECT * FROM 表名 ORDER BY Company DESC,OrderNumber ASC
                     ArrayList<Order> orderby = new ArrayList<>();
                     String[] orderbys = sp[2].split("[ ,]");
                     if (orderbys.length % 2 != 0) {
-                        throw new WrongCommandException();
+                        throw new WrongCommandException("SELECT");
                     }
                     for (int i = 0; i < sp.length - 1; i += 2) {
                         String ord = "1";
@@ -265,7 +267,7 @@ public class Charge {
                     String[] wheres = sp[2].split("[ =]");
                     ArrayList<Order> where = new ArrayList<Order>();
                     if (wheres.length % 2 != 0) {
-                        throw new WrongCommandException();
+                        throw new WrongCommandException("SELECT");
                     }
                     for (int i = 0; i < wheres.length; i += 2) {
                         where.add(new Order(table, wheres[i], wheres[i + 1]));
@@ -277,7 +279,7 @@ public class Charge {
                 ArrayList<Order> orderby = new ArrayList<Order>();
                 String[] orderbys = sp[3].split("[ ,]");
                 if (orderbys.length % 2 != 0) {
-                    throw new WrongCommandException();
+                    throw new WrongCommandException("SELECT");
                 }
                 for (int i = 0; i < sp.length - 1; i += 2) {
                     String ord = "1";
@@ -289,7 +291,7 @@ public class Charge {
                 String[] wheres = sp[2].split("[ =]");
                 ArrayList<Order> where = new ArrayList<Order>();
                 if (wheres.length % 2 != 0) {
-                    throw new WrongCommandException();
+                    throw new WrongCommandException("SELECT");
                 }
                 for (int i = 0; i < wheres.length; i += 2) {
                     where.add(new Order(table, wheres[i], wheres[i + 1]));
@@ -297,7 +299,7 @@ public class Charge {
                 lines = database
                     .select(sp[1], new ArrayList<>(Arrays.asList(cols)), where, orderby);
             } else {
-                throw new WrongCommandException();
+                throw new WrongCommandException("SELECT");
             }
         }
         printLines(lines, table);
@@ -316,7 +318,7 @@ public class Charge {
         throws NotAlterException, NotFoundException, WrongCommandException, DataInvalidException {
         if (s.length != 7 || notCompare(s[1], "FROM") || notCompare(s[3], "WHERE") || !s[5]
             .equals("=")) {
-            throw new WrongCommandException();
+            throw new WrongCommandException("DELETE");
         }
         if (database == null) {
             throw new NotAlterException();
@@ -338,11 +340,11 @@ public class Charge {
             throw new NotAlterException();
         }
         if (s.length != 10) {
-            throw new WrongCommandException();
+            throw new WrongCommandException("DELETE");
         }
         if (!s[2].equalsIgnoreCase("SET") || !s[4].equals("=") || !s[8].equals("=") || !s[6]
             .equalsIgnoreCase("WHERE")) {
-            throw new WrongCommandException();
+            throw new WrongCommandException("DELETE");
         }
         Table table = database.getTable(s[1]);
         ArrayList<Order> search = new ArrayList<>(
@@ -361,7 +363,7 @@ public class Charge {
         //DROP COLUMN column_name
         if (s.length != 3 || (!s[1].equalsIgnoreCase("TABLE") && !s[1].equalsIgnoreCase("DATABASE")
             && !s[1].equalsIgnoreCase("COLUMN"))) {
-            throw new WrongCommandException();
+            throw new WrongCommandException("DROP");
         }
         if (s[1].equalsIgnoreCase("DATABASE")) {
             sql.deleteDatabase(s[2]);
@@ -390,18 +392,18 @@ public class Charge {
             throw new NotAlterException();
         }
         if (s.length != 5 && s.length != 6) {
-            throw new WrongCommandException();
+            throw new WrongCommandException("INSERT");
         }
         Table table = database.getTable(s[2]);
         ArrayList<Order> orders = new ArrayList<>();
         if (s.length == 5) {
             if (!s[1].equalsIgnoreCase("INTO") || !s[3].equalsIgnoreCase("VALUES")) {
-                throw new WrongCommandException();
+                throw new WrongCommandException("INSERT");
             } else {
                 ArrayList<String> colNames = table.getColumnNames();
                 String[] values = s[4].split(",");
                 if (colNames.size() != values.length) {
-                    throw new WrongCommandException();
+                    throw new WrongCommandException("INSERT");
                 }
                 for (int i = 0; i < colNames.size(); i++) {
                     orders.add(new Order(table, colNames.get(i), values[i]));
@@ -410,12 +412,12 @@ public class Charge {
         }
         if (s.length == 6) {
             if (!s[1].equalsIgnoreCase("INTO") || !s[4].equalsIgnoreCase("VALUES")) {
-                throw new WrongCommandException();
+                throw new WrongCommandException("INSERT");
             } else {
                 String[] colNames = s[3].split(",");
                 String[] values = s[5].split(",");
                 if (colNames.length != values.length) {
-                    throw new WrongCommandException();
+                    throw new WrongCommandException("INSERT");
                 }
                 for (int i = 0; i < values.length; i++) {
                     orders.add(new Order(table, colNames[i], values[i]));
@@ -438,7 +440,7 @@ public class Charge {
         //)
         if (s.length != 3 || (!s[1].equalsIgnoreCase("TABLE") && !s[1]
             .equalsIgnoreCase("DATABASE"))) {
-            throw new WrongCommandException();
+            throw new WrongCommandException("CREATE");
         }
         if (s[1].equalsIgnoreCase("DATABASE")) {//创建新的数据库
             sql.newDatabase(s[2]);
@@ -454,11 +456,11 @@ public class Charge {
             while (!str.equals(")")) {
                 String[] sp = str.split(" ");
                 if (sp.length != 4 && sp.length != 2) {
-                    throw new WrongCommandException();
+                    throw new WrongCommandException("CREATE");
                 }
                 if (sp.length == 4 && (!sp[2].equalsIgnoreCase("NOT") || !sp[3]
                     .equalsIgnoreCase("NULL"))) {
-                    throw new WrongCommandException();
+                    throw new WrongCommandException("CREATE");
                 }
 
                 boolean canNull = (sp.length != 4);
