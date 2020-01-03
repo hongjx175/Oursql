@@ -54,6 +54,16 @@ public class Charge {
         return str;
     }
 
+    public String[] removeNull(String[] s) {
+        ArrayList<String> ss = new ArrayList<String>();
+        for (String str : s) {
+            if (!s.equals("")) {
+                ss.add(str);
+            }
+        }
+        return ss.toArray(new String[ss.size()]);
+    }
+
     public String process() throws IOException {
         String cmd = "";
         stringBuilder = new StringBuilder();
@@ -164,12 +174,10 @@ public class Charge {
             throw new NotAlterException();
         }
         String[] sp = s.split("SELECT | FROM | WHERE | ORDER BY ");
-        //System.out.println(sp[0] == "" + "-----------------------------------------------");
-        if (sp[0].equals("")) {
-            sp = Arrays.copyOfRange(sp, 1, sp.length);
-        }
+        sp = removeNull(sp);
         Table table = database.getTable(sp[1]);
         String[] sp1 = s.split(" ");
+        sp1 = removeNull(sp1);
         boolean hasORDER = false, hasWHERE = false;
         for (String value : sp1) {
             if (value.equalsIgnoreCase("ORDER")) {
@@ -192,6 +200,7 @@ public class Charge {
                     //SELECT * FROM 表名 ORDER BY Company DESC,OrderNumber ASC
                     ArrayList<Order> orderby = new ArrayList<>();
                     String[] orderbys = sp[2].split("[ ,]");
+                    orderbys = removeNull(orderbys);
                     if (orderbys.length % 2 != 0) {
                         throw new WrongCommandException("SELECT2");
                     }
@@ -207,6 +216,7 @@ public class Charge {
                 if (hasWHERE) {
                     //SELECT * FROM Orders WHERE 列 = 值
                     String[] wheres = sp[2].split("[ =]");
+                    wheres = removeNull(wheres);
                     ArrayList<Order> where = new ArrayList<Order>();
                     if (wheres.length % 2 != 0) {
                         throw new WrongCommandException("SELECT3");
@@ -219,6 +229,7 @@ public class Charge {
             } else if (sp.length == 4) {//WHERE和ORDER BY都有
                 ArrayList<Order> orderby = new ArrayList<Order>();
                 String[] orderbys = sp[3].split("[ ,]");
+                orderbys = removeNull(orderbys);
                 if (orderbys.length % 2 != 0) {
                     throw new WrongCommandException("SELECT4");
                 }
@@ -230,6 +241,7 @@ public class Charge {
                     orderby.add(new Order(table, orderbys[i], ord));
                 }
                 String[] wheres = sp[2].split("[ =]");
+                wheres = removeNull(wheres);
                 ArrayList<Order> where = new ArrayList<Order>();
                 if (wheres.length % 2 != 0) {
                     throw new WrongCommandException("SELECT5");
@@ -246,6 +258,7 @@ public class Charge {
             //ArrayList<Line> select(String table, Column[] columns, Order[] where, Order[] orderBy)
             // SELECT Company,OrderNumber FROM Orders WHERE 列 = 值 ORDER BY Company DESC,OrderNumber ASC
             String[] colName = sp[0].split(",");
+            colName = removeNull(colName);
             Column[] cols = new Column[colName.length];
             for (int i = 0; i < colName.length; i++) {
                 cols[i] = table.getColumn(colName[i]);
@@ -258,6 +271,7 @@ public class Charge {
                     //SELECT * FROM 表名 ORDER BY Company DESC,OrderNumber ASC
                     ArrayList<Order> orderby = new ArrayList<>();
                     String[] orderbys = sp[2].split("[ ,]");
+                    orderbys = removeNull(orderbys);
                     if (orderbys.length % 2 != 0) {
                         throw new WrongCommandException("SELECT8");
                     }
@@ -274,6 +288,7 @@ public class Charge {
                 if (hasWHERE) {
                     //SELECT * FROM Orders WHERE 列 = 值
                     String[] wheres = sp[2].split("[ =]");
+                    wheres = removeNull(wheres);
                     ArrayList<Order> where = new ArrayList<Order>();
                     if (wheres.length % 2 != 0) {
                         throw new WrongCommandException("SELECT9");
@@ -287,6 +302,7 @@ public class Charge {
             } else if (sp.length == 4) {//WHERE和ORDER BY都有
                 ArrayList<Order> orderby = new ArrayList<Order>();
                 String[] orderbys = sp[3].split("[ ,]");
+                orderbys = removeNull(orderbys);
                 if (orderbys.length % 2 != 0) {
                     throw new WrongCommandException("SELECT10");
                 }
@@ -298,6 +314,7 @@ public class Charge {
                     orderby.add(new Order(table, sp[i], ord));
                 }
                 String[] wheres = sp[2].split("[ =]");
+                wheres = removeNull(wheres);
                 ArrayList<Order> where = new ArrayList<Order>();
                 if (wheres.length % 2 != 0) {
                     throw new WrongCommandException("SELECT11");
@@ -411,6 +428,7 @@ public class Charge {
             } else {
                 ArrayList<String> colNames = table.getColumnNames();
                 String[] values = s[4].split(",");
+                values = removeNull(values);
                 if (colNames.size() != values.length) {
                     throw new WrongCommandException("INSERT");
                 }
@@ -424,7 +442,9 @@ public class Charge {
                 throw new WrongCommandException("INSERT");
             } else {
                 String[] colNames = s[3].split(",");
+                colNames = removeNull(colNames);
                 String[] values = s[5].split(",");
+                values = removeNull(values);
                 if (colNames.length != values.length) {
                     throw new WrongCommandException("INSERT");
                 }
@@ -464,6 +484,7 @@ public class Charge {
             String str = this.getLine();
             while (!str.equals(")")) {
                 String[] sp = str.split(" ");
+                sp = removeNull(sp);
                 if (sp.length != 4 && sp.length != 2) {
                     throw new WrongCommandException("CREATE");
                 }
