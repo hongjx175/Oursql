@@ -6,6 +6,7 @@ import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Scanner;
 import org.jetbrains.annotations.NotNull;
 import sql.elements.Column;
 import sql.elements.Database;
@@ -29,6 +30,7 @@ public class Charge {
     ObjectInputStream reader;
     ObjectOutputStream writer;
     StringBuilder stringBuilder;
+    Scanner scanner = new Scanner(System.in);
 
     public Charge(ObjectInputStream reader, ObjectOutputStream writer) {
         try {
@@ -45,22 +47,18 @@ public class Charge {
     }
 
     private String getLine() throws IOException {
-        try {
-            stringBuilder.append("waiting a line\n");
-            return (String) this.reader.readObject();
-        } catch (ClassNotFoundException ignored) {
-            return "";
-        }
+        stringBuilder.append("waiting a line\n");
+        String str = scanner.nextLine();
+//            String str = (String) this.reader.readObject();
+        stringBuilder.append(str);
+        return str;
     }
 
     public String process() throws IOException {
         String cmd = "";
         stringBuilder = new StringBuilder();
         try {
-            System.out.println("lalala");
             cmd = this.getLine();
-            System.out.println(cmd);
-            System.out.println(cmd);
             String[] sp = cmd.split(" ");
             sp[0] = sp[0].toUpperCase();
             switch (sp[0]) {
@@ -93,9 +91,10 @@ public class Charge {
             }
         } catch (Exception e) {
             stringBuilder.append(e.getMessage()).append("\n");
-            writer.writeObject(stringBuilder.toString());
             e.printStackTrace();
         }
+//        writer.writeObject(stringBuilder.toString());
+        System.out.print(stringBuilder.toString());
         return cmd;
     }
 
@@ -126,6 +125,9 @@ public class Charge {
         }
         if (s[1].equalsIgnoreCase("DATABASE")) {
             database = sql.getDatabase(s[2]);
+            if (database == null) {
+                throw new NotFoundException("database", s[2]);
+            }
             if (s.length == 7) {
                 database.changeName(s[6]);
             }
