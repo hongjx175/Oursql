@@ -165,8 +165,8 @@ class Node<V> {
         }
     }
 
-    Node<V> copyNew(@NotNull NeedRenew newError, int pos) {
-        Node<V> tmp = new Node<>(this.parent, this.isLeaf, pos + 1);
+    Node<V> copyNew(@NotNull NeedRenew newError, int posA) {
+        Node<V> tmp = new Node<>(this.parent, this.isLeaf, posA + 1);
         if (this.isLeaf) {
             tmp.refers[n] = this.refers[n];
             this.refers[n] = tmp;

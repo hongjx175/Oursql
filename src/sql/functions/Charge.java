@@ -151,7 +151,7 @@ public class Charge {
     }
 
     public void select(String s)
-        throws WrongCommandException, NotAlterException, UnknownSequenceException, DataInvalidException {
+        throws WrongCommandException, NotAlterException, UnknownSequenceException, DataInvalidException, NotFoundException {
         //SELECT 列名称 FROM 表名称 WHERE 列 运算符= 值 ORDER BY 列名 ASC/DESC,列名 ASC/DESC
         //规定指令中ASC和DESC不可省略
         //例：
@@ -343,7 +343,7 @@ public class Charge {
     }
 
     private void update(String[] s)
-        throws NotAlterException, WrongCommandException, DataInvalidException {
+        throws NotAlterException, WrongCommandException, DataInvalidException, NotFoundException {
         //UPDATE 表名称 SET 列名称 = 新值 WHERE 列名称 = 某值
         if (database == null) {
             throw new NotAlterException();
@@ -393,7 +393,7 @@ public class Charge {
 
     //插入行
     private void insert(String[] s)
-        throws NotAlterException, WrongCommandException, DataInvalidException, IOException, TooLongException {
+        throws NotAlterException, WrongCommandException, DataInvalidException, IOException, TooLongException, NotFoundException {
         //INSERT INTO 语句用于向表格中插入新的行。
         //INSERT INTO 表名称 VALUES 值1,值2,....
         //INSERT INTO 表名称 列1,列2,... VALUES 值1,值2,....//(指定列)

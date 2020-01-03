@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import sql.exceptions.DataInvalidException;
+import sql.exceptions.NotFoundException;
 
 public class Order {
 
@@ -16,8 +17,12 @@ public class Order {
         this.value = value;
     }
 
-    public Order(@NotNull Table table, String column, String value) throws DataInvalidException {
+    public Order(@NotNull Table table, String column, String value)
+        throws DataInvalidException, NotFoundException {
         this.column = table.getColumn(column);
+        if (this.column == null) {
+            throw new NotFoundException("column", column);
+        }
         this.value = new Data(this.column, value);
         this.value.setValue(this.column, value);
     }
