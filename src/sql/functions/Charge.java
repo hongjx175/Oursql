@@ -70,6 +70,7 @@ public class Charge {
         try {
             cmd = this.getLine();
             String[] sp = cmd.split(" ");
+            sp = removeNull(sp);
             sp[0] = sp[0].toUpperCase();
             switch (sp[0]) {
                 case "ALTER":
