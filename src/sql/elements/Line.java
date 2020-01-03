@@ -23,6 +23,9 @@ public class Line implements Comparable<Line> {
     @Contract(pure = true)
     private void lengthCheck(@NotNull ArrayList<Column> columns) throws TooLongException {
         for (int i = 0; i < columns.size(); i++) {
+            if (data.get(i) == null) {
+                continue;
+            }
             if (data.get(i).getValue().length() > columns.get(i).maxLength) {
                 throw new TooLongException(columns.get(i).name, columns.get(i).maxLength);
             }

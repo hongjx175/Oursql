@@ -1,5 +1,6 @@
 package sql.elements;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.io.Serializable;
@@ -30,6 +31,12 @@ public class DataIOer implements Serializable {
         this.database = database;
         this.table = table;
         this.filePath = defaultFile + database.name + "\\" + table.name + "\\";
+        File path = new File(defaultFile);
+        path.mkdir();
+        path = new File(defaultFile + database.name + "\\");
+        path.mkdir();
+        path = new File(this.filePath);
+        path.mkdir();
         dataByteCnt.add(-1);
         stringByteCnt.add(-1);
         dataByteCnt.add(0);
@@ -77,6 +84,8 @@ public class DataIOer implements Serializable {
     public long setLine(@NotNull Line lines) {
         try {
             int[] result = allocatePosition(true);
+            File file = new File(this.filePath + result[0] + defaultEnd);
+            file.createNewFile();
             RandomAccessFile ioFile = new RandomAccessFile(this.filePath + result[0] + defaultEnd,
                 "rw");
             ioFile.seek(result[1]);
