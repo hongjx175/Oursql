@@ -50,7 +50,7 @@ public class Charge {
         stringBuilder.append("waiting a line\n");
         String str = scanner.nextLine();
 //            String str = (String) this.reader.readObject();
-        stringBuilder.append(str);
+        stringBuilder.append(str).append("\n");
         return str;
     }
 
