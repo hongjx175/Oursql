@@ -57,7 +57,7 @@ public class Charge {
     public String[] removeNull(String[] s) {
         ArrayList<String> ss = new ArrayList<String>();
         for (String str : s) {
-            if (!s.equals("")) {
+            if (!str.equals("")) {
                 ss.add(str);
             }
         }
