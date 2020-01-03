@@ -9,6 +9,7 @@ import java.util.Collections;
 import org.jetbrains.annotations.NotNull;
 import sql.elements.Column;
 import sql.elements.Database;
+import sql.elements.Line;
 import sql.elements.Mysql;
 import sql.elements.Order;
 import sql.elements.Table;
@@ -96,7 +97,8 @@ public class Charge {
     }
 
     //更改
-    private void alter(@NotNull String[] s) throws WrongCommandException, NotAlterException {
+    private void alter(@NotNull String[] s)
+        throws WrongCommandException, NotAlterException, NotFoundException, IsExistedException {
         //ALTER TABLE table_name (MODIFY NAME = new_tbname)
         //ALTER DATABASE database_name (MODIFY NAME = new_dbname)
         if ((!s[1].equalsIgnoreCase("TABLE") && !s[1].equalsIgnoreCase("DATABASE")) || (
@@ -111,16 +113,16 @@ public class Charge {
             if (database == null) {
                 throw new NotAlterException();
             } else {
-                database.choosingTable = database.getTable(s[2]);
+                database.alterTable(s[2]);
             }
             if (s.length == 7) {
-                //TODO:改名
+                database.changeTableName(s[2], s[6]);
             }
         }
         if (s[1].equalsIgnoreCase("DATABASE")) {
             database = sql.getDatabase(s[2]);
             if (s.length == 7) {
-                //TODO:改名
+                database.changeName(s[6]);
             }
         }
     }
@@ -147,6 +149,7 @@ public class Charge {
         //SELECT Company,OrderNumber FROM Orders ORDER BY Company DESC,OrderNumber ASC
         //SELECT Company,OrderNumber FROM Orders WHERE 列 = 值 ORDER BY Company DESC,OrderNumber ASC
 
+        ArrayList<Line> lines = new ArrayList<Line>();
         if (database == null) {
             throw new NotAlterException();
         }
@@ -185,7 +188,7 @@ public class Charge {
                         }
                         orderby.add(new Order(table, sp[i], ord));
                     }
-                    database.selectAll(sp[1], null, orderby);
+                    lines = database.selectAll(sp[1], null, orderby);
                 }
                 if (hasWHERE) {
                     //SELECT * FROM Orders WHERE 列 = 值
@@ -197,7 +200,7 @@ public class Charge {
                     for (int i = 0; i < wheres.length; i += 2) {
                         where.add(new Order(table, wheres[i], wheres[i + 1]));
                     }
-                    database.selectAll(sp[1], where, null);
+                    lines = database.selectAll(sp[1], where, null);
                 }
             } else if (sp.length == 4) {//WHERE和ORDER BY都有
                 ArrayList<Order> orderby = new ArrayList<Order>();
@@ -220,7 +223,7 @@ public class Charge {
                 for (int i = 0; i < wheres.length; i += 2) {
                     where.add(new Order(table, wheres[i], wheres[i + 1]));
                 }
-                database.selectAll(sp[1], where, orderby);
+                lines = database.selectAll(sp[1], where, orderby);
             } else {
                 throw new WrongCommandException();
             }
@@ -251,7 +254,8 @@ public class Charge {
                         }
                         orderby.add(new Order(table, sp[i], ord));
                     }
-                    database.select(sp[1], new ArrayList<>(Arrays.asList(cols)), null, orderby);
+                    lines = database
+                        .select(sp[1], new ArrayList<>(Arrays.asList(cols)), null, orderby);
                 }
                 if (hasWHERE) {
                     //SELECT * FROM Orders WHERE 列 = 值
@@ -263,7 +267,8 @@ public class Charge {
                     for (int i = 0; i < wheres.length; i += 2) {
                         where.add(new Order(table, wheres[i], wheres[i + 1]));
                     }
-                    database.select(sp[1], new ArrayList<>(Arrays.asList(cols)), where, null);
+                    lines = database
+                        .select(sp[1], new ArrayList<>(Arrays.asList(cols)), where, null);
                 }
             } else if (sp.length == 4) {//WHERE和ORDER BY都有
                 ArrayList<Order> orderby = new ArrayList<Order>();
@@ -286,11 +291,21 @@ public class Charge {
                 for (int i = 0; i < wheres.length; i += 2) {
                     where.add(new Order(table, wheres[i], wheres[i + 1]));
                 }
-                database.select(sp[1], new ArrayList<>(Arrays.asList(cols)), where, orderby);
+                lines = database
+                    .select(sp[1], new ArrayList<>(Arrays.asList(cols)), where, orderby);
             } else {
                 throw new WrongCommandException();
             }
         }
+        printLines(lines, table);
+        //ArrayList<String> colNames = table.getColumnNames();
+    }
+
+    //todo:
+    private void printLines(ArrayList<Line> lines, Table table) {
+        ArrayList<String> colNames = table.getColumnNames();
+
+        //writer.newLine();
     }
 
     //删除表中的行  DELETE FROM 表名称 WHERE 列名称 = 值
