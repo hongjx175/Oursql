@@ -164,6 +164,10 @@ public class Charge {
             throw new NotAlterException();
         }
         String[] sp = s.split("SELECT | FROM | WHERE | ORDER BY ");
+        //System.out.println(sp[0] == "" + "-----------------------------------------------");
+        if (sp[0].equals("")) {
+            sp = Arrays.copyOfRange(sp, 1, sp.length);
+        }
         Table table = database.getTable(sp[1]);
         String[] sp1 = s.split(" ");
         boolean hasORDER = false, hasWHERE = false;
@@ -218,12 +222,12 @@ public class Charge {
                 if (orderbys.length % 2 != 0) {
                     throw new WrongCommandException("SELECT4");
                 }
-                for (int i = 0; i < sp.length - 1; i += 2) {
+                for (int i = 0; i < orderbys.length - 1; i += 2) {
                     String ord = "1";
-                    if (sp[i + 1].equalsIgnoreCase("DESC")) {
+                    if (orderbys[i + 1].equalsIgnoreCase("DESC")) {
                         ord = "-1";
                     }
-                    orderby.add(new Order(table, sp[i], ord));
+                    orderby.add(new Order(table, orderbys[i], ord));
                 }
                 String[] wheres = sp[2].split("[ =]");
                 ArrayList<Order> where = new ArrayList<Order>();
