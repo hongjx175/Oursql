@@ -371,7 +371,8 @@ public class Table {
             throw new NotFoundException("data", "your information");
         }
         for (int x : result) {
-//            data.remove(x);
+            Line line = this.getLineByIndex(x);
+            line.data.get(getColumn("#isDel").id).setValue("0");
         }
     }
 

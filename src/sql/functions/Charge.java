@@ -1,8 +1,8 @@
 package sql.functions;
 
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -26,14 +26,13 @@ public class Charge {
 
     static Mysql sql;
     Database database;
-    BufferedReader reader;
-    BufferedWriter writer;
+    ObjectInputStream reader;
+    StringBuilder stringBuilder;
 
-    public Charge(BufferedReader reader, BufferedWriter writer) {
+    public Charge(ObjectInputStream reader, ObjectOutputStream writer) {
         try {
             sql = Mysql.getInstance();
             this.reader = reader;
-            this.writer = writer;
         } catch (NotFoundException | IsExistedException e) {
             e.printStackTrace();
         }
@@ -43,11 +42,23 @@ public class Charge {
         return !a.equalsIgnoreCase(b);
     }
 
+    private String getLine() throws IOException {
+        try {
+            stringBuilder.append("waiting a line");
+            return (String) this.reader.readObject();
+        } catch (ClassNotFoundException ignored) {
+            return "";
+        }
+    }
+
     public String process() throws IOException {
         String cmd = "";
+        stringBuilder = new StringBuilder();
         try {
-            cmd = reader.readLine();
-            assert cmd != null;
+            System.out.println("lalala");
+            cmd = this.getLine();
+            System.out.println(cmd);
+            System.out.println(cmd);
             String[] sp = cmd.split(" ");
             sp[0] = sp[0].toUpperCase();
             switch (sp[0]) {
@@ -79,7 +90,7 @@ public class Charge {
                     throw new WrongCommandException("超出指令范围");
             }
         } catch (Exception e) {
-            writer.write("请输入合法的命令." + "超出指令范围");
+            stringBuilder.append(e.getMessage()).append("\n");
             e.printStackTrace();
         }
         return cmd;
@@ -437,8 +448,8 @@ public class Charge {
             }
             int colNum = 0;
             ArrayList<Column> cols = new ArrayList<>();
-            reader.readLine();
-            String str = reader.readLine();
+            this.getLine();
+            String str = this.getLine();
             while (!str.equals(")")) {
                 String[] sp = str.split(" ");
                 if (sp.length != 4 && sp.length != 2) {
@@ -451,7 +462,7 @@ public class Charge {
 
                 boolean canNull = (sp.length != 4);
                 cols.add(new Column(sp[0], sp[1], canNull));
-                str = reader.readLine();
+                str = this.getLine();
             }
             // TODO: 2019/12/21 处理index[]
             database.newTable(s[2], cols, null);

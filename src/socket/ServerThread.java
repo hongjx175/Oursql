@@ -1,10 +1,8 @@
 package socket;
 
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -24,17 +22,17 @@ public class ServerThread implements Runnable {
     @Override
     public void run() {
         try {
-            BufferedReader reader = new BufferedReader(
-                new InputStreamReader(socket.getInputStream()));
-            BufferedWriter writer = new BufferedWriter(
-                new OutputStreamWriter(socket.getOutputStream()));
+            ObjectOutputStream writer = new ObjectOutputStream(socket.getOutputStream());
+            ObjectInputStream reader = new ObjectInputStream(socket.getInputStream());
             Charge charge = new Charge(reader, writer);
             String ip = socket.getRemoteSocketAddress().toString();
+            System.out.println("lalla");
             while (true) {
                 String date = LocalDate.now().toString();
                 String time = LocalTime.now().toString();
                 String user = charge.getUser();
                 String cmd = charge.process();
+                System.out.println(cmd);
                 // TODO: 2019/12/21 log in and get user
                 server.addLog(new CommandMessage(date, time, cmd, ip, user));
             }

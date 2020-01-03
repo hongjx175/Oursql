@@ -1,9 +1,7 @@
 package socket;
 
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.util.Scanner;
 
@@ -13,17 +11,17 @@ public class Client implements Port {
         try {
             Scanner scan = new Scanner(System.in);
             Socket socket = new Socket(serverIP, port);
-            BufferedReader reader = new BufferedReader(
-                new InputStreamReader(socket.getInputStream()));
-            BufferedWriter writer = new BufferedWriter(
-                new OutputStreamWriter(socket.getOutputStream()));
-            int n = scan.nextInt();
+            ObjectInputStream reader = new ObjectInputStream(socket.getInputStream());
+            ObjectOutputStream writer = new ObjectOutputStream(socket.getOutputStream());
+            int n = Integer.parseInt(scan.nextLine());
             for (int i = 0; i < n; i++) {
-                writer.write(scan.nextLine());
+                writer.writeObject(scan.nextLine());
+                String string = (String) reader.readObject();
+                System.out.println(string);
             }
-            n = Integer.parseInt(reader.readLine());
-            for (int i = 0; i < n; i++) {
-                System.out.println(reader.readLine());
+            while (true) {
+                String string = (String) reader.readObject();
+                System.out.println(string);
             }
         } catch (Exception e) {
             e.printStackTrace();
