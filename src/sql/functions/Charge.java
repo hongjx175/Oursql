@@ -290,6 +290,7 @@ public class Charge {
         //ArrayList<String> colNames = table.getColumnNames();
     }
 
+    //todo:
     private void printLines(ArrayList<Line> lines, Table table) {
         ArrayList<String> colNames = table.getColumnNames();
 
