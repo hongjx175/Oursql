@@ -267,7 +267,7 @@ public class Charge {
         throws NotAlterException, WrongCommandException, DataInvalidException, IOException, TooLongException {
         //INSERT INTO 语句用于向表格中插入新的行。
         //INSERT INTO 表名称 VALUES 值1,值2,....
-        //INSERT INTO 表名称 列1,列2,... VALUES 值1, 值2,....//(指定列)
+        //INSERT INTO 表名称 列1,列2,... VALUES 值1,值2,....//(指定列)
         if (database == null) {
             throw new NotAlterException();
         }
@@ -372,6 +372,7 @@ public class Charge {
             }
             if (s.length == 7) {
                 //TODO:改名
+
             }
         }
         if (s[1].equalsIgnoreCase("DATABASE")) {
