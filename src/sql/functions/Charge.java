@@ -47,7 +47,9 @@ public class Charge {
     private String getLine() throws IOException {
         try {
             stringBuilder.append("waiting a line\n");
-            return (String) this.reader.readObject();
+            String str = (String) this.reader.readObject();
+            stringBuilder.append(str);
+            return str;
         } catch (ClassNotFoundException ignored) {
             return "";
         }
@@ -93,9 +95,9 @@ public class Charge {
             }
         } catch (Exception e) {
             stringBuilder.append(e.getMessage()).append("\n");
-            writer.writeObject(stringBuilder.toString());
             e.printStackTrace();
         }
+        writer.writeObject(stringBuilder.toString());
         return cmd;
     }
 
