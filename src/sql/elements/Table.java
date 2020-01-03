@@ -50,7 +50,7 @@ public class Table {
     public ArrayList<String> getColumnNames() {
         ArrayList<String> colNames = new ArrayList<>();
         for (Column c : columnList) {
-            if (!c.canShow) {
+            if (c.canShow) {
                 colNames.add(c.getName());
             }
         }
