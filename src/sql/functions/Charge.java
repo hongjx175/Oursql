@@ -27,12 +27,14 @@ public class Charge {
     static Mysql sql;
     Database database;
     ObjectInputStream reader;
+    ObjectOutputStream writer;
     StringBuilder stringBuilder;
 
     public Charge(ObjectInputStream reader, ObjectOutputStream writer) {
         try {
             sql = Mysql.getInstance();
             this.reader = reader;
+            this.writer = writer;
         } catch (NotFoundException | IsExistedException e) {
             e.printStackTrace();
         }
@@ -91,6 +93,7 @@ public class Charge {
             }
         } catch (Exception e) {
             stringBuilder.append(e.getMessage()).append("\n");
+            writer.writeObject(stringBuilder.toString());
             e.printStackTrace();
         }
         return cmd;
