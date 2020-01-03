@@ -112,7 +112,7 @@ public class Charge {
         }
         if (s.length == 7 && (!s[3].equalsIgnoreCase("MODIFY") || !s[5].equals("=") || !s[4]
             .equalsIgnoreCase("NAME"))) {
-            throw new WrongCommandException("ALTER:");
+            throw new WrongCommandException("ALTER:请注意空格位置");
         }
         if (s[1].equalsIgnoreCase("TABLE")) {
             if (database == null) {
@@ -137,9 +137,12 @@ public class Charge {
         throws WrongCommandException, NotFoundException, IsExistedException {
         ////ALTER TABLE table_name
         //ADD column_name datatype
-        if ((s.length != 3 && s.length != 5) || (s.length == 5 && (!s[3].equalsIgnoreCase("NOT")
+        if ((s.length != 3 && s.length != 5)) {
+            throw new WrongCommandException("ADD:指令长度不合法，请注意空格位置");
+        }
+        if ((s.length == 5 && (!s[3].equalsIgnoreCase("NOT")
             || !s[4].equalsIgnoreCase("NULL")))) {
-            throw new WrongCommandException("ADD");
+            throw new WrongCommandException("ADD:请检查指令NOT NULL");
         }
         Column col = new Column(s[1], s[2], s.length != 5);
         database.choosingTable.addColumns(new ArrayList<>(Collections.singletonList(col)));
@@ -177,7 +180,7 @@ public class Charge {
             //ArrayList<Line> selectAll(String table, Order[] where, Order[] orderby)
             if (sp.length == 3) {//WHERE和ORDER BY只有一个
                 if (hasORDER && hasWHERE) {
-                    throw new WrongCommandException("SELECT");
+                    throw new WrongCommandException("SELECT:");
                 }
                 if (hasORDER) {
                     //SELECT * FROM 表名 ORDER BY Company DESC,OrderNumber ASC
