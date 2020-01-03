@@ -313,7 +313,8 @@ public class Table {
             throw new NotFoundException("line", "your searching form");
         }
         for (int x : result) {
-//            this.data.get(x).isDeleted = true;
+            Line line = getLineByIndex(x);
+            line.data.get(getColumn("#isDel").id).setValue("0");
         }
     }
 
