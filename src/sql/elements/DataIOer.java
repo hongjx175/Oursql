@@ -53,14 +53,16 @@ public class DataIOer implements Serializable {
             for (Column x : table.columnList) {
                 int size = Math.min(defaultSize, x.maxLength);
                 StringBuilder stringBuilder = new StringBuilder();
-                ioFile.read(bytes, 0, size);
-                stringBuilder.append(new String(bytes, 0, size, "UNICODE"));
+                bytes = new byte[(size << 1) + 2];
+                ioFile.read(bytes, 0, (size << 1) + 2);
+                stringBuilder.append(new String(bytes, 0, (size << 1) + 2, "UNICODE"));
                 if (x.maxLength > defaultSize) {
+                    bytes = new byte[intSize];
                     ioFile.read(bytes, 0, intSize);
                     int strBlock = Caster.bytesToInt(bytes);
                     ioFile.read(bytes, 0, intSize);
                     int strIndex = Caster.bytesToInt(bytes);
-                    if (strBlock != 0 && strIndex != 0) {
+                    if (strBlock != 0 || strIndex != 0) {
                         stringBuilder.append(this.getString(strBlock, strIndex));
                     }
                 }
@@ -95,12 +97,12 @@ public class DataIOer implements Serializable {
                 stringBuilder.append(data == null ? null : data.getValue());
                 int maxLength = table.columnList.get(i).maxLength;
                 int size = Math.min(defaultSize, maxLength);
-                if (stringBuilder.length() < size) {
+                if (stringBuilder.length() <= size) {
                     while (stringBuilder.length() < size) {
                         stringBuilder.append("\0");
                     }
                     bytes = stringBuilder.toString().getBytes("unicode");
-                    ioFile.write(bytes, 2, size << 1);
+                    ioFile.write(bytes, 0, (size << 1) + 2);
                     if (maxLength > defaultSize) {
                         Arrays.fill(bytes, (byte) 0);
                         ioFile.write(bytes, 0, longSize);
@@ -112,7 +114,7 @@ public class DataIOer implements Serializable {
                         builder.append("\0");
                     }
                     bytes = builder.toString().getBytes("UNICODE");
-                    ioFile.write(bytes, 2, size << 1);
+                    ioFile.write(bytes, 0, (size << 1) + 2);
                     int[] next = setString(stringBuilder.delete(0, defaultSize - 1).toString());
                     bytes = Caster.intToBytes(next[0]);
                     ioFile.write(bytes, 0, intSize);
@@ -134,8 +136,9 @@ public class DataIOer implements Serializable {
             RandomAccessFile ioFile = new RandomAccessFile(
                 this.filePath + "string" + strBlock + defaultEnd, "r");
             ioFile.seek(strIndex);
-            ioFile.read(bytes, 0, defaultSize);
-            String str = new String(bytes, 0, defaultSize, "UNICODE");
+            bytes = new byte[(defaultSize << 1) + 2];
+            ioFile.read(bytes, 0, (defaultSize << 1) + 2);
+            String str = new String(bytes, 0, (defaultSize << 1) + 2, "UNICODE");
             ioFile.read(bytes, 0, intSize);
             int nextBlock = Caster.bytesToInt(bytes);
             ioFile.read(bytes, 0, intSize);
@@ -164,15 +167,15 @@ public class DataIOer implements Serializable {
                     stringBuilder.append(" ");
                 }
                 bytes = stringBuilder.toString().getBytes("UNICODE");
-                ioFile.write(bytes, 2, defaultSize << 1);
+                ioFile.write(bytes, 0, (defaultSize << 1) + 2);
                 Arrays.fill(bytes, (byte) 0);
                 ioFile.write(bytes, 0, longSize);
             } else {
                 int[] next = setString(stringBuilder.substring(0, defaultSize - 1));
                 bytes = Caster.intToBytes(next[0]);
-                ioFile.write(bytes, 2, intSize);
+                ioFile.write(bytes, 0, intSize);
                 bytes = Caster.intToBytes(next[1]);
-                ioFile.write(bytes, 2, intSize);
+                ioFile.write(bytes, 0, intSize);
             }
             ioFile.close();
             return result;
@@ -209,7 +212,7 @@ public class DataIOer implements Serializable {
         ArrayList<Integer> size = table.getColumnSize();
         int ans = 0;
         for (int x : size) {
-            ans += Math.min(x, defaultSize);
+            ans += Math.min(x, defaultSize) + 1;
             if (x > defaultSize) {
                 ans += 4;
             }
