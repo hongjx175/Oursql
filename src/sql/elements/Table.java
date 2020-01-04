@@ -1,6 +1,5 @@
 package sql.elements;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -146,13 +145,13 @@ public class Table {
         this.onShowColumnCount--;
     }
 
-    public void insertByOrders(@NotNull ArrayList<Order> orders)
-        throws TooLongException, IOException {
+    public void insertByOrders(@NotNull ArrayList<Order> orders) throws TooLongException {
         if (this.locked) {
             throw new WaitingException();
         }
         Line newData = new Line();
         Data[] d = new Data[this.columnCount];
+        d[getColumn("#isDel").id] = new Data("1");
         for (Order x : orders) {
             d[x.column.id] = x.value;
         }
@@ -387,6 +386,14 @@ public class Table {
 
     private Line getLineByIndex(long index) {
         return this.dataIOer.getLine(this.indexTree.get(index));
+    }
+
+    ArrayList<Integer> getColumnSize() {
+        ArrayList<Integer> size = new ArrayList<>();
+        for (Column x : this.columnList) {
+            size.add(x.maxLength);
+        }
+        return size;
     }
 }
 
