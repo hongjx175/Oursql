@@ -228,7 +228,11 @@ public class Charge {
                     lines = database.selectAll(sp[1], where, null);
                 }
             } else if (sp.length == 4) {//WHERE和ORDER BY都有
+                if (!hasWHERE || !hasORDER) {
+                    throw new WrongCommandException("SELECT*");
+                }
                 ArrayList<Order> orderby = new ArrayList<Order>();
+
                 String[] orderbys = sp[3].split("[ ,]");
                 orderbys = removeNull(orderbys);
                 if (orderbys.length % 2 != 0) {
@@ -251,8 +255,13 @@ public class Charge {
                     where.add(new Order(table, wheres[i], wheres[i + 1]));
                 }
                 lines = database.selectAll(sp[1], where, orderby);
+            } else if (sp.length == 2) {
+                if (hasORDER || hasWHERE) {
+                    throw new WrongCommandException("SELECT6");
+                }
+                lines = database.selectAll(sp[1], null, null);
             } else {
-                throw new WrongCommandException("SELECT6");
+                throw new WrongCommandException("SELECT7");
             }
 
         } else {
@@ -266,7 +275,7 @@ public class Charge {
             }
             if (sp.length == 3) {//WHERE和ORDER BY只有一个
                 if (hasORDER && hasWHERE) {
-                    throw new WrongCommandException("SELECT7");
+                    throw new WrongCommandException("SELECT8");
                 }
                 if (hasORDER) {
                     //SELECT * FROM 表名 ORDER BY Company DESC,OrderNumber ASC
@@ -274,7 +283,7 @@ public class Charge {
                     String[] orderbys = sp[2].split("[ ,]");
                     orderbys = removeNull(orderbys);
                     if (orderbys.length % 2 != 0) {
-                        throw new WrongCommandException("SELECT8");
+                        throw new WrongCommandException("SELECT9");
                     }
                     for (int i = 0; i < sp.length - 1; i += 2) {
                         String ord = "1";
@@ -292,7 +301,7 @@ public class Charge {
                     wheres = removeNull(wheres);
                     ArrayList<Order> where = new ArrayList<Order>();
                     if (wheres.length % 2 != 0) {
-                        throw new WrongCommandException("SELECT9");
+                        throw new WrongCommandException("SELECT10");
                     }
                     for (int i = 0; i < wheres.length; i += 2) {
                         where.add(new Order(table, wheres[i], wheres[i + 1]));
@@ -301,11 +310,14 @@ public class Charge {
                         .select(sp[1], new ArrayList<>(Arrays.asList(cols)), where, null);
                 }
             } else if (sp.length == 4) {//WHERE和ORDER BY都有
+                if (!hasORDER || !hasWHERE) {
+                    throw new WrongCommandException("SELECT11");
+                }
                 ArrayList<Order> orderby = new ArrayList<Order>();
                 String[] orderbys = sp[3].split("[ ,]");
                 orderbys = removeNull(orderbys);
                 if (orderbys.length % 2 != 0) {
-                    throw new WrongCommandException("SELECT10");
+                    throw new WrongCommandException("SELECT12");
                 }
                 for (int i = 0; i < sp.length - 1; i += 2) {
                     String ord = "1";
@@ -318,15 +330,20 @@ public class Charge {
                 wheres = removeNull(wheres);
                 ArrayList<Order> where = new ArrayList<Order>();
                 if (wheres.length % 2 != 0) {
-                    throw new WrongCommandException("SELECT11");
+                    throw new WrongCommandException("SELECT13");
                 }
                 for (int i = 0; i < wheres.length; i += 2) {
                     where.add(new Order(table, wheres[i], wheres[i + 1]));
                 }
                 lines = database
                     .select(sp[1], new ArrayList<>(Arrays.asList(cols)), where, orderby);
+            } else if (sp.length == 2) {
+                if (hasORDER || hasWHERE) {
+                    throw new WrongCommandException("SELECT16");
+                }
+                lines = database.select(sp[1], new ArrayList<>(Arrays.asList(cols)), null, null);
             } else {
-                throw new WrongCommandException("SELECT12");
+                throw new WrongCommandException("SELECT17");
             }
         }
         printLines(lines, table);
