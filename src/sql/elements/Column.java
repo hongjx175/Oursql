@@ -1,10 +1,14 @@
 package sql.elements;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import org.jetbrains.annotations.Contract;
 import sql.exceptions.NotFoundException;
 
 public class Column {
 
+    private static ArrayList<String> typeList = new ArrayList<>(
+        Arrays.asList("String", "CardID", "Number", "Integer", "PhoneNumber", "Date", "Time"));
     public int id;
     public int maxLength;
     public String name;
@@ -16,7 +20,7 @@ public class Column {
     public Column(String name, String type, boolean canNull) throws NotFoundException {
         this(name, type, 0, canNull);
         switch (type) {
-            case "String":
+            case "string":
                 this.maxLength = 100;
                 break;
             case "CardID":
@@ -35,7 +39,18 @@ public class Column {
     }
 
     @Contract(pure = true)
-    public Column(String name, String type, int maxLength, boolean canNull) {
+    public Column(String name, String type, int maxLength, boolean canNull)
+        throws NotFoundException {
+        boolean find = false;
+        for (String x : typeList) {
+            if (x.equals(type)) {
+                find = true;
+                break;
+            }
+        }
+        if (!find) {
+            throw new NotFoundException("column type", type);
+        }
         this.name = name;
         this.type = type;
         this.canNull = canNull;

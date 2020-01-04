@@ -37,7 +37,7 @@ public class Table {
         this.database = database;
         this.dataIOer = new DataIOer(this.database, this);
         try {
-            Column isDel = new Column("#isDel", "Number", false);
+            Column isDel = new Column("#isDel", "Number", 1, false);
             isDel.canShow = false;
             this.addColumn(isDel);
             this.onShowColumnCount--;
