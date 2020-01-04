@@ -20,7 +20,7 @@ public class Column {
     public Column(String name, String type, boolean canNull) throws NotFoundException {
         this(name, type, 0, canNull);
         switch (type) {
-            case "string":
+            case "String":
                 this.maxLength = 100;
                 break;
             case "CardID":
