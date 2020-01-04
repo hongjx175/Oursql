@@ -263,12 +263,13 @@ public class Table {
             if (orderBy != null && orderBy.size() != 0) {
                 for (Order j : orderBy) {
                     String s = tmp.data.get(j.column.id).getValue();
+                    add.cmp = new StringBuilder();
                     int len = s.length();
                     for (int ch = 0; ch < len; ch++) {
                         if (j.value.getValue().equals("1")) {
-                            tmp.cmp += s.charAt(ch);
+                            add.cmp.append(s.charAt(ch));
                         } else if (j.value.getValue().equals("-1")) {
-                            tmp.cmp += (char) (65536 - s.charAt(ch));
+                            add.cmp.append((char) (65536 - s.charAt(ch)));
                         } else {
                             throw new UnknownSequenceException();
                         }
@@ -279,11 +280,6 @@ public class Table {
         }
         if (orderBy == null || orderBy.size() != 0) {
             Collections.sort(array);
-            for (int j = 1; j < array.size(); j++) {
-                if (array.get(j - 1).equals(array.get(j))) {
-                    array.remove(j - 1);
-                }
-            }
         }
         return array;
     }

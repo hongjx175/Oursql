@@ -8,7 +8,7 @@ import sql.exceptions.TooLongException;
 public class Line implements Comparable<Line> {
 
     public ArrayList<Data> data;
-    String cmp;
+    StringBuilder cmp;
 
     @Contract(pure = true)
     Line() {
@@ -34,7 +34,7 @@ public class Line implements Comparable<Line> {
 
     @Override
     public int compareTo(@NotNull Line rt) {
-        return this.cmp.compareToIgnoreCase(rt.cmp);
+        return this.cmp.toString().compareToIgnoreCase(rt.cmp.toString());
     }
 
     boolean equals(@NotNull Line rt) {

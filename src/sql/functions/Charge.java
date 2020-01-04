@@ -353,7 +353,11 @@ public class Charge {
     //todo:
     private void printLines(ArrayList<Line> lines, Table table) {
         ArrayList<String> colNames = table.getColumnNames();
-
+        for (Line line : lines) {
+            for (int i = 0; i < colNames.size(); i++) {
+                
+            }
+        }
         //writer.newLine();
     }
 
