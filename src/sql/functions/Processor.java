@@ -23,7 +23,7 @@ import sql.exceptions.TooLongException;
 import sql.exceptions.UnknownSequenceException;
 import sql.exceptions.WrongCommandException;
 
-public class Charge {
+public class Processor {
 
     static Mysql sql;
     Database database;
@@ -32,7 +32,7 @@ public class Charge {
     StringBuilder stringBuilder;
     Scanner scanner = new Scanner(System.in);
 
-    public Charge(ObjectInputStream reader, ObjectOutputStream writer) {
+    public Processor(ObjectInputStream reader, ObjectOutputStream writer) {
         try {
             sql = Mysql.getInstance();
             this.reader = reader;
