@@ -32,10 +32,13 @@ public class Table {
     private DataIOer dataIOer;
 
     @Contract(pure = true)
-    Table(String name, Database database) {
+    Table(String name, Database database, boolean reset) {
         this.name = name;
         this.database = database;
         this.dataIOer = new DataIOer(this.database, this);
+        if (reset) {
+            return;
+        }
         try {
             Column isDel = new Column("#isDel", "Number", 1, false);
             isDel.canShow = false;
@@ -94,12 +97,12 @@ public class Table {
         if (this.locked) {
             throw new WaitingException();
         }
-        for (Column column : columns) {
-            this.addColumn(column);
-        }
+
         if (this.idCount != 0) {
             this.locked = true;
-            this.database.newTable("#tmp" + this.name, this.columnList, null);
+            ArrayList<Column> newOne = new ArrayList<>(this.columnList);
+            newOne.addAll(columns);
+            this.database.newTable("#tmp" + this.name, newOne, null, true);
             Table tmp = this.database.getTable("#tmp" + this.name);
             ArrayList<Integer> list = getAll();
             for (int x : list) {
@@ -121,6 +124,10 @@ public class Table {
                 e.printStackTrace();
             }
             this.locked = false;
+        } else {
+            for (Column column : columns) {
+                this.addColumn(column);
+            }
         }
     }
 

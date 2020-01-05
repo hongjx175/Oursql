@@ -20,7 +20,8 @@ public class Database implements Serializable {
         Column time = new Column("time", "Time", false);
         Column user = new Column("user", "String", false);
         Column type = new Column("event", "String", false);
-        newTable(historyTableName, new ArrayList<>(Arrays.asList(date, time, user, type)), null);
+        newTable(historyTableName, new ArrayList<>(Arrays.asList(date, time, user, type)),
+            null, false);
     }
 
     public Table getTable(String name) {
@@ -61,13 +62,13 @@ public class Database implements Serializable {
         this.name = newName;
     }
 
-    public void newTable(String name, ArrayList<Column> columns, ArrayList<HashIndex> index)
-        throws IsExistedException {
+    public void newTable(String name, ArrayList<Column> columns, ArrayList<HashIndex> index,
+        boolean reset) throws IsExistedException {
         Table x = this.getTable(name);
         if (x != null) {
             throw new IsExistedException("table", name);
         }
-        x = new Table(name, this);
+        x = new Table(name, this, reset);
         tables.add(x);
         x.addColumns(columns);
         if (index != null) {

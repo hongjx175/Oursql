@@ -364,7 +364,7 @@ public class Charge {
         for (Line line : lines) {
             for (String str : colNames) {
                 stringBuilder.append(str);
-                stringBuilder.append(": ");
+                stringBuilder.append(":");
                 stringBuilder.append(line.data.get(table.getColumn(str).id).getValue());
                 stringBuilder.append("; ");
             }
@@ -531,7 +531,7 @@ public class Charge {
                 str = this.getLine();
             }
             // TODO: 2019/12/21 处理index[]
-            database.newTable(s[2], cols, null);
+            database.newTable(s[2], cols, null, false);
         }
     }
 
