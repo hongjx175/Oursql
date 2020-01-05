@@ -54,14 +54,14 @@ public class Charge {
         return str;
     }
 
-    public String[] removeNull(String[] s) {
+    public String[] removeNull(@NotNull String[] s) {
         ArrayList<String> ss = new ArrayList<String>();
         for (String str : s) {
             if (!str.equals("")) {
                 ss.add(str);
             }
         }
-        return ss.toArray(new String[ss.size()]);
+        return ss.toArray(new String[0]);
     }
 
     public String process() throws IOException {
@@ -179,7 +179,7 @@ public class Charge {
         //SELECT Company,OrderNumber FROM Orders ORDER BY Company DESC,OrderNumber ASC
         //SELECT Company,OrderNumber FROM Orders WHERE 列 = 值 ORDER BY Company DESC,OrderNumber ASC
 
-        ArrayList<Line> lines = new ArrayList<Line>();
+        ArrayList<Line> lines = new ArrayList<>();
         if (database == null) {
             throw new NotAlterException();
         }
@@ -227,7 +227,7 @@ public class Charge {
                     //SELECT * FROM Orders WHERE 列 = 值
                     String[] wheres = sp[2].split("[ =]");
                     wheres = removeNull(wheres);
-                    ArrayList<Order> where = new ArrayList<Order>();
+                    ArrayList<Order> where = new ArrayList<>();
                     if (wheres.length % 2 != 0) {
                         throw new WrongCommandException("SELECT3");
                     }
@@ -240,7 +240,7 @@ public class Charge {
                 if (!hasWHERE || !hasORDER) {
                     throw new WrongCommandException("SELECT*");
                 }
-                ArrayList<Order> orderby = new ArrayList<Order>();
+                ArrayList<Order> orderby = new ArrayList<>();
 
                 String[] orderbys = sp[3].split("[ ,]");
                 orderbys = removeNull(orderbys);
@@ -256,7 +256,7 @@ public class Charge {
                 }
                 String[] wheres = sp[2].split("[ =]");
                 wheres = removeNull(wheres);
-                ArrayList<Order> where = new ArrayList<Order>();
+                ArrayList<Order> where = new ArrayList<>();
                 if (wheres.length % 2 != 0) {
                     throw new WrongCommandException("SELECT5");
                 }
@@ -308,7 +308,7 @@ public class Charge {
                     //SELECT * FROM Orders WHERE 列 = 值
                     String[] wheres = sp[2].split("[ =]");
                     wheres = removeNull(wheres);
-                    ArrayList<Order> where = new ArrayList<Order>();
+                    ArrayList<Order> where = new ArrayList<>();
                     if (wheres.length % 2 != 0) {
                         throw new WrongCommandException("SELECT10");
                     }
@@ -322,7 +322,7 @@ public class Charge {
                 if (!hasORDER || !hasWHERE) {
                     throw new WrongCommandException("SELECT11");
                 }
-                ArrayList<Order> orderby = new ArrayList<Order>();
+                ArrayList<Order> orderby = new ArrayList<>();
                 String[] orderbys = sp[3].split("[ ,]");
                 orderbys = removeNull(orderbys);
                 if (orderbys.length % 2 != 0) {
@@ -337,7 +337,7 @@ public class Charge {
                 }
                 String[] wheres = sp[2].split("[ =]");
                 wheres = removeNull(wheres);
-                ArrayList<Order> where = new ArrayList<Order>();
+                ArrayList<Order> where = new ArrayList<>();
                 if (wheres.length % 2 != 0) {
                     throw new WrongCommandException("SELECT13");
                 }
@@ -443,7 +443,7 @@ public class Charge {
 
     //插入行
     private void insert(String[] s)
-        throws NotAlterException, WrongCommandException, DataInvalidException, IOException, TooLongException, NotFoundException {
+        throws NotAlterException, WrongCommandException, DataInvalidException, TooLongException, NotFoundException {
         //INSERT INTO 语句用于向表格中插入新的行。
         //INSERT INTO 表名称 VALUES 值1,值2,....
         //INSERT INTO 表名称 列1,列2,... VALUES 值1,值2,....//(指定列)
