@@ -8,8 +8,8 @@ import sql.exceptions.NotFoundException;
 
 public class Order {
 
-    Column column;
-    Data value;
+    public Column column;
+    public Data value;
 
     @Contract(pure = true)
     public Order(@NotNull Table table, String column, Data value) {

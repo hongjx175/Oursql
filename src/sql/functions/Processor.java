@@ -178,7 +178,7 @@ public class Processor {
         //SELECT Company,OrderNumber/* FROM Orders WHERE 列 = 值
         //SELECT Company,OrderNumber FROM Orders ORDER BY Company DESC,OrderNumber ASC
         //SELECT Company,OrderNumber FROM Orders WHERE 列 = 值 ORDER BY Company DESC,OrderNumber ASC
-
+        ArrayList<Order> myWhere = null;
         ArrayList<Line> lines = new ArrayList<>();
         if (database == null) {
             throw new NotAlterException();
@@ -235,6 +235,7 @@ public class Processor {
                         where.add(new Order(table, wheres[i], wheres[i + 1]));
                     }
                     lines = database.selectAll(sp[1], where, null);
+                    myWhere = where;
                 }
             } else if (sp.length == 4) {//WHERE和ORDER BY都有
                 if (!hasWHERE || !hasORDER) {
@@ -264,6 +265,7 @@ public class Processor {
                     where.add(new Order(table, wheres[i], wheres[i + 1]));
                 }
                 lines = database.selectAll(sp[1], where, orderby);
+                myWhere = where;
             } else if (sp.length == 2) {
                 if (hasORDER || hasWHERE) {
                     throw new WrongCommandException("SELECT6");
@@ -316,6 +318,7 @@ public class Processor {
                     }
                     lines = database
                         .select(sp[1], new ArrayList<>(Arrays.asList(cols)), where, null);
+                    myWhere = where;
                 }
             } else if (sp.length == 4) {//WHERE和ORDER BY都有
                 if (!hasORDER || !hasWHERE) {
@@ -345,6 +348,7 @@ public class Processor {
                 }
                 lines = database
                     .select(sp[1], new ArrayList<>(Arrays.asList(cols)), where, orderby);
+                myWhere = where;
             } else if (sp.length == 2) {
                 if (hasORDER || hasWHERE) {
                     throw new WrongCommandException("SELECT16");
@@ -355,17 +359,18 @@ public class Processor {
                 throw new WrongCommandException("SELECT17");
             }
         }
-        printLines(lines, table, table.getColumnNames());
+        printLines(lines, table, myWhere);
         //ArrayList<String> colNames = table.getColumnNames();
     }
 
     private void printLines(@NotNull ArrayList<Line> lines, @NotNull Table table,
-        ArrayList<String> columns) {
+        ArrayList<Order> where) {
         for (Line line : lines) {
-            for (String str : columns) {
-                stringBuilder.append(str);
+            for (Order order : where) {
+                stringBuilder.append(order.column.name);
                 stringBuilder.append(":");
-                stringBuilder.append(line.data.get(table.getColumn(str).id).getValue());
+                stringBuilder
+                    .append(line.data.get(table.getColumn(order.column.name).id).getValue());
                 stringBuilder.append("; ");
             }
             stringBuilder.append("\n");
