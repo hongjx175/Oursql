@@ -112,7 +112,7 @@ public class Mysql implements Serializable {
 
     public Database getDatabase(String name) {
         for (Database x : this.databases) {
-            if (x.name.equals(name)) {
+            if (x.name.equalsIgnoreCase(name)) {
                 return x;
             }
         }

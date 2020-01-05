@@ -65,7 +65,7 @@ public class Table implements Serializable {
 
     public Column getColumn(String name) {
         for (Column x : columnList) {
-            if (x.name.equals(name) && !x.isDeleted) {
+            if (x.name.equalsIgnoreCase(name) && !x.isDeleted) {
                 return x;
             }
         }
@@ -74,7 +74,7 @@ public class Table implements Serializable {
 
     HashIndex getIndex(String name) {
         for (HashIndex x : indexList) {
-            if (x.name.equals(name)) {
+            if (x.name.equalsIgnoreCase(name)) {
                 return x;
             }
         }
@@ -433,6 +433,7 @@ public class Table implements Serializable {
         return size;
     }
 
+    @SuppressWarnings("all")
     public void changeName(String oldOne, String newOne) {
         File file = new File(this.dataIOer.filePath);
         this.dataIOer.filePath = DataIOer.defaultFile + this.database.name + "\\" + newOne + "\\";

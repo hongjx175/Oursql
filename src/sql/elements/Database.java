@@ -27,7 +27,7 @@ public class Database implements Serializable {
 
     public Table getTable(String name) {
         for (Table x : tables) {
-            if (x.name.equals(name)) {
+            if (x.name.equalsIgnoreCase(name)) {
                 return x;
             }
         }
@@ -91,8 +91,9 @@ public class Database implements Serializable {
     public void deleteTable(String name) throws NotFoundException {
         boolean isFound = false;
         for (int i = 0; i < this.tables.size(); i++) {
-            if (this.tables.get(i).name.equals(name)) {
+            if (this.tables.get(i).name.equalsIgnoreCase(name)) {
                 isFound = true;
+                this.tables.get(i).dataIOer.delThis();
                 this.tables.remove(i);
                 break;
             }
@@ -100,6 +101,7 @@ public class Database implements Serializable {
         if (!isFound) {
             throw new NotFoundException("table", name);
         }
+
     }
 
     @Override

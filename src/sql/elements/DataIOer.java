@@ -224,4 +224,13 @@ public class DataIOer implements Serializable {
         }
         return ans << 1;
     }
+
+    @SuppressWarnings("all")
+    public void delThis() {
+        File file = new File(this.filePath);
+        for (File x : file.listFiles()) {
+            x.delete();
+        }
+        file.delete();
+    }
 }
