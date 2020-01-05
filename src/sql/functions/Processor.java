@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Scanner;
 import org.jetbrains.annotations.NotNull;
@@ -96,6 +97,8 @@ public class Processor {
                     case "CREATE":
                         create(sp);
                         break;
+                    case "CREATEINDEX":
+                        createIndex(sp);
                     case "ADD":
                         add(sp);
                         break;
@@ -538,6 +541,35 @@ public class Processor {
             }
             // TODO: 2019/12/21 处理index[]
             database.newTable(s[2], cols, null, false);
+        }
+    }
+
+    public void createIndex(String[] sp)
+        throws WrongCommandException, NotFoundException, IsExistedException {
+        //CREATEINDEX UNIQUE index_name ON table_name column_name
+        //CREATEINDEX index_name ON table_name column_name
+        if (sp.length != 5 && sp.length != 6) {
+            throw new WrongCommandException("CREATEINDEX:1");
+        }
+        if (sp.length == 5) {
+            //CREATEINDEX index_name ON table_name column_name
+            if (!sp[2].equalsIgnoreCase("ON")) {
+                throw new WrongCommandException("CREATEINDEX:2");
+            }
+            Table table = database.getTable(sp[3]);
+            String[] colNames = sp[4].split(",");
+            colNames = removeNull(colNames);
+            ArrayList<String> cols = new ArrayList<>(Arrays.asList(colNames));
+            table.setIndexByStrings("default", sp[1], cols);
+        } else {
+            if (!sp[1].equalsIgnoreCase("UNIQUE") || !sp[3].equalsIgnoreCase("ON")) {
+                throw new WrongCommandException("CREATEINDEX:3");
+            }
+            Table table = database.getTable(sp[4]);
+            String[] colNames = sp[5].split(",");
+            colNames = removeNull(colNames);
+            ArrayList<String> cols = new ArrayList<>(Arrays.asList(colNames));
+            table.setIndexByStrings("unique", sp[2], cols);
         }
     }
 
