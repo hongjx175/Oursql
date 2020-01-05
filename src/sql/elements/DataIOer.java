@@ -83,9 +83,14 @@ public class DataIOer implements Serializable {
         }
     }
 
-    public long setLine(@NotNull Line lines) {
+    public long setLine(@NotNull Line lines, long position) {
         try {
-            int[] result = allocatePosition(true);
+            int[] result;
+            if (position == -1) {
+                result = allocatePosition(true);
+            } else {
+                result = Caster.longToInt(position);
+            }
             File file = new File(this.filePath + result[0] + defaultEnd);
             file.createNewFile();
             RandomAccessFile ioFile = new RandomAccessFile(this.filePath + result[0] + defaultEnd,
@@ -94,7 +99,7 @@ public class DataIOer implements Serializable {
             for (int i = 0; i < table.columnList.size(); i++) {
                 StringBuilder stringBuilder = new StringBuilder();
                 Data data = lines.data.get(i);
-                stringBuilder.append(data == null ? null : data.getValue());
+                stringBuilder.append(data == null ? "" : data.getValue());
                 int maxLength = table.columnList.get(i).maxLength;
                 int size = Math.min(defaultSize, maxLength);
                 if (stringBuilder.length() <= size) {
@@ -128,10 +133,6 @@ public class DataIOer implements Serializable {
             e.printStackTrace();
             return -1;
         }
-    }
-
-    public void resetLine(long position, ArrayList<Order> change) {
-        
     }
 
     @NotNull
