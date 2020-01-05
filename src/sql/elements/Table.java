@@ -49,9 +49,9 @@ public class Table {
         }
     }
 
-    public ArrayList<String> getColumnNames() {
+    public ArrayList<String> getColumnNames(ArrayList<Column> columns) {
         ArrayList<String> colNames = new ArrayList<>();
-        for (Column c : columnList) {
+        for (Column c : columns == null ? this.columnList : columns) {
             if (c.canShow) {
                 colNames.add(c.getName());
             }

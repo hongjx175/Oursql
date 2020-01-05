@@ -272,7 +272,6 @@ public class Processor {
             } else {
                 throw new WrongCommandException("SELECT7");
             }
-
         } else {
             //ArrayList<Line> select(String table, Column[] columns, Order[] where, Order[] orderBy)
             // SELECT Company,OrderNumber FROM Orders WHERE 列 = 值 ORDER BY Company DESC,OrderNumber ASC
@@ -350,19 +349,20 @@ public class Processor {
                 if (hasORDER || hasWHERE) {
                     throw new WrongCommandException("SELECT16");
                 }
-                lines = database.select(sp[1], new ArrayList<>(Arrays.asList(cols)), null, null);
+                ArrayList<Column> columns = new ArrayList<>(Arrays.asList(cols));
+                lines = database.select(sp[1], columns, null, null);
             } else {
                 throw new WrongCommandException("SELECT17");
             }
         }
-        printLines(lines, table);
+        printLines(lines, table, table.getColumnNames());
         //ArrayList<String> colNames = table.getColumnNames();
     }
 
-    private void printLines(@NotNull ArrayList<Line> lines, @NotNull Table table) {
-        ArrayList<String> colNames = table.getColumnNames();
+    private void printLines(@NotNull ArrayList<Line> lines, @NotNull Table table,
+        ArrayList<String> columns) {
         for (Line line : lines) {
-            for (String str : colNames) {
+            for (String str : columns) {
                 stringBuilder.append(str);
                 stringBuilder.append(":");
                 stringBuilder.append(line.data.get(table.getColumn(str).id).getValue());
@@ -459,7 +459,7 @@ public class Processor {
             if (!s[1].equalsIgnoreCase("INTO") || !s[3].equalsIgnoreCase("VALUES")) {
                 throw new WrongCommandException("INSERT");
             } else {
-                ArrayList<String> colNames = table.getColumnNames();
+                ArrayList<String> colNames = table.getColumnNames(null);
                 String[] values = s[4].split(",");
                 values = removeNull(values);
                 if (colNames.size() != values.length) {
