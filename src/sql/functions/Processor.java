@@ -54,6 +54,7 @@ public class Processor {
         return str;
     }
 
+    @NotNull
     private String[] removeNull(@NotNull String[] s) {
         ArrayList<String> ss = new ArrayList<>();
         for (String str : s) {
@@ -365,12 +366,13 @@ public class Processor {
 
     private void printLines(@NotNull ArrayList<Line> lines, @NotNull Table table,
         ArrayList<Order> where) {
+        ArrayList<String> strings = table.getColumnNames(where);
         for (Line line : lines) {
-            for (Order order : where) {
-                stringBuilder.append(order.column.name);
+            for (String string : strings) {
+                stringBuilder.append(string);
                 stringBuilder.append(":");
                 stringBuilder
-                    .append(line.data.get(table.getColumn(order.column.name).id).getValue());
+                    .append(line.data.get(table.getColumn(string).id).getValue());
                 stringBuilder.append("; ");
             }
             stringBuilder.append("\n");

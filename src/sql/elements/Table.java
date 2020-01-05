@@ -49,11 +49,25 @@ public class Table {
         }
     }
 
-    public ArrayList<String> getColumnNames(ArrayList<Column> columns) {
+    @NotNull
+    private ArrayList<String> getColumnNames() {
         ArrayList<String> colNames = new ArrayList<>();
-        for (Column c : columns == null ? this.columnList : columns) {
+        for (Column c : this.columnList) {
             if (c.canShow) {
                 colNames.add(c.getName());
+            }
+        }
+        return colNames;
+    }
+
+    public ArrayList<String> getColumnNames(ArrayList<Order> orders) {
+        if (orders == null) {
+            return getColumnNames();
+        }
+        ArrayList<String> colNames = new ArrayList<>();
+        for (Order order : orders) {
+            if (order.column.canShow) {
+                colNames.add(order.column.name);
             }
         }
         return colNames;
@@ -123,6 +137,7 @@ public class Table {
             } catch (NotFoundException e) {
                 e.printStackTrace();
             }
+            this.database.choosingTable = tmp;
             this.locked = false;
         } else {
             for (Column column : columns) {
