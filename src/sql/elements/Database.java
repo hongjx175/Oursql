@@ -1,5 +1,6 @@
 package sql.elements;
 
+import java.io.File;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -55,10 +56,15 @@ public class Database implements Serializable {
         if (y != null) {
             throw new IsExistedException("table", newOne);
         }
-        x.name = newOne;
+        x.changeName(oldOne, newOne);
     }
 
     public void changeName(String newName) {
+        File oldFile = new File(DataIOer.defaultFile + this.name + "\\");
+        oldFile.renameTo(new File(DataIOer.defaultFile + newName + "\\"));
+        for (Table table : this.tables) {
+            table.dataIOer.filePath = DataIOer.defaultFile + newName + "\\";
+        }
         this.name = newName;
     }
 

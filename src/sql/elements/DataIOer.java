@@ -14,8 +14,8 @@ import sql.functions.Caster;
 public class DataIOer implements Serializable {
 
     public static final int defaultSize = 50;
-    static final private String defaultFile = "D:\\sql\\";
-    static final private String defaultEnd = ".data";
+    static final public String defaultFile = "D:\\sql\\";
+    static final public String defaultEnd = ".data";
     private static final int intSize = 4;
     private static final int longSize = 8;
     private static final int maxLengthInData = 1000000;

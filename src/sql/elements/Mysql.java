@@ -1,6 +1,5 @@
 package sql.elements;
 
-import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -17,7 +16,7 @@ public class Mysql implements Serializable {
 
     transient private static final String defaultUsername = "root";
     transient private static final String defaultPassword = "123456";
-    transient private static final String IOFile = "data.db";
+    transient private static final String IOFile = "D:\\sql\\main.db";
     private static HashMap<String, String> passwordList = new HashMap<>();
     transient private static Mysql instance = null;
     ArrayList<Database> databases = new ArrayList<>();
@@ -32,24 +31,28 @@ public class Mysql implements Serializable {
     }
 
     public static Mysql getInstance() {
+        try {
+            load();
+        } catch (Exception ignored) {
+        }
         if (instance == null) {
             instance = new Mysql();
         }
         return instance;
     }
 
-    public String getUserUsing() {
-        return userUsing;
-    }
-
-    public void load(File file) throws IOException, ClassNotFoundException {
+    public static void load() throws IOException, ClassNotFoundException {
         FileInputStream fileInputStream = new FileInputStream(IOFile);
         ObjectInputStream objectInputStream = new ObjectInputStream(fileInputStream);
         instance = (Mysql) objectInputStream.readObject();
         objectInputStream.close();
     }
 
-    public void save(File file) throws IOException {
+    public String getUserUsing() {
+        return userUsing;
+    }
+
+    public void save() throws IOException {
         FileOutputStream fileOutputStream = new FileOutputStream(IOFile);
         ObjectOutputStream objectOutputStream = new ObjectOutputStream(fileOutputStream);
         objectOutputStream.writeObject(instance);

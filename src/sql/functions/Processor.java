@@ -42,7 +42,7 @@ public class Processor {
     }
 
     private String getLine() throws IOException {
-        stringBuilder.append("waiting a line\n");
+        stringBuilder.append("waiting\n");
         try {
             return (String) reader.readObject();
         } catch (ClassNotFoundException ignored) {
@@ -97,6 +97,9 @@ public class Processor {
                         break;
                     case "ADD":
                         add(sp);
+                        break;
+                    case "SAVE":
+                        sql.save();
                         break;
                     default:
                         throw new WrongCommandException("超出指令范围");

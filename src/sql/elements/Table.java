@@ -1,5 +1,7 @@
 package sql.elements;
 
+import java.io.File;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -19,7 +21,7 @@ import sql.functions.BTree;
 import sql.functions.GetSame;
 import sql.functions.Hash;
 
-public class Table {
+public class Table implements Serializable {
 
     public String name;
     public Database database;
@@ -28,9 +30,9 @@ public class Table {
     boolean locked = false;
     int idCount = 0;
     BTree<Long> indexTree = new BTree<>();
+    DataIOer dataIOer;
     private int columnCount = 0;
     private int onShowColumnCount = 0;
-    private DataIOer dataIOer;
 
     @Contract(pure = true)
     Table(String name, Database database, boolean reset) {
@@ -428,6 +430,13 @@ public class Table {
             size.add(x.maxLength);
         }
         return size;
+    }
+
+    public void changeName(String oldOne, String newOne) {
+        File file = new File(this.dataIOer.filePath);
+        this.dataIOer.filePath = DataIOer.defaultFile + this.database.name + "\\" + newOne + "\\";
+        file.renameTo(new File(this.dataIOer.filePath));
+        this.name = newOne;
     }
 }
 
