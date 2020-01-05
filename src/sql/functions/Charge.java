@@ -410,7 +410,7 @@ public class Charge {
             Collections.singletonList(new Order(table, s[7], s[9])));
         ArrayList<Order> update = new ArrayList<>(
             Collections.singletonList(new Order(table, s[3], s[5])));
-        table.update(search, update);
+        table.update(update, search);
     }
 
     //删除库、表、列
