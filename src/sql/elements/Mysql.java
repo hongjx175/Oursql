@@ -23,12 +23,15 @@ public class Mysql implements Serializable {
     ArrayList<Database> databases = new ArrayList<>();
     transient private String userUsing = null;
 
-    private Mysql() throws NotFoundException, IsExistedException {
-        passwordList.put(defaultUsername, defaultPassword);
-        databases.add(new Database("default"));
+    private Mysql() {
+        try {
+            passwordList.put(defaultUsername, defaultPassword);
+            databases.add(new Database("default"));
+        } catch (Exception ignored) {
+        }
     }
 
-    public static Mysql getInstance() throws NotFoundException, IsExistedException {
+    public static Mysql getInstance() {
         if (instance == null) {
             instance = new Mysql();
         }

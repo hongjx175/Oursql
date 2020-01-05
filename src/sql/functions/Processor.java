@@ -5,7 +5,6 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Scanner;
 import org.jetbrains.annotations.NotNull;
 import sql.elements.Column;
 import sql.elements.Database;
@@ -25,21 +24,16 @@ import sql.exceptions.WrongCommandException;
 
 public class Processor {
 
-    static Mysql sql;
+    static Mysql sql = Mysql.getInstance();
     Database database;
     ObjectInputStream reader;
     ObjectOutputStream writer;
     StringBuilder stringBuilder;
-    Scanner scanner = new Scanner(System.in);
+//    Scanner scanner = new Scanner(System.in);
 
     public Processor(ObjectInputStream reader, ObjectOutputStream writer) {
-        try {
-            sql = Mysql.getInstance();
-            this.reader = reader;
-            this.writer = writer;
-        } catch (NotFoundException | IsExistedException e) {
-            e.printStackTrace();
-        }
+        this.reader = reader;
+        this.writer = writer;
     }
 
     static boolean notCompare(@NotNull String a, String b) {
@@ -48,10 +42,11 @@ public class Processor {
 
     private String getLine() throws IOException {
         stringBuilder.append("waiting a line\n");
-        String str = scanner.nextLine();
-//            String str = (String) this.reader.readObject();
-//        stringBuilder.append(str).append("\n");
-        return str;
+        try {
+            return (String) reader.readObject();
+        } catch (ClassNotFoundException ignored) {
+        }
+        return "";
     }
 
     @NotNull
@@ -65,7 +60,7 @@ public class Processor {
         return ss.toArray(new String[0]);
     }
 
-    public String process() throws IOException {
+    public String process() {
         String cmd = "";
         stringBuilder = new StringBuilder();
         try {
@@ -108,8 +103,11 @@ public class Processor {
             stringBuilder.append(e.getMessage()).append("\n");
             e.printStackTrace();
         }
-//        writer.writeObject(stringBuilder.toString());
-        System.out.print(stringBuilder.toString());
+        try {
+            writer.writeObject(stringBuilder.toString());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         return cmd;
     }
 

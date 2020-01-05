@@ -13,15 +13,10 @@ public class Client implements Port {
             Socket socket = new Socket(serverIP, port);
             ObjectInputStream reader = new ObjectInputStream(socket.getInputStream());
             ObjectOutputStream writer = new ObjectOutputStream(socket.getOutputStream());
-            int n = Integer.parseInt(scan.nextLine());
-            for (int i = 0; i < n; i++) {
-                writer.writeObject(scan.nextLine());
-                String string = (String) reader.readObject();
-                System.out.println(string);
-            }
+            System.out.print(reader.readObject());
             while (true) {
-                String string = (String) reader.readObject();
-                System.out.println(string);
+                writer.writeObject(scan.nextLine());
+                System.out.print(reader.readObject());
             }
         } catch (Exception e) {
             e.printStackTrace();
