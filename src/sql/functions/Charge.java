@@ -362,10 +362,10 @@ public class Charge {
     private void printLines(@NotNull ArrayList<Line> lines, @NotNull Table table) {
         ArrayList<String> colNames = table.getColumnNames();
         for (Line line : lines) {
-            for (int i = 0; i < colNames.size(); i++) {
-                stringBuilder.append(colNames.get(i));
+            for (String str : colNames) {
+                stringBuilder.append(str);
                 stringBuilder.append(": ");
-                stringBuilder.append(line.data.get(i).getValue());
+                stringBuilder.append(line.data.get(table.getColumn(str).id).getValue());
                 stringBuilder.append("; ");
             }
             stringBuilder.append("\n");

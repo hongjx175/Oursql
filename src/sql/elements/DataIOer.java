@@ -68,7 +68,7 @@ public class DataIOer implements Serializable {
                 }
                 int i;
                 for (i = 0; i < stringBuilder.length(); i++) {
-                    if (stringBuilder.charAt(i) == 0) {
+                    if (stringBuilder.charAt(i) == 32 || stringBuilder.charAt(i) == 0) {
                         break;
                     }
                 }
@@ -143,7 +143,7 @@ public class DataIOer implements Serializable {
             int nextBlock = Caster.bytesToInt(bytes);
             ioFile.read(bytes, 0, intSize);
             int nextIndex = Caster.bytesToInt(bytes);
-            if (nextBlock != 0 && nextIndex != 0) {
+            if (nextBlock != 0 || nextIndex != 0) {
                 str += getString(nextBlock, nextIndex);
             }
             ioFile.close();
