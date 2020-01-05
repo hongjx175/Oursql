@@ -70,36 +70,39 @@ public class Processor {
         stringBuilder = new StringBuilder();
         try {
             cmd = this.getLine();
-            String[] sp = cmd.split(" ");
-            sp = removeNull(sp);
-            sp[0] = sp[0].toUpperCase();
-            switch (sp[0]) {
-                case "ALTER":
-                    alter(sp);
-                    break;
-                case "SELECT":
-                    select(cmd);
-                    break;
-                case "DELETE":
-                    delete(sp);
-                    break;
-                case "DROP":
-                    drop(sp);
-                    break;
-                case "UPDATE":
-                    update(sp);
-                    break;
-                case "INSERT":
-                    insert(sp);
-                    break;
-                case "CREATE":
-                    create(sp);
-                    break;
-                case "ADD":
-                    add(sp);
-                    break;
-                default:
-                    throw new WrongCommandException("超出指令范围");
+            if (!cmd.equals("")) {
+                String[] sp = cmd.split(" ");
+                sp = removeNull(sp);
+                sp[0] = sp[0].toUpperCase();
+                switch (sp[0]) {
+                    case "ALTER":
+                        alter(sp);
+                        break;
+                    case "SELECT":
+                        select(cmd);
+                        break;
+                    case "DELETE":
+                        delete(sp);
+                        break;
+                    case "DROP":
+                        drop(sp);
+                        break;
+                    case "UPDATE":
+                        update(sp);
+                        break;
+                    case "INSERT":
+                        insert(sp);
+                        break;
+                    case "CREATE":
+                        create(sp);
+                        break;
+                    case "ADD":
+                        add(sp);
+                        break;
+                    default:
+                        throw new WrongCommandException("超出指令范围");
+                }
+
             }
         } catch (Exception e) {
             stringBuilder.append(e.getMessage()).append("\n");
