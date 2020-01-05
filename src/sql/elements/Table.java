@@ -11,6 +11,7 @@ import sql.exceptions.DataInvalidException;
 import sql.exceptions.IsExistedException;
 import sql.exceptions.LengthIncorrectException;
 import sql.exceptions.NotFoundException;
+import sql.exceptions.NotNullException;
 import sql.exceptions.TooLongException;
 import sql.exceptions.UnknownSequenceException;
 import sql.exceptions.WaitingException;
@@ -191,7 +192,8 @@ public class Table {
         this.onShowColumnCount--;
     }
 
-    public void insertByOrders(@NotNull ArrayList<Order> orders) throws TooLongException {
+    public void insertByOrders(@NotNull ArrayList<Order> orders)
+        throws TooLongException, NotNullException {
         if (this.locked) {
             throw new WaitingException();
         }
@@ -200,6 +202,11 @@ public class Table {
         d[getColumn("#isDel").id] = new Data("1");
         for (Order x : orders) {
             d[x.column.id] = x.value;
+        }
+        for (Column column : this.columnList) {
+            if (!column.canNull && d[column.id] == null) {
+                throw new NotNullException(column.name);
+            }
         }
         newData.data = new ArrayList<>(Arrays.asList(d));
         indexTree.add(idCount++,
