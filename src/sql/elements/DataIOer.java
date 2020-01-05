@@ -130,6 +130,10 @@ public class DataIOer implements Serializable {
         }
     }
 
+    public void resetLine(long position, ArrayList<Order> change) {
+        
+    }
+
     @NotNull
     private String getString(int strBlock, int strIndex) {
         try {

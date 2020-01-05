@@ -335,11 +335,7 @@ public class Table {
         }
         ArrayList<Integer> result = selectWhereIntoNumbers(where);
         for (int x : result) {
-            for (Order y : set) {
-                Line line = this.getLineByIndex(x);
-                Data datum = line.data.get(y.column.id);
-                datum.setValue(y.column, y.value.getValue());
-            }
+            dataIOer.resetLine(indexTree.get(x), set);
         }
     }
 
