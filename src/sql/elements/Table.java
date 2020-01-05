@@ -132,7 +132,7 @@ public class Table {
     }
 
     private void insertByLine(@NotNull Line line) {
-        this.indexTree.add(idCount++, dataIOer.setLine(line));
+        this.indexTree.add(idCount++, dataIOer.setLine(line, -1));
     }
 
     private void addColumn(@NotNull Column column) throws IsExistedException {
@@ -188,7 +188,7 @@ public class Table {
         }
         newData.data = new ArrayList<>(Arrays.asList(d));
         indexTree.add(idCount++,
-            dataIOer.setLine(new Line(new ArrayList<>(Arrays.asList(d)), this.columnList)));
+            dataIOer.setLine(new Line(new ArrayList<>(Arrays.asList(d)), this.columnList), -1));
     }
 
     @NotNull
@@ -335,7 +335,12 @@ public class Table {
         }
         ArrayList<Integer> result = selectWhereIntoNumbers(where);
         for (int x : result) {
-            dataIOer.resetLine(indexTree.get(x), set);
+            Line line = this.getLineByIndex(x);
+            for (Order y : set) {
+                Data datum = line.data.get(y.column.id);
+                datum.setValue(y.column, y.value.getValue());
+            }
+            dataIOer.setLine(line, indexTree.get(x));
         }
     }
 
