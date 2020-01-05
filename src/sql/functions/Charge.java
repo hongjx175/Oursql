@@ -114,10 +114,11 @@ public class Charge {
         throws WrongCommandException, NotAlterException, NotFoundException, IsExistedException {
         //ALTER TABLE table_name (MODIFY NAME = new_tbname)
         //ALTER DATABASE database_name (MODIFY NAME = new_dbname)
+        //alter table 表名 rename column 原列名 to 新列名
         if ((!s[1].equalsIgnoreCase("TABLE") && !s[1].equalsIgnoreCase("DATABASE"))) {
             throw new WrongCommandException("ATLER:请对TABLE和DATABASE操作");
         }
-        if (s.length != 3 && s.length != 7) {
+        if (s.length != 3 && s.length != 7 && s.length != 8) {
             throw new WrongCommandException("ALTER:指令长度不合法，请注意空格位置");
         }
         if (s.length == 7 && (!s[3].equalsIgnoreCase("MODIFY") || !s[5].equals("=") || !s[4]
@@ -132,6 +133,14 @@ public class Charge {
             }
             if (s.length == 7) {
                 database.changeTableName(s[2], s[6]);
+            }
+            if (s.length == 8) {
+                if (!s[3].equalsIgnoreCase("RENAME") || !s[4].equalsIgnoreCase("COLUMN") || !s[6]
+                    .equalsIgnoreCase("TO")) {
+                    throw new WrongCommandException("修改列名指令出错");
+                }
+                Table table = database.choosingTable;
+                table.changeColumnName(s[5], s[7]);
             }
         }
         if (s[1].equalsIgnoreCase("DATABASE")) {
