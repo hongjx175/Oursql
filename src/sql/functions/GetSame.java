@@ -14,7 +14,7 @@ public class GetSame {
         HashMap<T, Integer> hashMap = new HashMap<>();
         for (ArrayList<T> x : list) {
             for (T data : x) {
-                hashMap.compute(data, (k, v) -> v != null ? v++ : 1);
+                hashMap.compute(data, (k, v) -> v != null ? ++v : 1);
             }
         }
         for (Map.Entry<T, Integer> entry : hashMap.entrySet()) {
@@ -32,7 +32,7 @@ public class GetSame {
         HashMap<T, Integer> hashMap = new HashMap<>();
         for (T[] x : list) {
             for (T data : x) {
-                hashMap.compute(data, (k, v) -> v != null ? v++ : 1);
+                hashMap.compute(data, (k, v) -> v != null ? ++v : 1);
             }
         }
         for (Map.Entry<T, Integer> entry : hashMap.entrySet()) {
@@ -49,7 +49,7 @@ public class GetSame {
         HashMap<T, Integer> hashMap = new HashMap<>();
         for (ArrayList<T> x : list) {
             for (T data : x) {
-                hashMap.compute(data, (k, v) -> v != null ? v++ : 1);
+                hashMap.compute(data, (k, v) -> v != null ? ++v : 1);
             }
         }
         for (Map.Entry<T, Integer> entry : hashMap.entrySet()) {

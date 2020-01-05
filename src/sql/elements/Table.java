@@ -207,7 +207,7 @@ public class Table implements Serializable {
     private ArrayList<Integer> selectInIndex(HashMap<Column, Data> map, @NotNull HashIndex index) {
         StringBuilder str = new StringBuilder();
         for (Column x : index.columns) {
-            str.append(map.get(x));
+            str.append(map.get(x).getValue());
         }
         int hash1 = Hash.getHash1(str.toString());
         int hash2 = Hash.getHash2(str.toString());
@@ -388,7 +388,7 @@ public class Table implements Serializable {
         for (int i = 0; i < this.idCount; i++) {
             StringBuilder stringBuilder = new StringBuilder();
             for (int id : num) {
-                stringBuilder.append(this.getLineByIndex(i).data.get(id));
+                stringBuilder.append(this.getLineByIndex(i).data.get(id).getValue());
             }
             int hash1 = Hash.getHash1(stringBuilder.toString());
             int hash2 = Hash.getHash2(stringBuilder.toString());
