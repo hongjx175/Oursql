@@ -188,7 +188,8 @@ public class Processor {
         if (database == null) {
             throw new NotAlterException();
         }
-        String[] sp = s.split("SELECT | FROM | WHERE | ORDER BY ");
+        String[] sp = s
+            .split("SELECT | FROM | WHERE | ORDER BY |select | from | where | order by ");
         sp = removeNull(sp);
         Table table = database.getTable(sp[1]);
         String[] sp1 = s.split(" ");
