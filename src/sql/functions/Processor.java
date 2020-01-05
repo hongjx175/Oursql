@@ -371,7 +371,7 @@ public class Processor {
         ArrayList<String> strings = table.getColumnNames(where);
         for (Line line : lines) {
             for (String string : strings) {
-                stringBuilder.append(string);
+                stringBuilder.append("\t" + string);
                 stringBuilder.append(":");
                 stringBuilder
                     .append(line.data.get(table.getColumn(string).id).getValue());
