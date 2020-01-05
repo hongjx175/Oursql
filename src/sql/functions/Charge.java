@@ -365,7 +365,7 @@ public class Charge {
             for (int i = 0; i < colNames.size(); i++) {
                 stringBuilder.append(colNames.get(i));
                 stringBuilder.append(": ");
-                stringBuilder.append(line.data.get(i));
+                stringBuilder.append(line.data.get(i).getValue());
                 stringBuilder.append("; ");
             }
             stringBuilder.append("\n");
