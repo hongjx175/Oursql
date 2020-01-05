@@ -51,24 +51,11 @@ public class Table {
     }
 
     @NotNull
-    private ArrayList<String> getColumnNames() {
+    public ArrayList<String> getColumnNames(ArrayList<Column> columns) {
         ArrayList<String> colNames = new ArrayList<>();
-        for (Column c : this.columnList) {
+        for (Column c : columns == null ? this.columnList : columns) {
             if (c.canShow) {
                 colNames.add(c.getName());
-            }
-        }
-        return colNames;
-    }
-
-    public ArrayList<String> getColumnNames(ArrayList<Order> orders) {
-        if (orders == null) {
-            return getColumnNames();
-        }
-        ArrayList<String> colNames = new ArrayList<>();
-        for (Order order : orders) {
-            if (order.column.canShow) {
-                colNames.add(order.column.name);
             }
         }
         return colNames;
