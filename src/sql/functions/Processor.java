@@ -521,7 +521,6 @@ public class Processor {
             if (database == null) {
                 throw new NotAlterException();
             }
-            int colNum = 0;
             ArrayList<Column> cols = new ArrayList<>();
             this.getLine();
             String str = this.getLine();
