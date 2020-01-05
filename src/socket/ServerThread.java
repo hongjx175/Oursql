@@ -63,17 +63,20 @@ public class ServerThread implements Runnable {
             String tip = "", username, password;
             boolean ok;
             do {
-                tip += "请输入用户名\n";
+                writer.writeObject("请输入用户名\n");
+                writer.writeObject("waiting");
                 writer.writeObject(tip);
                 username = (String) reader.readObject();
-                tip = "请输入密码\n";
+                writer.writeObject("请输入密码\n");
+                writer.writeObject("waiting");
                 writer.writeObject(tip);
                 password = (String) reader.readObject();
                 ok = sql.login(username, password);
                 if (ok) {
                     writer.writeObject("登录成功\n");
+                    writer.writeObject("waiting");
                 } else {
-                    tip += "用户名或密码错误，请重新登录\n";
+                    writer.writeObject("用户名或密码错误，请重新登录\n");
                 }
             } while (!ok);
         } catch (ClassNotFoundException ignored) {

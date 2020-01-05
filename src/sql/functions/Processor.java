@@ -8,6 +8,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import org.jetbrains.annotations.NotNull;
 import sql.elements.Column;
+import sql.elements.Data;
 import sql.elements.Database;
 import sql.elements.Line;
 import sql.elements.Mysql;
@@ -29,8 +30,6 @@ public class Processor {
     Database database;
     ObjectInputStream reader;
     ObjectOutputStream writer;
-    StringBuilder stringBuilder;
-//    Scanner scanner = new Scanner(System.in);
 
     public Processor(ObjectInputStream reader, ObjectOutputStream writer) {
         this.reader = reader;
@@ -42,7 +41,7 @@ public class Processor {
     }
 
     private String getLine() throws IOException {
-        stringBuilder.append("waiting\n");
+        writer.writeObject("waiting");
         try {
             return (String) reader.readObject();
         } catch (ClassNotFoundException ignored) {
@@ -63,7 +62,6 @@ public class Processor {
 
     public String process() {
         String cmd = "";
-        stringBuilder = new StringBuilder();
         try {
             cmd = this.getLine();
             if (!cmd.equals("")) {
@@ -104,15 +102,14 @@ public class Processor {
                     default:
                         throw new WrongCommandException("超出指令范围");
                 }
+                writer.writeObject("done\n");
             }
         } catch (Exception e) {
-            stringBuilder.append(e.getMessage()).append("\n");
-            e.printStackTrace();
-        }
-        try {
-            writer.writeObject(stringBuilder.toString());
-        } catch (Exception e) {
-            e.printStackTrace();
+            try {
+                writer.writeObject(e.getMessage() + "\n");
+                e.printStackTrace();
+            } catch (Exception ignored) {
+            }
         }
         return cmd;
     }
@@ -260,7 +257,7 @@ public class Processor {
                     if (orderbys[i + 1].equalsIgnoreCase("DESC")) {
                         ord = "-1";
                     }
-                    orderby.add(new Order(table, orderbys[i], ord));
+                    orderby.add(new Order(table, orderbys[i], new Data(ord)));
                 }
                 String[] wheres = sp[2].split("[ =]");
                 wheres = removeNull(wheres);
@@ -370,6 +367,7 @@ public class Processor {
     private void printLines(@NotNull ArrayList<Line> lines, @NotNull Table table,
         ArrayList<Column> where) {
         ArrayList<String> strings = table.getColumnNames(where);
+        StringBuilder stringBuilder = new StringBuilder();
         for (Line line : lines) {
             for (String string : strings) {
                 stringBuilder.append("\t" + string);
@@ -379,6 +377,10 @@ public class Processor {
                 stringBuilder.append("; ");
             }
             stringBuilder.append("\n");
+        }
+        try {
+            writer.writeObject(stringBuilder.toString());
+        } catch (Exception ignored) {
         }
     }
 
@@ -544,7 +546,7 @@ public class Processor {
         }
     }
 
-    private void createIndex(String[] sp)
+    private void createIndex(@NotNull String[] sp)
         throws WrongCommandException, NotFoundException, IsExistedException {
         //CREATEINDEX UNIQUE index_name ON table_name column_name
         //CREATEINDEX index_name ON table_name column_name

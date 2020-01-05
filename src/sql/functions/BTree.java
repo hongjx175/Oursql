@@ -1,12 +1,13 @@
 package sql.functions;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Random;
 import org.jetbrains.annotations.NotNull;
 
-public class BTree<V> {
+public class BTree<V> implements Serializable {
 
     private Node<V> root = new Node<>(null, true, 0);
 
@@ -37,7 +38,7 @@ public class BTree<V> {
     }
 }
 
-class Node<V> {
+class Node<V> implements Serializable {
 
     public static final int n = 5;
     public static final long inf = (long) 1e18;
@@ -267,7 +268,7 @@ class Controller {
     }
 }
 
-class NeedRenew {
+class NeedRenew implements Serializable {
 
     public Object node;
     public long hash;

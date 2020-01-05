@@ -17,9 +17,9 @@ public class Mysql implements Serializable {
     transient private static final String defaultUsername = "root";
     transient private static final String defaultPassword = "123456";
     transient private static final String IOFile = "D:\\sql\\main.db";
-    private static HashMap<String, String> passwordList = new HashMap<>();
     transient private static Mysql instance = null;
     ArrayList<Database> databases = new ArrayList<>();
+    private HashMap<String, String> passwordList = new HashMap<>();
     transient private String userUsing = null;
 
     private Mysql() {

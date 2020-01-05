@@ -38,12 +38,12 @@ public class Order {
     }
 
     @NotNull
-    public static Column[] castNameList(@NotNull ArrayList<Order> orders) {
+    public static ArrayList<Column> castNameList(@NotNull ArrayList<Order> orders) {
         ArrayList<Column> array = new ArrayList<>();
         for (Order x : orders) {
             array.add(x.column);
         }
-        return (Column[]) array.toArray();
+        return array;
     }
 
     @Override

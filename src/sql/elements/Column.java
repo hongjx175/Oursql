@@ -1,11 +1,12 @@
 package sql.elements;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import org.jetbrains.annotations.Contract;
 import sql.exceptions.NotFoundException;
 
-public class Column {
+public class Column implements Serializable {
 
     private static ArrayList<String> typeList = new ArrayList<>(
         Arrays.asList("String", "CardID", "Number", "Integer", "PhoneNumber", "Date", "Time"));

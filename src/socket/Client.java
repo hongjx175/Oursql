@@ -13,10 +13,19 @@ public class Client implements Port {
             Socket socket = new Socket(serverIP, port);
             ObjectInputStream reader = new ObjectInputStream(socket.getInputStream());
             ObjectOutputStream writer = new ObjectOutputStream(socket.getOutputStream());
-            System.out.print(reader.readObject());
+            String strs = (String) reader.readObject();
+            while (!strs.equals("waiting")) {
+                System.out.print(strs);
+                strs = (String) reader.readObject();
+            }
             while (true) {
                 writer.writeObject(scan.nextLine());
-                System.out.print(reader.readObject());
+                String str = (String) reader.readObject();
+                while (!str.equals("waiting")) {
+                    System.out.print(str);
+                    str = (String) reader.readObject();
+                }
+//                System.out.println("waiting");
             }
         } catch (Exception e) {
             e.printStackTrace();

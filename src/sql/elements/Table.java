@@ -260,8 +260,8 @@ public class Table implements Serializable {
             map.putIfAbsent(x.column, x.value);
         }
         for (HashIndex index : this.indexList) {
-            if (GetSame.getSame(index.columns.toArray(new Column[0]),
-                Order.castNameList(where)).length == index.columns.size()) {
+            if (GetSame.getSame(index.columns, Order.castNameList(where)).size() == index.columns
+                .size()) {
                 indexMatched = true;
                 HashMap<Column, Data> checkList = new HashMap<>();
                 for (Column x : index.columns) {
@@ -363,6 +363,7 @@ public class Table implements Serializable {
         for (int x : result) {
             Line line = getLineByIndex(x);
             line.data.get(getColumn("#isDel").id).setValue("0");
+            dataIOer.setLine(line, indexTree.get(x));
         }
     }
 
