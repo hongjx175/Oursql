@@ -64,7 +64,7 @@ public class Column {
     @Override
     public boolean equals(Object obj) {
         if (obj instanceof Column) {
-            return this.name.equals(((Column) obj).name);
+            return this.name.equals(((Column) obj).name) && this.id == ((Column) obj).id;
         }
         return super.equals(obj);
     }

@@ -94,7 +94,6 @@ public class Table {
         if (this.locked) {
             throw new WaitingException();
         }
-        ArrayList<Column> oldList = new ArrayList<>(this.columnList);
         for (Column column : columns) {
             this.addColumn(column);
         }
@@ -107,6 +106,9 @@ public class Table {
                 Line line = getLineByIndex(x);
                 if (line.data.get(getColumn("#isDel").id).getValue().equals("0")) {
                     continue;
+                }
+                for (Column w : columns) {
+                    line.data.add(new Data(""));
                 }
                 tmp.insertByLine(line);
             }
@@ -160,6 +162,7 @@ public class Table {
         if (x == null) {
             throw new NotFoundException("column", name);
         }
+        this.indexList.removeIf(index -> index.columns.contains(x));
         x.isDeleted = true;
         x.canShow = false;
         x.name = "#" + x.name + x.hashCode();
