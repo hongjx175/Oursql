@@ -253,7 +253,8 @@ public class Table {
         if (this.locked) {
             throw new WaitingException();
         }
-        ArrayList<Integer> result = selectWhereIntoNumbers(where);
+
+        ArrayList<Integer> result = where == null ? getAll() : selectWhereIntoNumbers(where);
         ArrayList<Line> array = new ArrayList<>();
         for (int i : result) {
             Line tmp = this.getLineByIndex(i), add = new Line();
@@ -282,6 +283,19 @@ public class Table {
             Collections.sort(array);
         }
         return array;
+    }
+
+    @NotNull
+    private ArrayList<Integer> getAll() {
+        ArrayList<Integer> list = new ArrayList<>();
+        for (int i = 0; i < idCount; i++) {
+            Line line = getLineByIndex(i);
+            if (line.data.get(getColumn("#isDel").id).getValue().equals("0")) {
+                continue;
+            }
+            list.add(i);
+        }
+        return list;
     }
 
     public void update(@NotNull ArrayList<Order> set, @NotNull ArrayList<Order> where)
