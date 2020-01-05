@@ -63,7 +63,7 @@ public class Database implements Serializable {
         File oldFile = new File(DataIOer.defaultFile + this.name + "\\");
         oldFile.renameTo(new File(DataIOer.defaultFile + newName + "\\"));
         for (Table table : this.tables) {
-            table.dataIOer.filePath = DataIOer.defaultFile + newName + "\\";
+            table.dataIOer.filePath = DataIOer.defaultFile + newName + "\\" + table.name + "\\";
         }
         this.name = newName;
     }
