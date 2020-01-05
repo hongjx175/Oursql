@@ -99,6 +99,7 @@ public class Processor {
                         break;
                     case "CREATEINDEX":
                         createIndex(sp);
+                        break;
                     case "ADD":
                         add(sp);
                         break;
