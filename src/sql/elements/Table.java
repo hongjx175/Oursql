@@ -287,27 +287,24 @@ public class Table {
         ArrayList<Integer> result = where == null ? getAll() : selectWhereIntoNumbers(where);
         ArrayList<Line> array = new ArrayList<>();
         for (int i : result) {
-            Line tmp = this.getLineByIndex(i), add = new Line();
-            for (Column j : columns) {
-                add.data.add(tmp.data.get(j.id));
-            }
+            Line tmp = this.getLineByIndex(i);
             if (orderBy != null && orderBy.size() != 0) {
                 for (Order j : orderBy) {
                     String s = tmp.data.get(j.column.id).getValue();
-                    add.cmp = new StringBuilder();
+                    tmp.cmp = new StringBuilder();
                     int len = s.length();
                     for (int ch = 0; ch < len; ch++) {
                         if (j.value.getValue().equals("1")) {
-                            add.cmp.append(s.charAt(ch));
+                            tmp.cmp.append(s.charAt(ch));
                         } else if (j.value.getValue().equals("-1")) {
-                            add.cmp.append((char) (65536 - s.charAt(ch)));
+                            tmp.cmp.append((char) (65536 - s.charAt(ch)));
                         } else {
                             throw new UnknownSequenceException();
                         }
                     }
                 }
             }
-            array.add(add);
+            array.add(tmp);
         }
         if (orderBy != null && orderBy.size() != 0) {
             Collections.sort(array);
