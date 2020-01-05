@@ -94,15 +94,38 @@ public class Table {
         if (this.locked) {
             throw new WaitingException();
         }
-        ArrayList<Column> oldList = new ArrayList<>(this.columnList);
         for (Column column : columns) {
             this.addColumn(column);
         }
         if (this.idCount != 0) {
             this.locked = true;
-            this.dataIOer.onColumnAdd(oldList, this.columnList);
+            this.database.newTable("#tmp" + this.name, this.columnList, null);
+            Table tmp = this.database.getTable("#tmp" + this.name);
+            ArrayList<Integer> list = getAll();
+            for (int x : list) {
+                Line line = getLineByIndex(x);
+                if (line.data.get(getColumn("#isDel").id).getValue().equals("0")) {
+                    continue;
+                }
+                for (Column w : columns) {
+                    line.data.add(new Data(""));
+                }
+                tmp.insertByLine(line);
+            }
+            String name = this.name;
+            try {
+                this.database.changeTableName(name, "#name" + name);
+                this.database.changeTableName("#tmp" + name, name);
+                this.database.deleteTable("#name" + name);
+            } catch (NotFoundException e) {
+                e.printStackTrace();
+            }
             this.locked = false;
         }
+    }
+
+    private void insertByLine(@NotNull Line line) {
+        this.indexTree.add(idCount++, dataIOer.setLine(line));
     }
 
     private void addColumn(@NotNull Column column) throws IsExistedException {
@@ -139,6 +162,7 @@ public class Table {
         if (x == null) {
             throw new NotFoundException("column", name);
         }
+        this.indexList.removeIf(index -> index.columns.contains(x));
         x.isDeleted = true;
         x.canShow = false;
         x.name = "#" + x.name + x.hashCode();
@@ -160,7 +184,6 @@ public class Table {
             dataIOer.setLine(new Line(new ArrayList<>(Arrays.asList(d)), this.columnList)));
     }
 
-    // TODO: 2019/12/26 all the select unchecked
     @NotNull
     @SuppressWarnings("unchecked")
     private ArrayList<Integer> selectInIndex(HashMap<Column, Data> map, @NotNull HashIndex index) {
@@ -279,7 +302,7 @@ public class Table {
             }
             array.add(add);
         }
-        if (orderBy == null || orderBy.size() != 0) {
+        if (orderBy != null && orderBy.size() != 0) {
             Collections.sort(array);
         }
         return array;
@@ -372,19 +395,6 @@ public class Table {
         setIndexByColumns(type, name, columns);
     }
 
-    public void delete(@NotNull ArrayList<Order> where) throws NotFoundException {
-        if (this.locked) {
-            throw new WaitingException();
-        }
-        ArrayList<Integer> result = selectWhereIntoNumbers(where);
-        if (result.isEmpty()) {
-            throw new NotFoundException("data", "your information");
-        }
-        for (int x : result) {
-            Line line = this.getLineByIndex(x);
-            line.data.get(getColumn("#isDel").id).setValue("0");
-        }
-    }
 
     @Override
     public boolean equals(Object obj) {

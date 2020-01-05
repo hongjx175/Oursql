@@ -38,7 +38,7 @@ public class Line implements Comparable<Line> {
     }
 
     boolean equals(@NotNull Line rt) {
-        return this.cmp.equals(rt.cmp);
+        return this.cmp.toString().equals(rt.cmp.toString());
     }
 
 }
