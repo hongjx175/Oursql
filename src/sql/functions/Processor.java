@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Scanner;
 import org.jetbrains.annotations.NotNull;
@@ -19,6 +18,7 @@ import sql.exceptions.DataInvalidException;
 import sql.exceptions.IsExistedException;
 import sql.exceptions.NotAlterException;
 import sql.exceptions.NotFoundException;
+import sql.exceptions.NotNullException;
 import sql.exceptions.TooLongException;
 import sql.exceptions.UnknownSequenceException;
 import sql.exceptions.WrongCommandException;
@@ -182,7 +182,7 @@ public class Processor {
         //SELECT Company,OrderNumber/* FROM Orders WHERE 列 = 值
         //SELECT Company,OrderNumber FROM Orders ORDER BY Company DESC,OrderNumber ASC
         //SELECT Company,OrderNumber FROM Orders WHERE 列 = 值 ORDER BY Company DESC,OrderNumber ASC
-        ArrayList<Order> myWhere = null;
+        ArrayList<Column> myWhere = null;
         ArrayList<Line> lines = new ArrayList<>();
         if (database == null) {
             throw new NotAlterException();
@@ -239,7 +239,6 @@ public class Processor {
                         where.add(new Order(table, wheres[i], wheres[i + 1]));
                     }
                     lines = database.selectAll(sp[1], where, null);
-                    myWhere = where;
                 }
             } else if (sp.length == 4) {//WHERE和ORDER BY都有
                 if (!hasWHERE || !hasORDER) {
@@ -269,7 +268,6 @@ public class Processor {
                     where.add(new Order(table, wheres[i], wheres[i + 1]));
                 }
                 lines = database.selectAll(sp[1], where, orderby);
-                myWhere = where;
             } else if (sp.length == 2) {
                 if (hasORDER || hasWHERE) {
                     throw new WrongCommandException("SELECT6");
@@ -283,10 +281,11 @@ public class Processor {
             // SELECT Company,OrderNumber FROM Orders WHERE 列 = 值 ORDER BY Company DESC,OrderNumber ASC
             String[] colName = sp[0].split(",");
             colName = removeNull(colName);
-            Column[] cols = new Column[colName.length];
-            for (int i = 0; i < colName.length; i++) {
-                cols[i] = table.getColumn(colName[i]);
+            ArrayList<Column> cols = new ArrayList<>();
+            for (String value : colName) {
+                cols.add(table.getColumn(value));
             }
+            myWhere = cols;
             if (sp.length == 3) {//WHERE和ORDER BY只有一个
                 if (hasORDER && hasWHERE) {
                     throw new WrongCommandException("SELECT8");
@@ -307,7 +306,7 @@ public class Processor {
                         orderby.add(new Order(table, orderbys[i], ord));
                     }
                     lines = database
-                        .select(sp[1], new ArrayList<>(Arrays.asList(cols)), null, orderby);
+                        .select(sp[1], cols, null, orderby);
                 }
                 if (hasWHERE) {
                     //SELECT * FROM Orders WHERE 列 = 值
@@ -321,8 +320,7 @@ public class Processor {
                         where.add(new Order(table, wheres[i], wheres[i + 1]));
                     }
                     lines = database
-                        .select(sp[1], new ArrayList<>(Arrays.asList(cols)), where, null);
-                    myWhere = where;
+                        .select(sp[1], cols, where, null);
                 }
             } else if (sp.length == 4) {//WHERE和ORDER BY都有
                 if (!hasORDER || !hasWHERE) {
@@ -351,14 +349,12 @@ public class Processor {
                     where.add(new Order(table, wheres[i], wheres[i + 1]));
                 }
                 lines = database
-                    .select(sp[1], new ArrayList<>(Arrays.asList(cols)), where, orderby);
-                myWhere = where;
+                    .select(sp[1], cols, where, orderby);
             } else if (sp.length == 2) {
                 if (hasORDER || hasWHERE) {
                     throw new WrongCommandException("SELECT16");
                 }
-                ArrayList<Column> columns = new ArrayList<>(Arrays.asList(cols));
-                lines = database.select(sp[1], columns, null, null);
+                lines = database.select(sp[1], cols, null, null);
             } else {
                 throw new WrongCommandException("SELECT17");
             }
@@ -368,7 +364,7 @@ public class Processor {
     }
 
     private void printLines(@NotNull ArrayList<Line> lines, @NotNull Table table,
-        ArrayList<Order> where) {
+        ArrayList<Column> where) {
         ArrayList<String> strings = table.getColumnNames(where);
         for (Line line : lines) {
             for (String string : strings) {
@@ -453,7 +449,7 @@ public class Processor {
 
     //插入行
     private void insert(String[] s)
-        throws NotAlterException, WrongCommandException, DataInvalidException, TooLongException, NotFoundException {
+        throws NotAlterException, WrongCommandException, DataInvalidException, TooLongException, NotFoundException, NotNullException {
         //INSERT INTO 语句用于向表格中插入新的行。
         //INSERT INTO 表名称 VALUES 值1,值2,....
         //INSERT INTO 表名称 列1,列2,... VALUES 值1,值2,....//(指定列)
