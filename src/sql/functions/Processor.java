@@ -106,7 +106,6 @@ public class Processor {
                     default:
                         throw new WrongCommandException("超出指令范围");
                 }
-
             }
         } catch (Exception e) {
             stringBuilder.append(e.getMessage()).append("\n");
@@ -544,7 +543,7 @@ public class Processor {
         }
     }
 
-    public void createIndex(String[] sp)
+    private void createIndex(String[] sp)
         throws WrongCommandException, NotFoundException, IsExistedException {
         //CREATEINDEX UNIQUE index_name ON table_name column_name
         //CREATEINDEX index_name ON table_name column_name
