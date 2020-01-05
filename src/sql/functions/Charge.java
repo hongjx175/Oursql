@@ -205,12 +205,12 @@ public class Charge {
                     if (orderbys.length % 2 != 0) {
                         throw new WrongCommandException("SELECT2");
                     }
-                    for (int i = 0; i < sp.length - 1; i += 2) {
+                    for (int i = 0; i < orderbys.length - 1; i += 2) {
                         String ord = "1";
-                        if (sp[i + 1].equalsIgnoreCase("DESC")) {
+                        if (orderbys[i + 1].equalsIgnoreCase("DESC")) {
                             ord = "-1";
                         }
-                        orderby.add(new Order(table, sp[i], ord));
+                        orderby.add(new Order(table, orderbys[i], ord));
                     }
                     lines = database.selectAll(sp[1], null, orderby);
                 }
@@ -285,12 +285,12 @@ public class Charge {
                     if (orderbys.length % 2 != 0) {
                         throw new WrongCommandException("SELECT9");
                     }
-                    for (int i = 0; i < sp.length - 1; i += 2) {
+                    for (int i = 0; i < orderbys.length - 1; i += 2) {
                         String ord = "1";
-                        if (sp[i + 1].equalsIgnoreCase("DESC")) {
+                        if (orderbys[i + 1].equalsIgnoreCase("DESC")) {
                             ord = "-1";
                         }
-                        orderby.add(new Order(table, sp[i], ord));
+                        orderby.add(new Order(table, orderbys[i], ord));
                     }
                     lines = database
                         .select(sp[1], new ArrayList<>(Arrays.asList(cols)), null, orderby);
@@ -319,12 +319,12 @@ public class Charge {
                 if (orderbys.length % 2 != 0) {
                     throw new WrongCommandException("SELECT12");
                 }
-                for (int i = 0; i < sp.length - 1; i += 2) {
+                for (int i = 0; i < orderbys.length - 1; i += 2) {
                     String ord = "1";
-                    if (sp[i + 1].equalsIgnoreCase("DESC")) {
+                    if (orderbys[i + 1].equalsIgnoreCase("DESC")) {
                         ord = "-1";
                     }
-                    orderby.add(new Order(table, sp[i], ord));
+                    orderby.add(new Order(table, orderbys[i], ord));
                 }
                 String[] wheres = sp[2].split("[ =]");
                 wheres = removeNull(wheres);
@@ -355,7 +355,7 @@ public class Charge {
         ArrayList<String> colNames = table.getColumnNames();
         for (Line line : lines) {
             for (int i = 0; i < colNames.size(); i++) {
-                
+
             }
         }
         //writer.newLine();
